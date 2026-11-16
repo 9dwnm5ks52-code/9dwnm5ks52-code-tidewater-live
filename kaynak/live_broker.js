@@ -78,3 +78,23 @@ function brkTick(A, quotes, now){ const out=[]; for (const o of A.orders) if (o.
 function brkCancel(A, id){ const o=A.orders.find(x=>x.id===id && x.status==='open'); if (!o) return false; o.status='cancelled'; o.why='by a member'; return true; }
 // cash plus every position at the latest price (a short counts as a negative holding)
 function brkEquity(A, quotes){ let v=A.cash; for (const s in A.pos){ const q=quotes[s], p=A.pos[s]; v+=p.q*(q && q.last>0 ? q.last : p.avg); } return v; }
+// the broker's messages in Turkish (the server stores both languages with each order result; the browser uses the same table)
+const BRK_VERB_TR={ 'Bought':'alındı', 'Sold':'satıldı', 'Sold short':'açığa satıldı', 'Covered':'geri alındı (açık kapandı)', 'bought':'alındı', 'sold':'satıldı', 'sold short':'açığa satıldı', 'covered':'geri alındı (açık kapandı)' };
+const BRK_WORD_TR={ buy:'al', sell:'sat', short:'açığa sat', cover:'geri al (açığı kapat)' };
+const BRK_WHY_TR={ 'the fund holds it now':'fon artık bunu tutuyor', 'no short left to cover':'kapatılacak açık kalmadı', 'not enough held':'elde yeterli miktar yok', 'not enough cash':'yeterli nakit yok', 'by a member':'bir üye iptal etti' };
+const BRK_TR=[
+  [/^(Bought|Sold short|Sold|Covered) (\S+) (\S+) at an average of \$(\S+)\.$/, m=>`${m[3]} ${BRK_VERB_TR[m[1]]}: ${m[2]} adet, ortalama $${m[4]}.`],
+  [/^Filled at once: (bought|sold short|sold|covered) (\S+) (\S+) at \$(\S+)\.$/, m=>`Hemen doldu: ${m[3]} ${BRK_VERB_TR[m[1]]}, ${m[2]} adet, $${m[4]}.`],
+  [/^Limit order placed: (buy|sell|short|cover) (\S+) (\S+) at \$(\S+)\.$/, m=>`Limit emri verildi: ${m[2]} ${m[3]} ${BRK_WORD_TR[m[1]]}, fiyat $${m[4]}.`],
+  [/^Stop placed: (buy|sell|short|cover) (\S+) (\S+) if it trades at \$(\S+)\.$/, m=>`Stop verildi: ${m[3]} $${m[4]} fiyatına gelirse ${m[2]} adet ${BRK_WORD_TR[m[1]]}.`],
+  [/^Unknown order\.$/, ()=>'Bilinmeyen emir.'], [/^No price yet for (\S+)\.$/, m=>`${m[1]} için henüz fiyat yok.`], [/^Enter an amount above zero\.$/, ()=>'Sıfırdan büyük bir miktar gir.'],
+  [/^Enter a limit price\.$/, ()=>'Bir limit fiyatı gir.'], [/^Enter a stop price\.$/, ()=>'Bir stop fiyatı gir.'],
+  [/^A sell stop must sit below the current price\.$/, ()=>'Satış stopu şu anki fiyatın altında olmalı.'], [/^A buy stop must sit above the current price\.$/, ()=>'Alış stopu şu anki fiyatın üstünde olmalı.'],
+  [/^The smallest order is \$(\S+)\.$/, m=>`En küçük emir $${m[1]}.`],
+  [/^The fund holds (\S+)\. Sell the holding first; a short starts from no position\.$/, m=>`Fon ${m[1]} tutuyor. Önce eldekini sat; açığa satış ancak pozisyon yokken başlar.`],
+  [/^The fund holds (\S+) (\S+) that is free to sell\. To sell what it does not hold, use Short\.$/, m=>`Fonun satılabilir ${m[2]} miktarı: ${m[1]}. Elde olmayanı satmak için Açığa sat’ı kullan.`],
+  [/^The fund is short (\S+) (\S+)\. Buy at most that much to cover\.$/, m=>`Fon ${m[2]} için ${m[1]} adet açıkta. Kapatmak için en fazla bu kadar al.`],
+  [/^Not enough cash for this order\.$/, ()=>'Bu emir için yeterli nakit yok.'],
+  [/^The US market is closed\. Use a limit order; it fills when the market opens and the price allows\.$/, ()=>'ABD piyasası kapalı. Limit emri ver; piyasa açılınca ve fiyat uygunsa dolar.'],
+];
+function brkTr(msg){ const s=String(msg==null ? '' : msg); for (const [re, f] of BRK_TR){ const m=s.match(re); if (m) return f(m); } return s; }
