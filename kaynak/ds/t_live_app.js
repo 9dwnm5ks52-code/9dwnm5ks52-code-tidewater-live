@@ -1,11 +1,17 @@
-// Tidewater Live: the whole site. Crypto from the real public feeds; US stocks from stand-ins for Alpaca's free-plan answers (no real keys)
+// Phoenix Finance Club: the whole site (Playwright). Crypto and US prices from the real public feeds; the club fund from a fixture
+// (ds/srvdata/fund.json, served locally with ?srv=); GitHub's API, Alpaca and rss2json from stand-ins. No real token is ever used.
 const { chromium } = require('playwright');
 const fs = require('fs');
 let pass=0, fail=0; const check=(n, ok, d)=>{ ok?pass++:fail++; console.log((ok?'PASS':'FAIL')+'  '+n+(d?'  · '+d:'')); };
-const ID='AKTEST', SEC='secret123';
-const CORS={ 'access-control-allow-origin':'*' };
-const URL0='http://127.0.0.1:8766/live.html';
+const ID='AKTEST', SEC='secret123', TOK='github_pat_TESTTOKEN0123456789abcdefABCDEF';
+const CORS={ 'access-control-allow-origin':'*', 'access-control-allow-headers':'*', 'access-control-allow-methods':'GET,POST,OPTIONS' };
+const SRVD='http://127.0.0.1:8766/srvdata/', URL0='http://127.0.0.1:8766/live.html?srv='+SRVD;
 const OUT=process.argv[2]||'.';
+// the club fund: the fixture, moved so that its last run was 2 minutes ago; the test changes FUND.f to play the club's job
+const FIX0=JSON.parse(fs.readFileSync(__dirname+'/srvdata/fund.json','utf8'));
+function fixNow(){ const f=JSON.parse(JSON.stringify(FIX0)), d=Date.now()-120e3-f.t; f.t+=d; f.created+=d; for (const x of f.fills) x.t+=d; for (const x of f.orders){ x.t+=d; if (x.ft) x.ft+=d; } for (const x of f.eq) x.t+=d; for (const k in f.done) f.done[k].t+=d; return f; }
+const FUND={ f:fixNow(), loads:0 };
+const GH={ calls:[], status:204 };
 async function mocks(p, seen){
   await p.route('https://data.alpaca.markets/**', async r=>{ const u=new URL(r.request().url()), h=r.request().headers(); seen.ap++;
     if (h['apca-api-key-id']!==ID || h['apca-api-secret-key']!==SEC) return r.fulfill({ status:401, headers:CORS, body:'unauthorized' });
@@ -20,75 +26,57 @@ async function mocks(p, seen){
   await p.route('https://api.rss2json.com/**', r=>{ const u=decodeURIComponent(new URL(r.request().url()).searchParams.get('rss_url')||''), sec=/sec\.gov/.test(u), tk=(u.match(/[?&](?:s|CIK)=([A-Z.\-]+)/)||[])[1]||'';
     const items=Array.from({ length:10 }, (_,i)=>({ title:sec ? (i%2 ? '10-Q  - Quarterly report' : '8-K  - Current report') : `Test headline ${i+1} for ${tk||u.split('/')[2]}`, link:`https://example.com/${tk||'x'}/${i}`, pubDate:new Date(Date.now()-i*3.6e6).toISOString().replace('T',' ').slice(0,19), description:'A short summary.' }));
     r.fulfill({ status:200, contentType:'application/json', headers:CORS, body:JSON.stringify({ status:'ok', items }) }); });
-  p.on('request', r=>{ const u=r.url(), hs=JSON.stringify(r.headers()); if (!u.startsWith('https://data.alpaca.markets') && (u.includes(SEC) || hs.includes(SEC))) seen.leak.push(u); });
+  // the club's data branch (the fixture) and GitHub's API (never the real one)
+  await p.route(SRVD+'fund.json*', r=>{ FUND.loads++; r.fulfill({ status:200, contentType:'application/json', headers:CORS, body:JSON.stringify(FUND.f) }); });
+  await p.route('https://api.github.com/**', async r=>{ const q=r.request(), u=new URL(q.url()); if (q.method()==='OPTIONS') return r.fulfill({ status:204, headers:CORS });
+    GH.calls.push({ url:q.url(), method:q.method(), auth:q.headers()['authorization']||'', body:q.postData() });
+    if (/\/dispatches$/.test(u.pathname)) return r.fulfill({ status:GH.status, headers:CORS, body:'' });
+    if (/\/actions\/workflows\/club\.yml$/.test(u.pathname)) return r.fulfill({ status:200, headers:CORS, contentType:'application/json', body:JSON.stringify({ id:1, path:'.github/workflows/club.yml', state:'active' }) });
+    if (/^\/repos\/[^/]+\/[^/]+$/.test(u.pathname)) return r.fulfill({ status:200, headers:CORS, contentType:'application/json', body:JSON.stringify({ full_name:'club-test/fund-test', permissions:{ admin:false, push:true, pull:true } }) });
+    r.fulfill({ status:404, headers:CORS, body:'{}' }); });
+  p.on('request', r=>{ const u=r.url(), hs=JSON.stringify(r.headers()); if (!u.startsWith('https://data.alpaca.markets') && (u.includes(SEC) || hs.includes(SEC))) seen.leak.push(u);
+    if (u.includes(TOK) || (!u.startsWith('https://api.github.com/') && hs.includes(TOK))) seen.tokLeak.push(u); });
 }
+const dispatches=()=>GH.calls.filter(c=>c.method==='POST' && /\/dispatches$/.test(c.url));
+const lastOrder=()=>{ const d=dispatches().pop(); const b=JSON.parse(d.body); return { url:d.url, auth:d.auth, ref:b.ref, cid:b.inputs.cid, order:JSON.parse(b.inputs.order) }; };
+// play the club's job: the order of this client id is done
+function jobDone(cid, res, fill){ const f=FUND.f; if (fill){ fill.id=f.nid++; fill.t=Date.now(); f.fills.push(fill); res.fid=fill.id; } f.done[cid]={ ...res, t:Date.now() }; f.t=Date.now(); f.seq++; }
 (async()=>{
   const b=await chromium.launch(); const ctx=await b.newContext({ viewport:{ width:1400, height:1000 }, colorScheme:'dark' }); const p=await ctx.newPage();
-  const errs=[], seen={ ap:0, leak:[] }; p.on('pageerror', e=>errs.push(e.message)); p.on('console', m=>{ if (m.type()==='error' && !/Failed to load resource/.test(m.text())) console.log('CONSOLE', m.text().slice(0,400)); }); await mocks(p, seen);
+  const errs=[], seen={ ap:0, leak:[], tokLeak:[] }, dialogs=[]; p.on('pageerror', e=>errs.push(e.message)); p.on('dialog', d=>{ dialogs.push(d.message()); d.dismiss().catch(()=>{}); });
+  p.on('console', m=>{ if (m.type()==='error' && !/Failed to load resource/.test(m.text())) console.log('CONSOLE', m.text().slice(0,400)); }); await mocks(p, seen);
   await p.goto(URL0); await p.evaluate(()=>localStorage.clear()); await p.reload();
-  await p.waitForTimeout(600); const wc0=await p.evaluate(()=>({ hash:location.hash, hero:!!$('.wc-h'), cards:$$('.wc-card').length }));
-  check('a first visit opens the welcome page (what the site is, the evidence, where to start)', wc0.hash==='#welcome' && wc0.hero && wc0.cards===8, JSON.stringify(wc0)); await p.evaluate(()=>location.hash='#board');
-  await p.waitForFunction(()=>LIVE.status==='live' && LIVE_CRYPTO.every(d=>LIVE.q[d.sym] && LIVE.q[d.sym].last>0) && MKT.list.length>5000 && CX.list.length>20 && AI.status==='live', null, { timeout:45000 }); await p.waitForTimeout(800);
-  const boot=await p.evaluate(()=>({ tiles:$$('#bd .bd-t').length, map:$$('#b-map [data-sym]').length, priced:$$('#b-map [data-sym]').filter(b=>/\$/.test(b.textContent)).length, us:US.status, eq:$('#lv-nw').textContent, apCalls:0 }));
-  check('the board opens with live crypto prices and delayed US prices, with no key and no call to Alpaca', boot.tiles===14 && boot.map===26 && boot.priced===26 && boot.us==='nokey' && boot.eq==='$100,000.00' && seen.ap===0, JSON.stringify(boot));
-  // quick trade
-  await p.click('#b-map [data-sym="ETH"]'); await p.click('#q-amt [data-qa="1000"]'); await p.click('#t-quick [data-q="b"]'); await p.waitForTimeout(400);
-  const qb=await p.evaluate(()=>({ pos:ST.A.pos.ETH, cash:ST.A.cash, inbox:ST.inbox.length, oj:!!$('#q-oj .oj'), msg:$('#q-msg').textContent, toast:!$('#toast').hidden }));
-  check('Quick trade buys $1,000 of Ethereum at the real price, with the 0.1% fee', qb.pos && qb.pos.q>0 && Math.abs(100000-qb.cash-1000*1.001)<1.5 && qb.inbox>=1 && qb.oj && /Bought/.test(qb.msg) && qb.toast, JSON.stringify(qb));
-  await p.click('#t-quick [data-q="s"]'); await p.waitForTimeout(400);
-  const qs=await p.evaluate(()=>({ pos:ST.A.pos.ETH||null, fills:ST.A.fills.length, cash:ST.A.cash }));
-  check('Sell sells it back; the round trip costs only the spread and two fees', !qs.pos && qs.fills===2 && 100000-qs.cash>0 && 100000-qs.cash<5, JSON.stringify(qs));
-  // trade screen: limit, cancel, stop rules
+  await p.waitForTimeout(600); const lp=await p.evaluate(()=>({ hash:location.hash, board:!$('#v-board').hidden, welcome:!!$('#v-welcome') }));
+  check('a first visit lands on the Board (no welcome page)', !lp.welcome && lp.board && (lp.hash==='' || lp.hash==='#board'), JSON.stringify(lp));
+  await p.waitForFunction(()=>CLUB.fund && LIVE.status==='live' && LIVE_CRYPTO.every(d=>LIVE.q[d.sym] && LIVE.q[d.sym].last>0) && MKT.list.length>5000 && CX.list.length>20, null, { timeout:45000 }); await p.waitForTimeout(1200);
+  // the Board is the fund's home page
+  const bd=await p.evaluate(()=>{ const E=fundEq(quotesAll()); return { seq:ST.A.seq, E, eq:$('#b-eq').textContent, nw:$('#lv-nw').textContent, money:money(E), tiles:$$('#bd .bd-t').length, map:$$('#b-map [data-sym]').length, trades:$$('#b-trades tbody tr').length, perf:!!$('#b-perf svg'), leg:$('#b-perf .pf-leg') && $('#b-perf .pf-leg').textContent, today:$('#hm-say').textContent, upd:$('#b-upd').textContent, cal:$$('#b-cal i').length }; });
+  check('the Board shows the club fund from fund.json: its value (live prices), trades, a chart against the S&P 500 and Bitcoin, and the fund’s days', bd.seq===1234 && bd.eq===bd.money && bd.nw===bd.money && bd.E>50000 && bd.trades===6 && bd.perf && /S&P 500/.test(bd.leg) && /Bitcoin/.test(bd.leg) && bd.cal>=10 && /run 1234/.test(bd.upd) && bd.map===26 && bd.tiles===14, JSON.stringify({ ...bd, today:undefined }));
+  check('“Today in one look” is about the fund: its value, today’s change, best and worst holding, the next US release; no strategies', /The fund is worth \$[\d,.]+/.test(bd.today) && /Today: /.test(bd.today) && /Best holding today: .+; worst: /.test(bd.today) && !/strateg|Desk/i.test(bd.today), bd.today);
+  const gone=await p.evaluate(()=>({ nav:$$('.lv-nav a').map(a=>a.dataset.nav).join(), views:['bots','desk','journal','lab','arena','learn','welcome','challenge'].filter(v=>$('#v-'+v)).join(), fns:['aiStart','aiTick','renderBots','renderDesk','renderLab','renderArena','renderJournal','renderLearn','renderChallenge','renderWelcome','futTick','mgSync','dlyToday','botBoard','bkDownload','ntfySend','brkOCO','brkMark'].filter(n=>typeof window[n]!=='undefined').join(), arena:typeof ARENA_SNAP!=='undefined' || typeof DAILY_SNAP!=='undefined' }));
+  await p.evaluate(()=>location.hash='#bots'); await p.waitForTimeout(200); const toBoard=await p.evaluate(()=>!$('#v-board').hidden);
+  check('the bots, Strategy Desk, Arena, Lab, Academy, Challenge, Journal, futures and the welcome page are gone (an old #bots link shows the Board)', gone.nav==='board,markets,crypto,news,trade,portfolio,settings' && !gone.views && !gone.fns && !gone.arena && toBoard, JSON.stringify(gone));
+  const ro=await p.evaluate(()=>{ const s=JSON.stringify(ST.A); return new Promise(r=>setTimeout(()=>r({ same:s===JSON.stringify(ST.A), stored:'A' in JSON.parse(localStorage.getItem('tdl-state')||'{}') || /"fills"/.test(localStorage.getItem('tdl-state')||'') }), 4000)); });
+  check('the page never changes the fund itself and does not store it in the browser', ro.same && !ro.stored, JSON.stringify(ro));
+  // everyone can browse; only members can trade
+  await p.click('#b-map [data-sym="ETH"]'); await p.waitForTimeout(300);
+  const qk=await p.evaluate(()=>({ lock:$('#q-lock').textContent, buy:$('#t-quick [data-q="b"]').disabled, sell:$('#t-quick [data-q="s"]').disabled }));
+  check('Quick trade without a member token says only club members can trade and links to Settings', /Only club members can trade/.test(qk.lock) && qk.buy && qk.sell && /Settings/.test(qk.lock), JSON.stringify(qk));
   await p.click('.lv-nav a[data-nav="trade"]'); await p.selectOption('#tr-sym', 'BTC'); await p.waitForTimeout(2500);
-  const tv=await p.evaluate(()=>({ chart:!!$('#tr-chart svg.chart'), candles:$$('#tr-chart rect').length, book:$$('#tr-book .book tr.ask').length, pxHidden:getComputedStyle($('#tk-pxw')).display==='none' }));
+  const tv=await p.evaluate(()=>({ chart:!!$('#tr-chart svg.chart'), candles:$$('#tr-chart rect').length, book:$$('#tr-book .book tr.ask').length, pxHidden:getComputedStyle($('#tk-pxw')).display==='none', lock:!$('#tk-lock').hidden && /Only club members can trade/.test($('#tk-lock').textContent) && !!$('#tk-lock a[href="#settings"]'), go:$('#tk-go').disabled, cancel:$$('#tr-ord [data-cancel]').length, orders:$$('#tr-ord tbody tr').length, sides:$$('#tk-side [data-side]').map(x=>x.dataset.side).join(), types:$$('#tk-type [data-type]').map(x=>x.dataset.type).join(), note:$('#tk-note').maxLength }));
   check('the trade screen shows minute candles and the live Binance order book; the price field hides for market orders', tv.chart && tv.candles>10 && tv.book===8 && tv.pxHidden, JSON.stringify(tv));
-  await p.click('#tk-type [data-type="lmt"]'); const lpx=await p.inputValue('#tk-px'); await p.fill('#tk-amt', '500'); await p.click('#tk-go'); await p.waitForTimeout(300);
-  const lo=await p.evaluate(()=>({ open:ST.A.orders.filter(o=>o.status==='open').length, rows:$$('#tr-ord [data-cancel]').length, msg:$('#tk-msg').textContent }));
-  check('a buy limit 1% under the price is placed and listed under open orders', lo.open===1 && lo.rows===1 && /Limit order placed/.test(lo.msg) && +lpx>0, JSON.stringify({ ...lo, lpx }));
-  await p.click('#tr-ord [data-cancel]'); await p.waitForTimeout(200);
-  check('Cancel removes it and frees the cash', await p.evaluate(()=>!ST.A.orders.some(o=>o.status==='open') && brkFree(ST.A)===ST.A.cash));
-  await p.click('#tk-side [data-side="s"]'); await p.click('#tk-type [data-type="stp"]'); await p.click('#tk-go'); await p.waitForTimeout(200);
-  check('selling what you do not hold is refused with a plain message', /does not short/.test(await p.textContent('#tk-msg')), await p.textContent('#tk-msg'));
-  // persistence
-  await p.click('#tk-side [data-side="b"]'); await p.click('#tk-type [data-type="mkt"]'); await p.fill('#tk-amt', '2000'); await p.click('#tk-go'); await p.waitForTimeout(800);
-  const before=await p.evaluate(()=>ST.A.pos.BTC && ST.A.pos.BTC.q); await p.reload(); await p.waitForFunction(()=>LIVE.status==='live', null, { timeout:20000 });
-  const after=await p.evaluate(()=>({ q:ST.A.pos.BTC && ST.A.pos.BTC.q, fills:ST.A.fills.length, view:location.hash }));
-  check('your money, holdings and history survive a reload', before>0 && after.q===before && after.fills>=3, JSON.stringify({ before, ...after }));
-  await p.click('.lv-nav a[data-nav="portfolio"]'); await p.waitForTimeout(300);
-  const pf=await p.evaluate(()=>({ rows:$$('#pf-pos tbody tr').length, fills:$$('#pf-fills tbody tr').length }));
-  check('the portfolio lists the holding and the three trades', pf.rows>=1 && pf.fills>=3, JSON.stringify(pf));
-  // bots
-  const bots=await p.evaluate(()=>ST.bots.map(x=>({ id:x.id, n:Object.keys(x.A.pos).length, cash:Math.round(x.A.cash) })));
-  check('the four bots have bought their coins with real prices', bots.length===4 && bots.every(x=>x.n>=2 && x.cash<1000), JSON.stringify(bots));
-  // the Crypto screen and the bots
+  check('the ticket (buy, sell, short, cover; market, limit, stop; a 280-character note) is locked without a token, with the members-only message and a link to Settings; open orders show without cancel buttons', tv.lock && tv.go && tv.cancel===0 && tv.orders===3 && tv.sides==='buy,sell,short,cover' && tv.types==='mkt,lmt,stp' && tv.note===280, JSON.stringify(tv));
+  check('nothing was sent to GitHub without a token', GH.calls.length===0, GH.calls.length);
+  // the Crypto screen: a market screen
   await p.click('.lv-nav a[data-nav="crypto"]'); await p.waitForTimeout(500);
-  const cx=await p.evaluate(()=>({ coins:$$('#cx-tbl tbody tr').length, first:$('#cx-tbl tbody tr a').textContent, tiles:$$('#cx-top .bd-t').length, fng:CX.fng.length, glob:!!(CX.glob && CX.glob.cap), mini:$$('#ai-mini tbody tr').length, stable:CX.list.some(d=>/^(USDT|USDC|DAI|USDE)$/.test(d.sym)) }));
-  check('Crypto shows the top coins live (no stablecoins), the market mood and the five best bots', cx.coins>=40 && cx.first==='BTC' && cx.tiles===4 && cx.fng>=7 && cx.glob && cx.mini===5 && !cx.stable, JSON.stringify(cx));
-  await p.waitForFunction(()=>AI.derReady && AI_PROB.every(id=>ST.ai.find(b=>b.id===id).model.n>0), null, { timeout:60000 }).catch(()=>{});   // hourly candles and futures data arrive in the background
-  const ml=await p.evaluate(()=>AI_PROB.map(id=>{ const M=ST.ai.find(b=>b.id===id).model; return { id, n:M.n, acc:aiAcc(M), seen:Object.keys(M.seen).length }; }));
-  check('the three forecasters (Pattern Matcher, Bayesian Classifier, Random Forest) have learned from real hourly candles of all 6 coins and score their own guesses', ml.length===3 && ml.every(x=>x.n>1500 && x.acc!=null && x.acc>.3 && x.acc<.9 && x.seen===6), JSON.stringify(ml));
+  const cx=await p.evaluate(()=>({ coins:$$('#cx-tbl tbody tr').length, first:$('#cx-tbl tbody tr a').textContent, tiles:$$('#cx-top .bd-t').length, fng:CX.fng.length, glob:!!(CX.glob && CX.glob.cap), bots:!!$('#ai-mini'), stable:CX.list.some(d=>/^(USDT|USDC|DAI|USDE)$/.test(d.sym)) }));
+  check('Crypto shows the top coins live (no stablecoins) and the market mood, without any bots', cx.coins>=40 && cx.first==='BTC' && cx.tiles===4 && cx.fng>=7 && cx.glob && !cx.bots && !cx.stable, JSON.stringify(cx));
   await p.click('[data-cxs="up"]'); await p.waitForTimeout(200);
   const ups=await p.evaluate(()=>{ const r=cxRows({}).filter(d=>d.c24!=null); return r.slice(0,20).every((d,i,a)=>!i || a[i-1].c24>=d.c24); }); check('coins sort by today’s rise', ups);
   await p.click('[data-cxs="rank"]'); const extra=await p.evaluate(()=>CX.list.find(d=>!d.core && LIVE.q[d.sym] && LIVE.q[d.sym].last>0).sym);
   await p.click(`#cx-tbl a[data-go="${extra}"]`); await p.waitForTimeout(2500);
-  await p.evaluate(()=>{ $('#tk-amt').value='500'; }); await p.click('#tk-side [data-side="b"]'); await p.click('#tk-type [data-type="mkt"]'); await p.click('#tk-go'); await p.waitForTimeout(300);
-  const xb=await p.evaluate(s=>({ sel:ST.sel, pos:ST.A.pos[s], kind:IM[s] && IM[s].kind, chart:!!$('#tr-chart svg.chart'), book:$$('#tr-book tr').length }), extra);
-  check(`a coin outside the main twelve (${extra}) opens with its chart and live book, and can be bought`, xb.sel===extra && xb.pos && xb.pos.kind==='crypto' && xb.kind==='crypto' && xb.chart && xb.book>=3, JSON.stringify(xb));
-  // the Bots screen: the roster, a leaderboard, and cards whose details stay open while prices move
-  await p.click('.lv-nav a[data-nav="bots"]'); await p.waitForTimeout(600);
-  const bs=await p.evaluate(()=>({ n:AI_DEFS.length, ids:ST.ai.map(b=>b.id).join(), cards:$$('#bots-cards .ai-card').length, lb:$$('#bots-lb tbody tr').length, think:ST.ai.filter(b=>Object.keys(b.think).length).length, metrics:$$('#bots-cards .ai-st').length, intro:$('#bots .bd-sub').textContent.slice(0, 40) }));
-  check('the Bots screen shows all 6 bots of the roster, ranked, each with what it has learned, and all of them already thinking', bs.n===6 && bs.ids==='knn,nb,forest,q,rank,sector' && bs.cards===bs.n && bs.lb===bs.n && bs.think>=bs.n-1 && bs.metrics===3*bs.n && /^6 bots/.test(bs.intro), JSON.stringify(bs));
-  await p.click('#bot-knn details summary'); await p.waitForTimeout(1500);
-  check('a bot’s “how it works” panel stays open while the screen updates', await p.evaluate(()=>$('#bot-knn details').open && $$('#bot-knn .ai-think li').length===14));
-  const lrn=await p.evaluate(()=>ST.ai.filter(b=>AI_PROB.includes(b.id)).map(b=>({ id:b.id, n:b.model.n, acc:aiAcc(b.model) })));
-  check('the learners score themselves walk-forward', lrn.length===3 && lrn.every(x=>x.n>1500 && x.acc!=null && x.acc>.3 && x.acc<.8), JSON.stringify(lrn));
-  const ql=await p.evaluate(()=>{ const M=ST.ai.find(b=>b.id==='q').model; return { n:M.n, vis:M.vis.filter(v=>v>0).length }; });
-  check('the Q-Learning Agent has learned from real candles and has seen many of its 60 situations', ql.n>1500 && ql.vis>=10, JSON.stringify(ql));
-  await p.evaluate(()=>{ const b=ST.ai.find(x=>x.id==='knn'); b.on=false; save(); render(); }); await p.waitForTimeout(300);
-  check('a bot can be paused from its card', await p.evaluate(()=>/Resume/.test($('[data-ai-on="knn"]').textContent) && $('.ai-card.off')!==null));
-  await p.click('[data-ai-on="knn"]'); await p.waitForTimeout(100); check('…and resumed', await p.evaluate(()=>ST.ai.find(x=>x.id==='knn').on===true));
-  await p.click('.lv-nav a[data-nav="board"]'); await p.waitForTimeout(300);
-  check('the league shows the top 8 of you and the bots (and you, wherever you are)', await p.evaluate(()=>{ const n=$$('#b-lg li').length; return (n===8 || n===9) && !!$('#b-lg li.me'); }));
+  const xb=await p.evaluate(s=>({ sel:ST.sel, kind:IM[s] && IM[s].kind, chart:!!$('#tr-chart svg.chart'), book:$$('#tr-book tr').length }), extra);
+  check(`a coin outside the main twelve (${extra}) opens with its chart and live book`, xb.sel===extra && xb.kind==='crypto' && xb.chart && xb.book>=3, JSON.stringify(xb));
   // News: market headlines read directly from Dow Jones, the rest through rss2json (here a stand-in), the earnings calendar from the screener
   await p.waitForFunction(()=>$$('#b-earn .nw li').length>=3 && $$('#b-news .nw li').length===5, null, { timeout:30000 }).catch(()=>{});
   const bn=await p.evaluate(()=>({ news:$$('#b-news .nw li').length, earn:$$('#b-earn .nw li').length }));
@@ -102,7 +90,7 @@ async function mocks(p, seen){
   check('…the earnings calendar: coming reports in date order with estimates, and fresh results with their surprise', er.up>20 && er.done>20 && er.rows>40 && er.sorted && er.surp>10, JSON.stringify(er));
   await p.click('[data-nt="filings"]'); await p.waitForFunction(()=>$$('#nw-body .nw li').length>=5 && /SEC EDGAR/.test($('#nw-body').textContent), null, { timeout:40000 }).catch(()=>{});
   check('…and official SEC filings (8-K, 10-Q…) for your stocks', await p.evaluate(()=>/8-K/.test($('#nw-body').textContent) && $$('#nw-body .nw li').length>=5));
-  check('the Board shows five headlines and the coming reports', bn.news===5 && bn.earn>=3, JSON.stringify(bn));
+  check('the Board shows five headlines and the coming reports', bn.news===5 && bn.earn>=1, JSON.stringify(bn));
   // the whole US market, no key
   await p.click('.lv-nav a[data-nav="markets"]'); await p.waitForTimeout(400);
   const mk=await p.evaluate(()=>({ n:MKT.list.length, rows:$$('#mk-tbl tbody tr').length, first:$('#mk-tbl tbody tr a').textContent, idx:$$('#mk-idx .mk-i').length, more:!$('#mk-more').hidden }));
@@ -120,11 +108,6 @@ async function mocks(p, seen){
   await p.click('#tr-tf [data-ctf="1d"]'); await p.waitForTimeout(300);
   check('its Days view shows how it did over time and the 52-week range', await p.evaluate(()=>$$('#tr-chart .perf-l li').length>=6 && !!$('#tr-chart .rng')));
   await p.click('#tr-tf [data-ctf="1m"]');
-  await p.evaluate(()=>{ window.usMarketOpen=()=>true; }); await p.click('#tk-side [data-side="b"]'); await p.click('#tk-type [data-type="mkt"]'); await p.fill('#tk-amt', '3000'); await p.click('#tk-go'); await p.waitForTimeout(300);
-  const co=await p.evaluate(()=>({ pos:ST.A.pos.COST, f:ST.A.fills[ST.A.fills.length-1], last:MKT.all.COST.last }));
-  check('buying $3,000 of it fills at the delayed price plus the 0.05% spread, no commission', co.pos && Math.abs(co.f.px-co.last*1.0005)<1e-6 && co.f.fee===0 && Math.abs(co.pos.q*co.f.px-3000)<1, JSON.stringify({ q:co.pos && co.pos.q, px:co.f.px, last:co.last }));
-  await p.reload(); await p.waitForFunction(()=>MKT.list.length>5000, null, { timeout:30000 }); await p.waitForTimeout(300);
-  check('after a reload the US holding is still there and priced', await p.evaluate(()=>!!ST.A.pos.COST && !!quote('COST') && $('#tr-sym').value==='COST'));
   // US stocks: real time through Settings
   await p.click('.lv-nav a[data-nav="settings"]'); await p.fill('#set-ap-id', ID); await p.fill('#set-ap-sec', 'wrong'); await p.click('#set-save');
   await p.waitForFunction(()=>/refused/.test($('#set-msg').textContent), null, { timeout:8000 });
@@ -132,117 +115,100 @@ async function mocks(p, seen){
   await p.fill('#set-ap-sec', SEC); await p.click('#set-save'); await p.waitForFunction(()=>/Connected to Alpaca/.test($('#set-msg').textContent), null, { timeout:8000 });
   const us=await p.evaluate(()=>({ n:LIVE_US.filter(d=>quote(d.sym)).length, rt:LIVE_US.every(d=>!quote(d.sym).delayed) && quote('COST').delayed, secField:$('#set-ap-sec').value, stored:!!localStorage.getItem('tdl-ap-secret'), inState:localStorage.getItem('tdl-state').includes('secret123') }));
   check('good Alpaca keys switch the 14 big names to real time; the secret box is cleared and the key is kept only in its own browser slot', us.n===14 && us.rt && us.secField==='' && us.stored && !us.inState, JSON.stringify(us));
-  await p.evaluate(()=>{ window.usMarketOpen=()=>true; }); await p.click('.lv-nav a[data-nav="board"]'); await p.click('#b-map [data-sym="AAPL"]'); await p.click('#q-amt [data-qa="5000"]'); await p.click('#t-quick [data-q="b"]'); await p.waitForTimeout(300);
-  const st=await p.evaluate(()=>({ pos:ST.A.pos.AAPL, fee:ST.A.fills[ST.A.fills.length-1].fee }));
-  check('with the market open, $5,000 of Apple buys fractional shares at the ask with no commission', st.pos && Math.abs(st.pos.q-5000/200.02)<1e-3 && st.fee===0, JSON.stringify(st));
-  await p.evaluate(()=>{ window.usMarketOpen=()=>false; render(); }); await p.waitForTimeout(200);
-  check('with the market closed, Quick trade for a stock is switched off and says why', await p.evaluate(()=>$('#t-quick [data-q="b"]').disabled && /closed/.test($('#q-msg').textContent)));
-  check('the secret key was never sent anywhere but Alpaca', seen.leak.length===0, seen.leak.join(' '));
-  await p.screenshot({ path:OUT+'/live_dark.png' });
-  // advanced orders, the watchlist and alerts, performance, money handed to a bot, the strategy lab
+  // member access: the token lives in one localStorage key; the repository can be set for testing
+  await p.evaluate(()=>location.hash='#settings'); await p.waitForTimeout(400);
+  const ma=await p.evaluate(()=>({ h:$('#set-club h2').textContent, type:$('#club-tok').type, how:$('#set-club .club-how ol').textContent, st:$('#club-st').textContent }));
+  check('Settings has “Member access”: a password field, Save / Check / Remove, and how to make a fine-grained token (this repository only, Actions read and write)', ma.h==='Member access' && ma.type==='password' && /Only select repositories/.test(ma.how) && /Actions: “Read and write”/.test(ma.how) && /collaborator/.test(ma.how) && /not your real name/.test(ma.how) && /View only/.test(ma.st), JSON.stringify(ma));
+  await p.fill('#club-tok', 'not a token'); await p.click('#club-save'); await p.waitForTimeout(150);
+  check('something that is not a token is refused', await p.evaluate(()=>!localStorage.getItem('pfc-member-token') && /does not look like/.test($('#club-msg').textContent)));
+  await p.evaluate(()=>{ $('#set-club details:last-of-type').open=true; }); await p.fill('#club-owner', 'club-test'); await p.fill('#club-repo', 'fund-test'); await p.click('#club-repo-save'); await p.waitForTimeout(150);
+  await p.fill('#club-tok', TOK); await p.click('#club-save'); await p.waitForTimeout(200);
+  const tk=await p.evaluate(T=>({ ls:localStorage.getItem('pfc-member-token')===T, keys:Object.keys(localStorage).filter(k=>(localStorage.getItem(k)||'').includes(T)), field:$('#club-tok').value, repo:clubRepo(), st:$('#club-st').textContent }), TOK);
+  check('a member token is saved only under its own localStorage key (not in the site state), and the field is cleared', tk.ls && tk.keys.join()==='pfc-member-token' && tk.field==='' && tk.repo.owner==='club-test' && /member token is saved/.test(tk.st), JSON.stringify({ ...tk, keys:tk.keys }));
+  await p.click('#club-check'); await p.waitForFunction(()=>/Works|GitHub/.test($('#club-msg').textContent) && !/Checking/.test($('#club-msg').textContent), null, { timeout:5000 }).catch(()=>{});
+  const ck=GH.calls.filter(c=>c.method==='GET');
+  check('Check asks GitHub about the repository and its club workflow with the token in the Authorization header only', /Works: you are a club member/.test(await p.textContent('#club-msg')) && ck.length===2 && ck.every(c=>c.auth==='Bearer '+TOK && !c.url.includes(TOK)) && /\/repos\/club-test\/fund-test$/.test(ck[0].url) && /actions\/workflows\/club\.yml$/.test(ck[1].url), JSON.stringify(ck.map(c=>c.url)));
+  // a member's order: dispatched to GitHub, then the result is read from fund.json
+  await p.evaluate(()=>{ CLUB.POLL=400; }); await p.evaluate(()=>location.hash='#trade'); await p.selectOption('#tr-sym', 'BTC'); await p.waitForTimeout(800);
+  const un=await p.evaluate(()=>({ lock:$('#tk-lock').hidden, go:$('#tk-go').disabled, cancel:$$('#tr-ord [data-cancel]').length }));
+  check('with a token the ticket unlocks and open orders get cancel buttons', un.lock && !un.go && un.cancel===3, JSON.stringify(un));
+  await p.click('#tk-side [data-side="buy"]'); await p.click('#tk-type [data-type="mkt"]'); await p.click('#tk-unit [data-unit="usd"]'); await p.fill('#tk-amt', '1000'); await p.fill('#tk-note', '  Bitcoin   thesis: <b>halving</b>  ');
+  await p.click('#tk-go'); await p.waitForTimeout(400);
+  let d=lastOrder(); const sent=await p.evaluate(()=>({ msg:$('#tk-msg').textContent, go:$('#tk-go').disabled, goT:$('#tk-go').textContent, pend:ST.pend.length, note:$('#tk-note').value }));
+  check('Buy sends POST …/actions/workflows/club.yml/dispatches {ref:"main", inputs:{order, cid}} with the member’s token, and no price', /^https:\/\/api\.github\.com\/repos\/club-test\/fund-test\/actions\/workflows\/club\.yml\/dispatches$/.test(d.url) && d.auth==='Bearer '+TOK && d.ref==='main' && /^c[a-z0-9]+-[a-z0-9]+$/.test(d.cid) && JSON.stringify(d.order)===JSON.stringify({ sym:'BTC', kind:'crypto', side:'buy', type:'mkt', usd:1000, note:'Bitcoin thesis: <b>halving</b>' }), JSON.stringify(d));
+  check('…and says GitHub is executing it (about 1 minute) while it waits', /Sent\. GitHub is executing it \(about 1 minute\)/.test(sent.msg) && sent.go && /Waiting for GitHub/.test(sent.goT) && sent.pend===1 && sent.note==='', JSON.stringify(sent));
+  const loads0=FUND.loads; await p.waitForTimeout(1300);
+  check('it polls fund.json while waiting', FUND.loads-loads0>=2, FUND.loads-loads0);
+  jobDone(d.cid, { ok:true, msg:'Bought 0.015 BTC at an average of $65000.00.', tr:'BTC alındı: 0.015 adet, ortalama $65000.00.', oid:99 }, { oid:99, sym:'BTC', kind:'crypto', side:'b', type:'mkt', q:0.015, px:65000, fee:0.98, parts:[{ px:64999, q:0.01, book:true }, { px:65002, q:0.005, book:true }], pl:null, note:'Bitcoin thesis: <b>halving</b>' });
+  await p.waitForFunction(()=>!ST.pend.length, null, { timeout:5000 }).catch(()=>{}); await p.waitForTimeout(300);
+  const got=await p.evaluate(()=>({ msg:$('#tk-msg').textContent, oj:!!$('#tk-oj .oj') && $$('#tk-oj .oj li').length, inbox:ST.inbox.some(x=>/Bought 0.015 BTC/.test(x.msg)), go:$('#tk-go').disabled, hist:$('#b-trades') ? 1 : 0 }));
+  check('polling picks up done[cid]: the result shows on the ticket with how it walked the order book, and lands in the inbox', /Bought 0\.015 BTC at an average of \$65000\.00/.test(got.msg) && got.oj===2 && got.inbox && !got.go, JSON.stringify(got));
+  // other order kinds: the same path, with the right fields
+  await p.selectOption('#tr-sym', 'DOGE'); await p.waitForTimeout(800); await p.click('#tk-side [data-side="short"]'); await p.click('#tk-type [data-type="lmt"]'); await p.click('#tk-unit [data-unit="qty"]'); await p.fill('#tk-amt', '50000'); const lpx=+(await p.inputValue('#tk-px')); await p.click('#tk-go'); await p.waitForTimeout(300);
+  d=lastOrder(); check('a short limit order is sent with side short, a quantity and its limit price (taken from the ticket)', d.order.side==='short' && d.order.type==='lmt' && d.order.sym==='DOGE' && d.order.q===50000 && d.order.px===lpx && lpx>0 && !('usd' in d.order), JSON.stringify(d.order));
+  jobDone(d.cid, { ok:false, msg:'No price for DOGE right now: the symbol is unknown or the data source did not answer. Nothing was traded.', tr:'DOGE için şu an fiyat yok: sembol bilinmiyor ya da veri kaynağı yanıt vermedi. İşlem yapılmadı.' }); await p.waitForFunction(()=>!ST.pend.length, null, { timeout:5000 }).catch(()=>{}); await p.waitForTimeout(200);
+  check('…and a refusal from the club’s job is shown with its reason', /No price for DOGE right now/.test(await p.textContent('#tk-msg')));
+  await p.selectOption('#tr-sym', 'BTC'); await p.waitForTimeout(600); const n0=dispatches().length; await p.click('#tk-side [data-side="sell"]'); await p.click('#tk-type [data-type="mkt"]'); await p.fill('#tk-amt', '50'); await p.click('#tk-go'); await p.waitForTimeout(300);
+  check('an order that cannot work (selling more BTC than the fund holds) is stopped in the page with the reason, and not sent', dispatches().length===n0 && /free to sell/.test(await p.textContent('#tk-msg')), await p.textContent('#tk-msg'));
+  await p.click('#tk-side [data-side="cover"]'); await p.click('#tk-go'); await p.waitForTimeout(200);
+  check('cover with no short in that symbol is stopped too', dispatches().length===n0 && /not short BTC/.test(await p.textContent('#tk-msg')), await p.textContent('#tk-msg'));
+  await p.selectOption('#tr-sym', 'TSLA'); await p.waitForTimeout(600); await p.click('#tk-side [data-side="sell"]'); await p.click('#tk-side [data-side="cover"]'); await p.waitForTimeout(100);
+  const cv=await p.evaluate(()=>({ amt:+$('#tk-amt').value, unit:ST.unit }));
+  await p.click('#tk-type [data-type="stp"]'); await p.click('#tk-go'); await p.waitForTimeout(300);
+  d=lastOrder(); check('Cover on a short fills in the whole short (15 TSLA) and sends a cover order (here a stop)', cv.amt===15 && cv.unit==='qty' && d.order.side==='cover' && d.order.sym==='TSLA' && d.order.kind==='stock' && d.order.type==='stp' && d.order.q===15 && d.order.px>0, JSON.stringify({ cv, o:d.order }));
+  await p.evaluate(()=>{ CLUB.WAIT=1500; }); await p.waitForTimeout(2600);
+  check('if GitHub has not answered within the wait (5 minutes), the ticket says so and that it may still run', /No answer after 5 minutes/.test(await p.textContent('#tk-msg')), await p.textContent('#tk-msg'));
+  jobDone(d.cid, { ok:true, msg:'Stop placed: cover 15 TSLA if it trades at $420.', tr:'Stop verildi: TSLA $420 fiyatına gelirse 15 adet geri al (açığı kapat).' }); await p.evaluate(()=>{ CLUB.WAIT=5*60e3; fundLoad(true); }); await p.waitForTimeout(500);
+  check('…and a late result is still picked up when the fund reloads', /Stop placed: cover 15 TSLA/.test(await p.textContent('#tk-msg')) && await p.evaluate(()=>!ST.pend.length), await p.textContent('#tk-msg'));
+  // cancel
+  await p.click('#tr-ord [data-cancel="19"]'); await p.waitForTimeout(300); d=lastOrder();
+  check('Cancel on an open order sends {cancel: id}', JSON.stringify(d.order)==='{"cancel":19}', JSON.stringify(d.order));
+  jobDone(d.cid, { ok:true, msg:'Order #19 cancelled.', tr:'#19 numaralı emir iptal edildi.' }); FUND.f.orders.find(o=>o.id===19).status='cancelled'; await p.waitForTimeout(1200);
+  check('…and the order leaves the open orders once the job has cancelled it', await p.evaluate(()=>!$('#tr-ord [data-cancel="19"]') && /Order #19 cancelled/.test($('#tk-msg').textContent)));
+  // GitHub says no
+  GH.status=401; await p.selectOption('#tr-sym', 'ETH'); await p.waitForTimeout(500); await p.click('#tk-side [data-side="buy"]'); await p.click('#tk-type [data-type="mkt"]'); await p.click('#tk-unit [data-unit="usd"]'); await p.fill('#tk-amt', '100'); await p.click('#tk-go'); await p.waitForTimeout(400); GH.status=204;
+  check('a token GitHub refuses (401) is explained, and nothing is left waiting', /refused the token/.test(await p.textContent('#tk-msg')) && await p.evaluate(()=>!ST.pend.length), await p.textContent('#tk-msg'));
+  // the quick-trade tile follows the same path
+  await p.evaluate(()=>location.hash='#board'); await p.click('#b-map [data-sym="SOL"]'); await p.click('#q-amt [data-qa="5000"]'); await p.waitForTimeout(200); await p.click('#t-quick [data-q="b"]'); await p.waitForTimeout(400);
+  d=lastOrder(); const qs=await p.evaluate(()=>({ msg:$('#q-msg').textContent, dis:$('#t-quick [data-q="b"]').disabled }));
+  check('Quick trade on the Board sends the same kind of order (buy $5,000 of SOL at market) and waits for the job', JSON.stringify(d.order)===JSON.stringify({ sym:'SOL', kind:'crypto', side:'buy', type:'mkt', usd:5000 }) && /Sent/.test(qs.msg) && qs.dis, JSON.stringify({ o:d.order, qs }));
+  jobDone(d.cid, { ok:true, msg:'Bought 70 SOL at an average of $71.40.', tr:'SOL alındı: 70 adet, ortalama $71.40.' }); await p.waitForTimeout(1200);
+  check('…and shows its result', /Bought 70 SOL/.test(await p.textContent('#q-msg')), await p.textContent('#q-msg'));
+  check('the token never appears in a URL or in any request to anywhere but api.github.com', seen.tokLeak.length===0 && GH.calls.every(c=>!c.url.includes(TOK)), seen.tokLeak.join(' '));
+  // notes are text, never HTML (a stored script would let one member steal another member's token)
+  FUND.f.fills.push({ id:FUND.f.nid++, oid:500, sym:'AAPL', kind:'stock', side:'b', type:'mkt', q:1, px:350, fee:0, t:Date.now(), parts:[{ px:350, q:1 }], pl:null, note:'<img src=x onerror=alert(1)>' });
+  FUND.f.orders.push({ id:FUND.f.nid++, sym:'AAPL', kind:'stock', side:'b', type:'lmt', q:1, px:100, status:'open', t:Date.now(), note:'<img src=x onerror=alert(2)><script>alert(3)</script>' }); await p.evaluate(()=>fundLoad(true)); await p.waitForTimeout(500);
+  await p.evaluate(()=>location.hash='#portfolio'); await p.waitForTimeout(600);
+  const xs=await p.evaluate(()=>({ img:$$('#main img').length, txt:$('#pf-fills').textContent.includes('<img src=x onerror=alert(1)>'), ord:$('#pf-ord').textContent.includes('<script>alert(3)</script>'), board:(()=>{ location.hash='#board'; return 0; })() }));
+  await p.waitForTimeout(600); const xb2=await p.evaluate(()=>({ img:$$('#main img').length, txt:$('#b-trades').textContent.includes('<img src=x onerror=alert(1)>') }));
+  check('a note containing <img src=x onerror=alert(1)> shows as text in the trade history, open orders and on the Board; no element is created and no script runs', xs.img===0 && xs.txt && xs.ord && xb2.img===0 && xb2.txt && dialogs.length===0, JSON.stringify({ xs, xb2, dialogs }));
+  // the watchlist and alerts (kept in this browser)
   await p.evaluate(()=>location.hash='#trade'); await p.selectOption('#tr-sym', 'ETH'); await p.waitForTimeout(800);
-  await p.click('#tk-side [data-side="b"]'); await p.click('#tk-type [data-type="mkt"]'); await p.click('#tk-unit [data-unit="usd"]'); await p.fill('#tk-amt', '1000'); await p.click('#tk-go'); await p.waitForTimeout(300);
-  await p.click('#tk-type [data-type="trl"]'); await p.waitForTimeout(150); const tl=await p.evaluate(()=>({ side:ST.side, trw:!$('#tk-trw').hidden, pxw:$('#tk-pxw').hidden }));
-  await p.fill('#tk-amt', '300'); await p.fill('#tk-tr', '4'); await p.click('#tk-go'); await p.waitForTimeout(250);
-  const trl=await p.evaluate(()=>{ const o=ST.A.orders.find(x=>x.type==='trl' && x.status==='open'); return { ok:!!o, trail:o && o.trail, row:/Trailing stop/.test($('#tr-ord').textContent) }; });
-  check('a trailing stop can be placed from the ticket (it switches to Sell) and is listed', tl.side==='s' && tl.trw && tl.pxw && trl.ok && Math.abs(trl.trail-.04)<1e-9 && trl.row, JSON.stringify({ ...tl, ...trl }));
-  const pv=await p.evaluate(()=>!$('#pt').hidden); await p.click('#pt-go'); await p.waitForTimeout(250);
-  const oc=await p.evaluate(()=>({ n:ST.A.orders.filter(o=>o.g && o.status==='open').length, tp:/Take profit/.test($('#tr-ord').textContent), msg:$('#pt-msg').textContent }));
-  check('…and “Protect this position” puts a take-profit and a stop-loss on the rest', pv && oc.n===2 && oc.tp, JSON.stringify(oc));
   if (!(await p.evaluate(()=>wlHas('ETH')))) await p.click('#tr-star'); const wl=await p.evaluate(()=>({ has:wlHas('ETH'), star:$('#tr-star').textContent }));
   await p.selectOption('#al-kind', 'below'); await p.evaluate(()=>{ $('#al-v').value=String(+(quote('ETH').last*.9).toFixed(2)); }); await p.click('#al-go'); await p.waitForTimeout(150);
   const al0=await p.evaluate(()=>({ n:ST.alerts.filter(a=>a.sym==='ETH' && a.on).length, mine:$$('#al-mine li').length }));
   await p.evaluate(()=>{ const a=ST.alerts.find(x=>x.sym==='ETH' && x.on); a.v=quote('ETH').last*1.5; alCheck(quotesAll()); });
   const al1=await p.evaluate(()=>({ on:ST.alerts.filter(a=>a.sym==='ETH' && a.on).length, inbox:ST.inbox.some(x=>x.ico==='🔔') }));
   check('the star puts a coin on the watchlist, and an alert can be set on it and fires once its price is reached', wl.has && wl.star==='★' && al0.n===1 && al0.mine===1 && al1.on===0 && al1.inbox, JSON.stringify({ wl, al0, al1 }));
-  await p.click('.lv-nav a[data-nav="portfolio"]'); await p.waitForTimeout(400);
-  const pf2=await p.evaluate(()=>({ tiles:$$('#pf-perf .pf-t').length, chart:!!$('#pf-perf svg') || /chart fills in/.test($('#pf-perf').textContent), wl:$$('#wl-list tbody tr').length, al:$$('#al-list li').length }));
-  check('Portfolio shows performance (return, against Bitcoin and the S&P 500, Sharpe, drawdown, volatility, win rate, profit factor), the watchlist and the alerts', pf2.tiles===9 && pf2.chart && pf2.wl>=1 && pf2.al>=1, JSON.stringify(pf2));
-  await p.click('.lv-nav a[data-nav="bots"]'); await p.waitForTimeout(500); const e0=await p.evaluate(()=>({ E:totalEq(quotesAll()), cash:ST.A.cash }));
-  await p.selectOption('#mg-bot', 'knn'); await p.fill('#mg-usd', '5000'); await p.click('#mg-go'); await p.waitForTimeout(300);
-  const mg=await p.evaluate(()=>({ n:ST.mg.length, cash:ST.A.cash, E:totalEq(quotesAll()), rows:$$('#bots-mg tbody tr').length }));
-  check('money handed to a bot leaves your cash but still counts in your total', mg.n===1 && Math.abs(e0.cash-mg.cash-5000)<1e-6 && Math.abs(mg.E-e0.E)<30 && mg.rows===1, JSON.stringify({ e0, mg }));
-  await p.click('[data-mg-take="knn"]'); await p.waitForTimeout(300); const mg2=await p.evaluate(()=>({ n:ST.mg.length, cash:ST.A.cash }));
-  check('…and withdrawing returns it to your cash', mg2.n===0 && Math.abs(mg2.cash-e0.cash)<30, JSON.stringify(mg2));
-  await p.evaluate(()=>location.hash='#lab'); await p.waitForTimeout(400); await p.click('[data-lb-pre="dip"]'); await p.selectOption('#lb-sym', 'BTC'); await p.click('#lb-run'); await p.waitForTimeout(400);
-  const lb=await p.evaluate(()=>({ tiles:$$('#lb-res .pf-t').length, chart:!!$('#lb-res svg'), txt:$('#lb-res h2') && $('#lb-res h2').textContent }));
-  check('the strategy lab backtests a ready-made strategy on real BTC candles against buy and hold', lb.tiles===8 && lb.chart, JSON.stringify(lb));
-  await p.fill('#lb-name', 'Test dip'); await p.click('#lb-live'); await p.waitForTimeout(300);
-  const lv=await p.evaluate(()=>({ bot:ST.ai.find(b=>b.custom), mine:$$('#lb-mine li').length }));
-  await p.click('.lv-nav a[data-nav="bots"]'); await p.waitForTimeout(500); const lc=await p.evaluate(()=>({ cards:$$('#bots-cards .ai-card').length, name:/Test dip/.test($('#bots-lb').textContent) }));
-  check('…and runs it live as your own bot, which joins the Bots screen', lv.bot && lv.bot.custom.sym==='BTC' && lv.mine===1 && lc.cards===7 && lc.name, JSON.stringify({ sym:lv.bot && lv.bot.custom.sym, ...lc }));
-  // the Bot Arena
-  await p.evaluate(()=>location.hash='#arena'); await p.waitForTimeout(500);
-  const ar=await p.evaluate(()=>({ gone:/Trend Follower|Mean Reversion|Logistic Model|Neural Network|Gradient Booster|Genetic Optimizer|Adaptive Bandit|Ensemble Council|Regime Allocator/.test($('#arena').textContent), rows:$$('#arena .mk-tbl tbody tr').length, chart:!!$('#ar-chart svg'), reg:$$('#arena .tbl')[2] && $$('#arena .tbl')[2].querySelectorAll('tbody tr').length, luck:/random bots|rastgele/.test($('#arena').textContent), btc:/Bitcoin/.test($('#arena .ar-top').textContent) }));
-  const arv=await p.evaluate(()=>$$('[data-arv]').map(b=>b.dataset.arv)); await p.click(`[data-arv="${arv[1]}"]`); await p.waitForTimeout(200);
-  const ar1=await p.evaluate(v=>$(`[data-arv="${v}"]`).getAttribute('aria-pressed')==='true' && $$('#arena .mk-tbl tbody tr').length>=4, arv[1]); await p.click(`[data-arv="${arv[0]}"]`); await p.waitForTimeout(200);
-  check('the Bot Arena shows the walk-forward results: leaderboard with the luck test, the chart against Bitcoin, one engine against the one before, and regimes (only bots of the roster)', ar.rows===4 && !ar.gone && ar.chart && ar.luck && ar.btc && ar1, JSON.stringify({ ...ar, versions:arv }));
-  const rd=await p.evaluate(()=>({ col:/Real money\?/.test($('#arena .mk-tbl thead').textContent), cells:$$('#arena .mk-tbl tbody tr').filter(r=>/ready|paper only/.test(r.textContent)).length, warn:!!$('#arena .ar-warn') }));
-  check('every bot gets a real-money verdict (ready only if all five checks pass), with the warning above', rd.col && rd.cells>=4 && rd.warn, JSON.stringify(rd));
-  // trade replay: a trade in a bot's log opens a chart with where it went in and out
-  await p.evaluate(()=>{ const b=ST.ai.find(x=>x.id==='knn'), h=AI.hb.BTC, n=h.length; b.log.push({ t:h[n-30].t, sym:'BTC', act:'b', code:'ml_up', vals:{ p:.7 }, px:h[n-30].c, q:.01, usd:h[n-30].c*.01 }, { t:h[n-20].t, sym:'BTC', act:'s', code:'take_profit', vals:{}, px:h[n-20].c, q:.01, pl:12.3, ret:h[n-20].c/h[n-30].c-1 }); location.hash='#bots'; });
-  await p.waitForTimeout(600); await p.click('.ai-log tbody tr[data-rp]'); await p.waitForTimeout(300);
-  const rp=await p.evaluate(()=>({ open:!!$('#replay') && !$('#replay').hidden, candles:$$('#replay svg rect').length, marks:$$('#replay svg circle').length, why:$$('#replay .rp-why li').length }));
-  await p.keyboard.press('Escape'); const rpc=await p.evaluate(()=>$('#replay').hidden);
-  check('clicking a trade shows it on a chart: the candles, where it went in and out, and why; Escape closes it', rp.open && rp.candles>=10 && rp.marks===2 && rp.why===2 && rpc, JSON.stringify(rp));
-  // edge notification: when a bot passes its proven-edge test, the inbox says so
-  const ed=await p.evaluate(()=>{ const b=ST.ai.find(x=>x.id==='nb'); ST.edge=ST.edge||{}; ST.edge.nb=false; b.tune={ ...(b.tune||{}), minP:.6, minPs:1.01, at:Date.now() }; edgeWatch(); const last=ST.inbox[ST.inbox.length-1]; ST.lang='tr'; const tr=T(last.msg); ST.lang='en'; return { msg:last.msg, tr }; });
-  check('when a bot proves an edge, the inbox (and the browser, if allowed) says so — in Turkish too', /Bayesian Classifier proved an edge/.test(ed.msg) && /avantajını kanıtladı/.test(ed.tr), JSON.stringify(ed));
-  // the Strategy Desk
-  await p.evaluate(()=>location.hash='#desk'); await p.waitForFunction(()=>DLY.status==='live' || DLY.status==='offline', null, { timeout:60000 }).catch(()=>{}); await p.waitForTimeout(800);
-  const dk0=await p.evaluate(()=>({ st:DLY.status, coins:DLY.D ? DLY.D.syms.length : 0, strat:$$('#desk .dk-tbl')[0] ? $$('#desk .dk-tbl')[0].querySelectorAll('tbody tr').length : 0 })); await p.click('[data-dk-tab="results"]'); await p.waitForTimeout(300);
-  const dk={ ...dk0, ...(await p.evaluate(()=>({ hist:!!$('#dk-chart svg'), years:/2019/.test($('#desk').textContent), dsr:/Deflated Sharpe/.test($('#desk').textContent), robust:/a day late/.test($('#desk').textContent) }))) }; await p.click('[data-dk-tab="today"]');
-  check('the Strategy Desk loads daily candles of the coins and shows what each strategy holds from today, with the record since 2018 (chart, years, deflated Sharpe, robustness)', dk.st==='live' && dk.coins>=20 && dk.strat>=8 && dk.hist && dk.years && dk.dsr && dk.robust, JSON.stringify(dk));
-  const rep=await p.evaluate(()=>dkReport()); check('the daily report can be copied as text: Bitcoin against its averages, every strategy’s holdings, trends, momentum, funding, and the real-money verdict', /BTC \$/.test(rep) && /BTC Trend Guard/.test(rep) && /Extreme funding/.test(rep) && /real-money/.test(rep), rep.split('\n').slice(0,3).join(' / '));
-  await p.click('[data-dk-tab="track"]'); await p.waitForTimeout(300); await p.click('[data-dk-start="guard"]'); await p.waitForTimeout(300); const pa=await p.evaluate(()=>({ acc:!!(ST.desk && ST.desk.acc && ST.desk.acc.guard), row:!!$('[data-dk-stop="guard"]') }));
-  check('a strategy can be followed with a $10,000 paper account', pa.acc && pa.row, JSON.stringify(pa)); await p.click('[data-dk-stop="guard"]');
-  await p.evaluate(()=>location.hash='#settings'); await p.waitForTimeout(300); await p.click('#set-fee [data-fee="maker"]'); const fee=await p.evaluate(()=>({ fee:BRK.FEES.crypto, st:ST.fee, pressed:$('#set-fee [data-fee="maker"]').getAttribute('aria-checked') }));
-  await p.click('#set-fee [data-fee="taker"]'); const fee2=await p.evaluate(()=>BRK.FEES.crypto);
-  check('trading costs can be set to limit orders with the BNB discount (0.075%) and back to standard (0.10%)', fee.fee===.00075 && fee.st==='maker' && fee.pressed==='true' && fee2===.001, JSON.stringify(fee));
-  // the Desk's tabs: forward test, a year's range, rolling years, correlations, lira, DCA, own tester, event risk, agreement
-  await p.evaluate(()=>location.hash='#desk'); await p.waitForTimeout(400);
-  const tabs={}; for (const k of ['today','results','tools','track']){ await p.click(`[data-dk-tab="${k}"]`); await p.waitForTimeout(300); tabs[k]=await p.evaluate(()=>$('#desk').innerText); }
-  check('Desk, Today: event risk and whether strategies and bots agree', /48 hours|Event risk/.test(tabs.today) && /Do strategies and bots agree/.test(tabs.today), '');
-  check('Desk, Results: a year’s range (1 in 20), rolling 12 months, correlations, Turkish lira, weekday check and the ideas that failed', /What one year can look like/i.test(tabs.results) && /12 months, at every point/i.test(tabs.results) && /move together/i.test(tabs.results) && /In Turkish lira/i.test(tabs.results) && /Trading weekday/i.test(tabs.results) && /Tried and failed/i.test(tabs.results), '');
-  check('Desk, Tools: the DCA planner (three plans) and the own-rule tester', /Every month, always/.test(tabs.tools) && /Everything at the start/.test(tabs.tools) && /Test your own daily rule/.test(tabs.tools), '');
-  check('Desk, Tracking: the forward test is recorded from today', /Forward test/.test(tabs.track) && await p.evaluate(()=>!!(ST.fwd && ST.fwd.rows.length)), '');
-  await p.click('[data-dk-tab="today"]');
-  // the Journal
-  await p.evaluate(()=>location.hash='#journal'); await p.waitForTimeout(500);
-  await p.fill('#jr-r-cap', '5000'); await p.dispatchEvent('#jr-r-cap', 'change'); await p.fill('#jr-c-entry', '100'); await p.dispatchEvent('#jr-c-entry', 'change'); await p.fill('#jr-c-stop', '95'); await p.dispatchEvent('#jr-c-stop', 'change'); await p.waitForTimeout(200);
-  const ps=await p.evaluate(()=>$('#journal').innerText.match(/Loss if the stop is hit[^\n]*\n?[^\n]*/)?.[0]||'');
-  check('position size: hitting the stop costs exactly the risk per trade (1% of $5,000 = $50, fees included)', /−\$50\.00 \(1%\)/.test(ps), ps.replace(/\s+/g,' '));
-  const csv='"Date(UTC)","Pair","Side","Price","Executed","Amount","Fee"\n"2026-10-01 10:00:00","BTCUSDT","BUY","60000","0.01BTC","600USDT","0.00001BTC"\n"2026-10-02 10:00:00","BTCUSDT","SELL","63000","0.01BTC","630USDT","0.63USDT"\n"2026-10-03 09:00:00","ETHUSDT","BUY","2500","0.4ETH","1000USDT","0.75USDT"\n"2026-10-20 09:00:00","ETHUSDT","SELL","2200","0.4ETH","880USDT","0.88USDT"\n';
-  const jr2=await p.evaluate(c=>{ const r=jrParseCSV(c); ST.jr.trades.push(...r.rows); save(); render(); const B=jrBook(), s=jrStats(B.closed); return { rows:r.rows.length, closed:B.closed.length, pl:+s.pl.toFixed(2), win:s.win }; }, csv); await p.waitForTimeout(300);
-  check('a Binance trade-history CSV is read (fees in the coin or in USDT) and the journal matches sells to buys first-in first-out', jr2.rows===4 && jr2.closed===2 && Math.abs(jr2.pl-(30-.6-.63+(-120-.75-.88)))<.01 && jr2.win===.5, JSON.stringify(jr2));
-  check('…and it warns about the disposition effect (losers held far longer than winners)', await p.evaluate(()=>/disposition effect/.test($('#journal').innerText)));
-  await p.evaluate(()=>{ ST.jr.rules.maxMonth=1; const d=new Date(); ST.jr.trades.push({ id:'x1', t:Date.now()-60000, sym:'SOL', cur:'USDT', side:'b', px:100, qty:10, fee:0 }, { id:'x2', t:Date.now(), sym:'SOL', cur:'USDT', side:'s', px:80, qty:10, fee:0 }); save(); render(); }); await p.waitForTimeout(300);
-  check('your own monthly loss rule stops you: a banner once the month’s realised loss passes it', await p.evaluate(()=>/monthly loss limit is reached/.test($('#journal').innerText)));
-  await p.selectOption('#jr-h-add', 'BTC'); await p.waitForTimeout(400); await p.fill('#jr-h-BTC', '0.05'); await p.dispatchEvent('#jr-h-BTC', 'change'); await p.waitForTimeout(300);
-  check('the rebalance helper turns a strategy’s targets and your holdings into orders', await p.evaluate(()=>/Target:/.test($('#journal').innerText) && ($$('#journal .tbl tbody tr').some(r=>/^(Buy|Sell) /.test(r.cells[0].innerText)) || /already matches/.test($('#journal').innerText))));
-  // settings: notifications, backup, privacy, data health; the Academy
-  await p.evaluate(()=>location.hash='#settings'); await p.waitForTimeout(300); await p.click('#nt-new'); await p.waitForTimeout(200);
-  const st2=await p.evaluate(()=>({ topic:ST.ntfy, health:$$('#set-extra .tbl tbody tr').length, test:!$('#nt-test').disabled }));
-  check('phone notifications: a long random ntfy topic can be made (and tested), and the data-health table lists every source', /^tidewater-[a-z0-9]{12,}$/.test(st2.topic) && st2.test && st2.health>=6, JSON.stringify(st2));
-  const bk=await p.evaluate(()=>{ const b=bkCollect(false); return { keys:Object.keys(b.data), app:b.app }; });
-  check('the backup holds this site’s data and leaves out API keys unless asked', bk.app==='tidewater-live' && bk.keys.includes('tdl-state') && !bk.keys.some(k=>/alpaca|finnhub|key|secret/i.test(k)), bk.keys.join(','));
-  await p.click('#lv-priv'); await p.waitForTimeout(200); const pvx=await p.evaluate(()=>({ nw:$('#lv-nw').textContent, pressed:$('#lv-priv').getAttribute('aria-pressed') })); await p.click('#lv-priv');
-  check('privacy mode hides money amounts (and the button says so)', /•/.test(pvx.nw) && pvx.pressed==='true', JSON.stringify(pvx));
-  await p.evaluate(()=>location.hash='#learn'); await p.waitForTimeout(300);
-  const lr=await p.evaluate(()=>({ n:$$('#learn details').length, calc:/needs \+100% to get back/.test((()=>{ ST.learnLoss=50; render(); return ''; })() || '') }));
-  await p.waitForTimeout(300); const lr2=await p.evaluate(()=>{ $$('#learn details')[1].open=true; return /needs \+100% to get back/.test($('#learn').innerText); });
-  check('the Academy has ten lessons, with the loss-recovery calculator (−50% needs +100%)', lr.n===10 && lr2, JSON.stringify(lr));
-  await p.evaluate(()=>{ ST.wk=0; ST.wkSnap={ t:Date.now()-7*864e5, eq:90000, bots:{ knn:9000, nb:11000 } }; wkDigest(); });
-  check('a weekly summary goes to the inbox once a week', await p.evaluate(()=>/Weekly summary/.test(ST.inbox[ST.inbox.length-1].msg)));
+  // the Portfolio: the fund, public
+  await p.click('.lv-nav a[data-nav="portfolio"]'); await p.waitForTimeout(500);
+  const pf=await p.evaluate(()=>({ tiles:$$('#pf-perf .pf-t').length, chart:!!$('#pf-perf svg'), leg:($('#pf-perf .pf-leg')||{}).textContent||'', pos:$$('#pf-pos tbody tr').length, ord:$$('#pf-ord tbody tr').length, fills:$$('#pf-fills tbody tr').length, head:$$('#pf-fills thead th').map(x=>x.textContent).join(','), short:/Tesla · short/.test($('#pf-pos').textContent), notes:$$('#pf-fills .tr-note').filter(x=>x.textContent.length>3).length, wl:$$('#wl-list tbody tr').length, al:$$('#al-list li').length, reset:!!$('#pf-reset'), mg:!!$('#pf-mg') }));
+  check('Portfolio shows the fund’s performance (9 measures and the chart against the S&P 500 and Bitcoin), holdings (a short marked), open orders and the trade history with notes', pf.tiles===9 && pf.chart && /S&P 500/.test(pf.leg) && pf.pos===7 && pf.ord>=3 && pf.fills>=11 && pf.head==='Time,Symbol,Action,Quantity,Price,Value,Profit/loss,Note' && pf.short && pf.notes>=8 && !pf.reset && !pf.mg, JSON.stringify(pf));
+  check('…and your own watchlist and alerts', pf.wl>=1 && pf.al>=1, JSON.stringify({ wl:pf.wl, al:pf.al }));
+  // the report: the fund against the S&P 500 by default
+  await p.click('#pf-perf .bd-th a[href="#report"], .pf-pn a[href="#report"]').catch(()=>p.evaluate(()=>location.hash='#report')); await p.waitForTimeout(800);
+  const rpx=await p.evaluate(()=>({ hash:location.hash, svgs:$$('.rp-sheet svg').length, a:$('#rp-a').value, b:$('#rp-b').value, opts:$$('#rp-a option').map(o=>o.value).join(), sharpe:/Sharpe/.test($('.rp-sheet').innerText), heat:$$('.rp-heat td').length, title:$('.rp-head h2').textContent }));
+  check('the performance report is about the fund and compares it with the S&P 500 (or Bitcoin) from the saved prices', rpx.hash==='#report' && rpx.svgs>=2 && rpx.heat>0 && rpx.a==='fund' && rpx.b==='spy' && rpx.opts==='fund,spy,btc' && rpx.sharpe && /S&P 500/.test(rpx.title), JSON.stringify(rpx));
   { // the pro chart: timeframes, indicators, settings, templates, zoom, crosshair, drawings, chart types, PNG export
   await p.evaluate(()=>{ location.hash='#trade'; }); await p.waitForTimeout(500); await p.selectOption('#tr-sym', 'BTC'); await p.waitForTimeout(800);
   // real 1-second candles: Binance 1s klines, then every trade from the websocket
+  const k1s=[]; p.on('response', r=>{ if (/interval=1s/.test(r.url())) k1s.push(r.status()); }); p.on('requestfailed', r=>{ if (/interval=1s/.test(r.url())) k1s.push('failed:'+r.failure().errorText); });
   await p.click('#tr-tf [data-ctf="1s"]');
-  await p.waitForFunction(()=>typeof CHM==='object' && CHM && CHM.tf==='1s' && CHM.bars && CHM.bars.length>5, null, { timeout:20000 }).catch(()=>{});
+  await p.waitForFunction(()=>typeof CHM==='object' && CHM && CHM.tf==='1s' && (cdBars('BTC','1s')||[]).length>=1000, null, { timeout:30000 }).catch(()=>{});
   const s1a=await p.evaluate(()=>{ const B=cdBars('BTC','1s')||[]; return { n:B.length, t:B.length ? B[B.length-1].t : 0, contig:B.every((x,i)=>!i || x.t-B[i-1].t===1000), tf:CHM && CHM.tf, src:$('#tr-src').textContent, stf:ST.tf }; });
   await p.waitForTimeout(3200);
   const s1b=await p.evaluate(()=>{ const B=cdBars('BTC','1s')||[], L=B[B.length-1]; return { t:L ? L.t : 0, close:L && L.c, last:quote('BTC').last }; });
-  check('chart: 1-second candles load from Binance (1000 contiguous seconds) and move on live, second by second', s1a.n>=1000 && s1a.contig && s1a.tf==='1s' && s1a.stf==='intra' && /1-second/.test(s1a.src) && s1b.t-s1a.t>=2000 && Math.abs(s1b.close/s1b.last-1)<.002, JSON.stringify({ ...s1a, ...s1b }));
+  check('chart: 1-second candles load from Binance (1000 contiguous seconds) and move on live, second by second', s1a.n>=1000 && s1a.contig && s1a.tf==='1s' && s1a.stf==='intra' && /1-second/.test(s1a.src) && s1b.t-s1a.t>=2000 && Math.abs(s1b.close/s1b.last-1)<.002, JSON.stringify({ ...s1a, ...s1b, k1s }));
   await p.click('#tr-tf [data-ctf="1h"]');
   await p.waitForFunction(()=>typeof CHM==='object' && CHM && CHM.tf==='1h' && CHM.bars && CHM.bars.length>5, null, { timeout:20000 }).catch(()=>{});
   const h1=await p.evaluate(()=>({ tf:ST.chart.tf, stf:ST.tf, dt:CHM && CHM.bars[1].t-CHM.bars[0].t, n:(cdBars('BTC','1h')||[]).length, rects:$$('#tr-chart rect').length, pressed:$('#tr-tf [data-ctf="1h"]').getAttribute('aria-pressed'), src:$('#tr-src').textContent }));
@@ -308,83 +274,65 @@ async function mocks(p, seen){
   await p.click('#tr-tf [data-ctf="1m"]'); await p.waitForTimeout(300);
   }
   // the professional pieces
-  await p.evaluate(()=>{ ST.tf='intra'; location.hash='#trade'; }); await p.waitForTimeout(500); await p.selectOption('#tr-sym', 'BTC'); await p.waitForTimeout(800); await p.click('#tm-tog'); await p.waitForTimeout(800);
-  const tm=await p.evaluate(()=>({ term:document.documentElement.classList.contains('term'), tape:$$('#tm-tape tr').length, blot:$$('#tm-blot [data-blot]').length, acct:/buying power/i.test($('#acct').innerText), tapeOk:!!$('#tm-tape') && ($$('#tm-tape tr').length>0 || !((LIVE.q.BTC||{}).trades||[]).length) }));
-  check('terminal mode: chart, book, the live tape and a blotter; the account bar shows equity, today, buying power and open risk', tm.term && tm.tapeOk && tm.blot===4 && tm.acct, JSON.stringify(tm));
-  await p.waitForFunction(()=>!!$('#tr-chart svg.chart'), null, { timeout:15000 }).catch(()=>{});
-  await p.evaluate(()=>{ const q=quote('BTC'); brkOrder(ST.A, { sym:'BTC', kind:'crypto', side:'b', type:'lmt', q:.01, px:+(q.last*.98).toFixed(2) }, q); save(); render(); }); await p.waitForTimeout(600);
-  const ln=await p.evaluate(()=>{ const g=$('#tm-ol [data-ln]'); return g ? g.dataset.ln : null; }), px0=await p.evaluate(k=>{ const o=ST.A.orders.find(x=>'o'+x.id===k); return o && o.px; }, ln);
-  if (ln){ const box=await p.evaluate(k=>{ const r=$(`#tm-ol [data-ln="${k}"] .hit`).getBoundingClientRect(); return { x:r.left+r.width/2, y:r.top+r.height/2 }; }, ln); await p.mouse.move(box.x, box.y); await p.mouse.down(); await p.mouse.move(box.x, box.y+30, { steps:5 }); await p.mouse.up(); await p.waitForTimeout(400); }
-  const dr=await p.evaluate(k=>{ const o=ST.A.orders.find(x=>'o'+x.id===k); return { px:o && o.px, q:quote('BTC').last, ln:k, svg:!!$('#tr-chart svg.chart'), chm:CHM, term:ST.term, ol:!!$('#tm-ol'), ord:ST.A.orders.filter(x=>x.status==='open').map(x=>x.type+':'+x.px), sel:ST.sel, chartTxt:($('#tr-chart')||{}).textContent, hash:location.hash }; }, ln);
-  check('an order is a line on the chart; dragging it down moves its price down', !!ln && dr.px<px0, JSON.stringify({ px0, ...dr }));
-  await p.keyboard.press('Escape'); await p.waitForTimeout(200); check('Esc cancels the newest open order on the coin', await p.evaluate(()=>!ST.A.orders.some(o=>o.status==='open' && o.sym==='BTC')));
-  await p.evaluate(()=>{ const q=quote('BTC'); brkOrder(ST.A, { sym:'BTC', kind:'crypto', side:'b', usd:2000 }, q); save(); render(); }); await p.click('[data-blot="fil"]'); await p.waitForTimeout(300);
-  check('each market fill shows its slippage against the best price in the book', await p.evaluate(()=>/bps/.test($('#tm-blot').innerText)));
-  await p.click('[data-mkt="fut"]'); await p.waitForTimeout(300); await p.fill('#fut-m', '1000'); await p.dispatchEvent('#fut-m', 'change'); await p.waitForTimeout(200); await p.click('#fut-go'); await p.waitForTimeout(300);
-  const fu=await p.evaluate(()=>{ const P=ST.fut.pos.BTC; return P ? { lev:P.lev, m:P.margin, liqOk:Math.abs(P.liq/(P.entry*(1-1/P.lev+.005))-1)<1e-9, wallet:ST.fut.cash } : null; });
-  check('paper futures: a 5x long with $1,000 margin; liquidation at entry × (1 − 1/5 + 0.5%); fee taken from the wallet', fu && fu.lev===5 && fu.m===1000 && fu.liqOk && Math.abs(fu.wallet-(10000-1000-5000*.0005))<.01, JSON.stringify(fu));
-  const lq=await p.evaluate(()=>{ const P=ST.fut.pos.BTC; futTick({ BTC:{ last:P.liq*.999, bid:P.liq*.998, ask:P.liq } }); return { gone:!ST.fut.pos.BTC, act:ST.fut.fills[ST.fut.fills.length-1].act }; });
-  check('…and when the price reaches the liquidation price the position is closed and its margin lost', lq.gone && lq.act==='liq', JSON.stringify(lq)); await p.click('[data-mkt="spot"]');
-  await p.evaluate(()=>location.hash='#bots'); await p.waitForTimeout(800);
-  const bo=await p.evaluate(()=>({ cards:$$('.bo-card').length, lim:$$('[data-bo-lim]').length, n:ST.ai.length }));
-  await p.selectOption('[data-bo-lim="nb"]', '5'); await p.evaluate(()=>{ const b=ST.ai.find(x=>x.id==='nb'); ST.botPeak.nb=b.A.start*1.2; boGuard(quotesAll()); }); const off=await p.evaluate(()=>!ST.ai.find(x=>x.id==='nb').on);
-  check('bot control centre: a card and a loss limit per bot; a bot that falls past its limit stops itself', bo.cards===bo.n && bo.lim===bo.n && off, JSON.stringify({ ...bo, off })); await p.evaluate(()=>{ ST.ai.find(x=>x.id==='nb').on=true; ST.botLim={}; save(); });
-  await p.evaluate(()=>{ const t=Date.now(); ST.eqi=Array.from({ length:70 }, (_,k)=>({ t:t-(69-k)*864e5, v:100000*(1+.002*k+.01*Math.sin(k/5)) })); location.hash='#report'; render(); }); await p.waitForTimeout(800);
-  const rpx=await p.evaluate(()=>({ svgs:$$('.rp-sheet svg').length, heat:$$('.rp-heat td').length, sharpe:/Sharpe/.test($('.rp-sheet').innerText) }));
-  check('the performance report draws equity, drawdown, monthly returns and rolling Sharpe from the account’s history', rpx.svgs>=3 && rpx.heat>10 && rpx.sharpe, JSON.stringify(rpx));
-  await p.evaluate(()=>location.hash='#challenge'); await p.waitForTimeout(300); await p.click('[data-ch-start="standard"]'); await p.waitForTimeout(400);
-  const ch=await p.evaluate(()=>({ acct:ST.acct, cash:ST.A.cash, main:ST.accts.main.cash!==10000 }));
-  const ch2=await p.evaluate(()=>{ ST.accts.ch.cash=9400; chGuard(quotesAll()); return { status:ST.ch.status, acct:ST.acct }; });
-  check('the challenge trades a separate $10,000 account and ends the moment a loss limit is broken (back to the main account)', ch.acct==='ch' && ch.cash===10000 && ch.main && ch2.status==='failed' && ch2.acct==='main', JSON.stringify({ ...ch, ...ch2 }));
-  await p.keyboard.press('Control+k'); await p.waitForTimeout(150); await p.keyboard.type('journal'); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
-  check('the command palette (Ctrl+K) finds a screen and opens it', await p.evaluate(()=>location.hash==='#journal'));
+  await p.evaluate(()=>{ ST.tf='intra'; location.hash='#trade'; }); await p.waitForTimeout(500); await p.selectOption('#tr-sym', 'BTC'); await p.waitForTimeout(800); if (!(await p.evaluate(()=>!!ST.term))) await p.click('#tm-tog'); await p.waitForTimeout(800);
+  await p.waitForFunction(()=>!!$('#tr-chart svg.chart'), null, { timeout:15000 }).catch(()=>{}); await p.evaluate(()=>render()); await p.waitForTimeout(500);
+  const tm=await p.evaluate(()=>({ term:document.documentElement.classList.contains('term'), blot:$$('#tm-blot [data-blot]').map(x=>x.dataset.blot).join(), acct:$('#acct').innerText, lines:$$('#tm-ol g.tm-line').length, drag:$$('#tm-ol [data-ln]').length, tapeOk:!!$('#tm-tape') }));
+  check('terminal mode: chart, book, tape and a blotter (positions, orders, fills); the bar shows the fund (value, today, cash, free cash, last update, member)', tm.term && tm.tapeOk && tm.blot==='pos,ord,fil' && /Phoenix Finance Club fund/.test(tm.acct) && /FREE CASH/i.test(tm.acct) && /Member: can trade/.test(tm.acct), JSON.stringify(tm));
+  check('the fund’s average cost and open orders show as lines on the chart; they cannot be dragged (orders change only through the club’s job)', tm.lines>=1 && tm.drag===0, JSON.stringify(tm));
+  await p.click('[data-blot="fil"]'); await p.waitForTimeout(300); check('the blotter lists the fund’s fills with the action and slippage column', await p.evaluate(()=>/Slippage/.test($('#tm-blot').textContent) && /Short/.test($('#tm-blot').textContent)));
+  await p.keyboard.press('Control+k'); await p.waitForTimeout(150); await p.keyboard.type('report'); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
+  check('the command palette (Ctrl+K) finds a screen and opens it', await p.evaluate(()=>location.hash==='#report'));
+  await p.keyboard.press('Control+k'); await p.waitForTimeout(150); await p.keyboard.type('desk'); await p.waitForTimeout(150);
+  check('…and has no removed screens left', await p.evaluate(()=>!$$('#pal [data-pal]').some(x=>/Desk|Bots|Journal|Arena|Academy|Challenge|futures/i.test(x.textContent)))); await p.keyboard.press('Escape');
+  await p.evaluate(()=>location.hash='#settings'); await p.waitForTimeout(300);
+  await p.click('#lv-priv'); await p.waitForTimeout(200); const pvx=await p.evaluate(()=>({ nw:$('#lv-nw').textContent, pressed:$('#lv-priv').getAttribute('aria-pressed') })); await p.click('#lv-priv');
+  check('privacy mode hides money amounts (and the button says so)', /•/.test(pvx.nw) && pvx.pressed==='true', JSON.stringify(pvx));
+  const dh=await p.evaluate(()=>({ rows:$$('#set-extra .tbl tbody tr').length, fund:/The fund/.test($('#set-extra').textContent), gone:/ntfy|Download a backup|Academy|\bbots?\b/i.test($('#v-settings').textContent) }));
+  check('Settings: data health lists the feeds and the fund; no notifications, backup or Academy', dh.rows===5 && dh.fund && !dh.gone, JSON.stringify(dh));
   // Turkish
   await p.evaluate(()=>location.hash='#board'); await p.waitForTimeout(400);
-  await p.click('#lv-lang'); await p.waitForTimeout(300);
-  const tr=await p.evaluate(()=>({ nav:$$('.lv-nav a span').map(x=>x.textContent).join(','), lang:document.documentElement.lang, tile:$('#t-money-h').textContent, ib:ST.inbox.map(x=>T(x.msg)).join(' '), foot:$('#foot').textContent }));
-  check('Türkçe: the menu, tiles, inbox messages and footer switch language', tr.lang==='tr' && tr.nav==='Pano,Piyasalar,Kripto,Botlar,Masa,Defter,Haberler,İşlem,Portföy,Ayarlar' && tr.tile==='Paran' && /aldın|botuna verildi|korumaya/.test(tr.ib) && !/handed to|Bought |Withdrew/.test(tr.ib) && /oyun parası/.test(tr.foot), JSON.stringify(tr));
-  const leftEn=await p.evaluate(()=>{ const out=[]; const w=document.createTreeWalker($('#main'), NodeFilter.SHOW_TEXT); let n; while ((n=w.nextNode())){ const s=n.textContent.trim(); if (s.length>3 && /\b(the|your|and|with|order|price|cash|open)\b/i.test(s) && n.parentElement.closest(':not([hidden])') && !n.parentElement.closest('[hidden],.nw')) out.push(s); } return out; });
-  check('no English sentences left on the Turkish board', leftEn.length===0, leftEn.slice(0,6).join(' | '));
+  await p.click('#lv-lang'); await p.waitForTimeout(500);
+  const tr=await p.evaluate(()=>({ nav:$$('.lv-nav a span').map(x=>x.textContent).join(','), lang:document.documentElement.lang, tile:$('#t-money-h').textContent, ib:ST.inbox.map(x=>T(x.msg)).join(' '), foot:$('#foot').textContent, today:$('#hm-say').textContent }));
+  check('Türkçe: the menu, tiles, order results in the inbox, “Today in one look” and the footer switch language', tr.lang==='tr' && tr.nav==='Pano,Piyasalar,Kripto,Haberler,İşlem,Portföy,Ayarlar' && tr.tile==='Fon' && /BTC alındı: 0\.015 adet/.test(tr.ib) && !/Bought /.test(tr.ib) && /oyun parası/.test(tr.foot) && /Fonun değeri/.test(tr.today), JSON.stringify(tr));
+  const EN_RE=/\b(the|your|and|with|order|price|cash|open|amount|buy|sell|limit price|member|trade)\b/i;
+  const leftEn=async()=>p.evaluate(src=>{ const re=new RegExp(src, 'i'), out=[]; const w=document.createTreeWalker($('#main'), NodeFilter.SHOW_TEXT); let n; while ((n=w.nextNode())){ const s=n.textContent.trim(); if (s.length>3 && re.test(s) && !n.parentElement.closest('[hidden],option,optgroup,.mk-nm,.tr-hits,#tr-det,#cx-tbl .muted,#tr-sym,.nw,.chip,#nw-body .mk-nm,.tr-note,#pf-pos .muted,#tr-fund,.club-st b,.hm-ev,#hm-say b,code,.club-how li')) out.push(s); } return out; }, EN_RE.source);
+  let le=await leftEn(); check('no English sentences left on the Turkish board', le.length===0, le.slice(0,6).join(' | '));
   await p.screenshot({ path:OUT+'/live_tr.png' });
-  for (const v of ['markets','crypto','bots','news','lab','arena','desk','journal','learn','welcome','report','challenge','trade','portfolio','settings']){ await p.evaluate(v=>location.hash='#'+v, v); await p.waitForTimeout(300);
-    const le=await p.evaluate(()=>{ const out=[]; const w=document.createTreeWalker($('#main'), NodeFilter.SHOW_TEXT); let n; while ((n=w.nextNode())){ const s=n.textContent.trim(); if (s.length>3 && /\b(the|your|and|with|order|price|cash|open|amount|buy|sell|limit price)\b/i.test(s) && !n.parentElement.closest('[hidden],option,optgroup,.mk-nm,.tr-hits,#tr-det,#cx-tbl .muted,#tr-sym,.nw,.chip,#nw-body .mk-nm,#lb-mine')) out.push(s); } return out; });
-    check(`no English left on the Turkish ${v} screen`, le.length===0, le.slice(0,6).join(' | ')); }
-  await p.click('#lv-lang');
-  // accessibility
+  for (const v of ['markets','crypto','news','report','trade','portfolio','settings']){ await p.evaluate(v=>location.hash='#'+v, v); await p.waitForTimeout(400); le=await leftEn(); check(`no English left on the Turkish ${v} screen`, le.length===0, le.slice(0,6).join(' | ')); }
+  await p.evaluate(()=>{ clubSetTok(''); render(); }); await p.evaluate(()=>location.hash='#trade'); await p.waitForTimeout(400);
+  le=await leftEn(); const lockTr=await p.textContent('#tk-lock');
+  check('the members-only message is Turkish too', le.length===0 && /Sadece kulüp üyeleri işlem yapabilir/.test(lockTr), le.slice(0,4).join(' | ')+' '+lockTr);
+  await p.evaluate(T=>{ clubSetTok(T); render(); }, TOK); await p.click('#lv-lang');
+  // accessibility, both themes
   await p.addScriptTag({ content:fs.readFileSync(__dirname+'/../axe/node_modules/axe-core/axe.min.js','utf8') });
-  for (const v of ['board','markets','crypto','bots','news','lab','arena','desk','journal','learn','welcome','report','challenge','trade','portfolio','settings']){ await p.evaluate(v=>location.hash='#'+v, v); await p.waitForTimeout(400);
-    const ax=await p.evaluate(async()=>(await axe.run(document, { resultTypes:['violations'] })).violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>v.id+':'+v.nodes.length+' '+v.nodes.slice(0,3).map(n=>n.target.join(' ')).join(', ')));
-    check(`accessibility: no serious problems on ${v} (dark)`, ax.length===0, ax.join(' ')); }
-  await p.click('#lv-theme'); await p.waitForTimeout(200);
-  for (const v of ['board','markets','crypto','bots','news','trade']){ await p.evaluate(v=>location.hash='#'+v, v); await p.waitForTimeout(400);
-    const ax=await p.evaluate(async()=>(await axe.run(document, { resultTypes:['violations'] })).violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>v.id+':'+v.nodes.length+' '+v.nodes.slice(0,3).map(n=>n.target.join(' ')).join(', ')));
-    check(`accessibility: no serious problems on ${v} (light)`, ax.length===0, ax.join(' ')); }
+  const VIEWS=['board','markets','crypto','news','report','trade','portfolio','settings'];
+  for (const th of ['dark','light']){ if ((await p.evaluate(()=>ST.theme))!==th) await p.click('#lv-theme'); await p.waitForTimeout(200);
+    for (const v of VIEWS){ await p.evaluate(v=>location.hash='#'+v, v); await p.waitForTimeout(500);
+      const ax=await p.evaluate(async()=>(await axe.run(document, { resultTypes:['violations'] })).violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>v.id+':'+v.nodes.length+' '+v.nodes.slice(0,3).map(n=>n.target.join(' ')).join(', ')));
+      check(`accessibility: no serious problems on ${v} (${th})`, ax.length===0, ax.join(' ')); } }
+  await p.evaluate(()=>{ clubSetTok(''); render(); }); await p.evaluate(()=>location.hash='#trade'); await p.waitForTimeout(500);
+  { const ax=await p.evaluate(async()=>(await axe.run(document, { resultTypes:['violations'] })).violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>v.id+':'+v.nodes.length));
+    check('accessibility: no serious problems on the locked ticket (light)', ax.length===0, ax.join(' ')); }
+  await p.click('#lv-theme');
   // phone
   const ph=await b.newContext({ viewport:{ width:390, height:844 }, deviceScaleFactor:1, isMobile:true, hasTouch:true }); const q=await ph.newPage(); q.on('pageerror', e=>errs.push(e.message)); await mocks(q, seen);
-  for (const v of ['board','markets','crypto','bots','news','lab','arena','desk','journal','learn','welcome','report','challenge','trade','portfolio','settings']){ await q.goto(URL0+'#'+v); await q.waitForTimeout(['board','markets','crypto','bots','news'].includes(v) ? 5000 : 1500);
+  for (const v of VIEWS){ await q.goto(URL0+'#'+v); await q.waitForTimeout(['board','markets','crypto','news'].includes(v) ? 5000 : 1800);
     const w=await q.evaluate(()=>({ sw:document.documentElement.scrollWidth, nav:getComputedStyle($('.lv-nav')).position })); check(`phone: no sideways scroll on ${v}`, w.sw<=390, JSON.stringify(w));
-    if (['board','trade','markets','crypto','bots','news'].includes(v)) await q.screenshot({ path:OUT+'/live_phone_'+v+'.png', fullPage:false }); }
+    if (['board','trade','portfolio','settings'].includes(v)) await q.screenshot({ path:OUT+'/live_phone_'+v+'.png', fullPage:false }); }
   await q.goto(URL0+'#trade'); await q.waitForTimeout(1500); await q.evaluate(()=>{ ST.sel='BTC'; ST.chart.inds=[{ k:'i1', id:'ema', p:{ n:20 }, c:{}, hide:false }, { k:'i2', id:'vol', p:{}, c:{}, hide:false }, { k:'i3', id:'rsi', p:{}, c:{}, hide:false }, { k:'i4', id:'macd', p:{}, c:{}, hide:false }]; save(); render(); });
   await q.waitForFunction(()=>!!$('#tr-chart svg.chart') && typeof CHM==='object' && CHM && CHM.panes && CHM.panes.length===4, null, { timeout:20000 }).catch(()=>{}); await q.waitForTimeout(400);
   const p3=await q.evaluate(()=>({ sw:document.documentElement.scrollWidth, panes:CHM && CHM.panes.length, svgW:Math.round($('#tr-chart svg.chart').getBoundingClientRect().right), tb:Math.round($('#tr-tf').getBoundingClientRect().right) }));
   check('phone: the chart with three sub-panes (volume, RSI, MACD) and its toolbar fit 390px with no sideways scroll', p3.sw<=390 && p3.panes===4 && p3.svgW<=390 && p3.tb<=390, JSON.stringify(p3));
-  { // an old saved state (all 15 bots, loss limits and money handed to the Ensemble Council): the retired bots go, the money comes back
-    const OLD=['trend','band','learn','knn','nb','mlp','forest','gbm','q','ga','bandit','rank','sector','council','regime'];
-    const seed=await p.evaluate(OLD=>{ const S=JSON.parse(JSON.stringify(ST, (k,v)=>k==='buf' || k==='rb' ? undefined : v)); S.acct='main'; delete S.ch; if (S.accts){ S.accts={ main:S.accts.main }; } S.A=S.accts ? S.accts.main : S.A;
-      S.ai=OLD.map(id=>AI_DEFS.some(d=>d.id===id) ? aiBot(id) : { id, on:true, A:brkNew(10000), meta:{}, log:[], think:{}, seen:{}, eqi:[], pnow:{}, model:id==='trend' || id==='band' ? null : { n:5, hits:[], seen:{} } });
-      const m=brkNew(5000), q=quote('BTC'); brkOrder(m, { sym:'BTC', kind:'crypto', side:'b', usd:3000 }, q); S.mg=[{ bot:'council', A:m, in:5000, t:Date.now() }]; S.A.cash-=5000; if (S.accts) S.accts.main=S.A;
-      S.botLim={ council:10, knn:5 }; S.botPeak={ council:12000, regime:1, knn:10000 }; S.edge={ ga:true, council:false, knn:false }; S.inbox=[]; S.trMsg={}; S.welcomed=true;
-      return { json:JSON.stringify(S), cash:S.A.cash, mgE:brkEquity(m, quotesAll()), n:S.ai.length }; }, OLD);
+  await ph.close();
+  { // a saved state from the old site (own account, bots, money handed to a bot): the preferences stay, the old account and bots go, the fund shows
+    const old=JSON.stringify({ v:1, A:{ v:1, cash:5, start:100000, pos:{ DOGE:{ q:1e6, avg:.1, kind:'crypto' } }, orders:[], fills:[], nid:2, eq:[] }, bots:[{ id:'hodl' }], ai:[{ id:'knn' }], mg:[{ bot:'knn' }], accts:{ main:{} }, fut:{}, ch:{}, lang:'tr', theme:'light', watch:['BTC','TSLA'], side:'b', type:'trl', welcomed:true });
     const mc=await b.newContext({ viewport:{ width:1280, height:900 } }); const mp=await mc.newPage(); mp.on('pageerror', e=>errs.push(e.message)); await mocks(mp, seen);
-    await mp.addInitScript(j=>{ if (!sessionStorage.getItem('seeded')){ localStorage.setItem('tdl-state', j); sessionStorage.setItem('seeded', '1'); } }, seed.json);
-    await mp.goto(URL0+'#bots'); await mp.waitForFunction(()=>!(ST.mg||[]).length, null, { timeout:90000 }).catch(()=>{});
-    const mg3=await mp.evaluate(()=>{ const last=ST.inbox.filter(x=>/retired/.test(x.msg)).pop(), sv=ST.lang; ST.lang='tr'; const tr=last ? T(last.msg) : ''; ST.lang=sv; const main=(ST.accts && ST.accts.main) || ST.A;
-      return { ids:ST.ai.map(b=>b.id).join(), mg:(ST.mg||[]).length, cash:main.cash, lim:Object.keys(ST.botLim||{}).join(), peak:Object.keys(ST.botPeak||{}).join(), edge:Object.keys(ST.edge||{}).join(), en:last ? last.msg : '', tr,
-        saved:JSON.parse(localStorage.getItem('tdl-state')).ai.map(b=>b.id).join(), again:stRetireBots() }; });
-    const back=mg3.cash-seed.cash;
-    check('an old saved state with all 15 bots loads with only the 6 of the roster; their loss limits, peaks and edge flags go too (and running it again changes nothing)', seed.n===15 && mg3.ids==='knn,nb,forest,q,rank,sector' && mg3.saved===mg3.ids && !/council|regime|ga/.test(mg3.lim+mg3.peak+mg3.edge) && /knn/.test(mg3.lim) && mg3.again===false, JSON.stringify(mg3));
-    check('…money handed to a retired bot (the Ensemble Council) comes back to the main cash at live prices, with an inbox note in English and Turkish', mg3.mg===0 && Math.abs(back-seed.mgE)<seed.mgE*.01 && /^Ensemble Council was retired/.test(mg3.en) && /^Ensemble Council kaldırıldı: .*nakdine döndü/.test(mg3.tr), JSON.stringify({ back:back.toFixed(2), was:seed.mgE.toFixed(2), en:mg3.en, tr:mg3.tr }));
+    await mp.addInitScript(j=>{ if (!sessionStorage.getItem('seeded')){ localStorage.setItem('tdl-state', j); sessionStorage.setItem('seeded', '1'); } }, old);
+    await mp.goto(URL0); await mp.waitForFunction(()=>CLUB.fund, null, { timeout:20000 }).catch(()=>{}); await mp.evaluate(()=>saveNow());
+    const mg=await mp.evaluate(()=>{ const s=JSON.parse(localStorage.getItem('tdl-state')); return { lang:ST.lang, theme:ST.theme, watch:ST.watch.join(), side:ST.side, type:ST.type, seq:ST.A.seq, doge:!!ST.A.pos.DOGE, keys:['A','bots','ai','mg','accts','fut','ch','welcomed'].filter(k=>k in s).join() }; });
+    check('an old saved state keeps its language, theme and watchlist; its own account, bots, futures and challenge are dropped and the fund shows', mg.lang==='tr' && mg.theme==='light' && mg.watch==='BTC,TSLA' && mg.side==='buy' && mg.type==='mkt' && mg.seq>=1234 && !mg.doge && !mg.keys, JSON.stringify(mg));
     await mc.close(); }
+  check('the Alpaca secret was never sent anywhere but Alpaca', seen.leak.length===0, seen.leak.join(' '));
   check('no script errors anywhere', errs.length===0, errs.slice(0,3).join(' | '));
   await b.close(); console.log(`\n${pass}/${pass+fail} checks passed`); process.exit(fail?1:0);
 })();

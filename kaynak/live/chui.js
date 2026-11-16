@@ -499,7 +499,7 @@ document.addEventListener('dragend', ()=>{ CU.drag=null; for (const r of documen
 // keys inside the layer (they never reach the Trade-screen shortcuts)
 function cuKeyDlg(e){
   const o=CU.open; if (!o) return; const p=cuPanel(); if (!p) return; const t=e.target;
-  if (e.key==='Escape'){ e.preventDefault(); if (typeof chEscMark==='function') chEscMark(); if (o.kind==='type'){ cuClose(); return; } CU.stack.length && o.kind==='set' ? cuClose() : (CU.stack=[], cuClose()); return; }
+  if (e.key==='Escape'){ e.preventDefault(); if (o.kind==='type'){ cuClose(); return; } CU.stack.length && o.kind==='set' ? cuClose() : (CU.stack=[], cuClose()); return; }
   if (o.kind==='type'){
     const its=[...p.querySelectorAll('[role="menuitemradio"]')], i=its.indexOf(t);
     if (e.key==='ArrowDown' || e.key==='ArrowUp'){ e.preventDefault(); its[(i+(e.key==='ArrowDown' ? 1 : -1)+its.length)%its.length].focus(); }
@@ -538,13 +538,12 @@ function cuKeyDlg(e){
 addEventListener('keydown', e=>{
   if (e.key!=='Escape') return;
   const inLayer=e.target && e.target.closest && e.target.closest('#cu-layer');
-  if (CU.open){ if (!inLayer){ e.preventDefault(); e.stopPropagation(); if (typeof chEscMark==='function') chEscMark(); CU.stack=[]; cuClose(); } return; }
+  if (CU.open){ if (!inLayer){ e.preventDefault(); e.stopPropagation(); CU.stack=[]; cuClose(); } return; }
   if (!document.documentElement.classList.contains('ch-full')) return;
   if (typeof UI==='object' && UI && (UI.pal || UI.help)) return;
-  const rp=document.getElementById('replay'); if (rp && !rp.hidden) return;
   if (typeof drBusy==='function'){ try { if (drBusy()) return; } catch (x){} }
   if (typeof DR==='object' && DR && DR.tmp) return;     // a Shift-drag measurement: draw.js clears it first
-  e.preventDefault(); e.stopPropagation(); if (typeof chEscMark==='function') chEscMark(); cuFull(false);
+  e.preventDefault(); e.stopPropagation(); cuFull(false);
 }, true);
 // keep the focus inside an open dialog
 document.addEventListener('focusin', e=>{ if (!CU.open) return; const p=cuPanel(); if (p && !p.contains(e.target)){ const f=cuFocusables(p)[0]; (f || p).focus(); } });

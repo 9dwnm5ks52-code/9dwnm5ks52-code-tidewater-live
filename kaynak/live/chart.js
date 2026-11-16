@@ -181,10 +181,6 @@ function chDetach(){
   chKinStop(); clearTimeout(CH.holdT);
   CH.sym=null; CH.wrap=null; CH.svg=null; CH.L=null; CH.chm=null; CH.sig=''; CH.live=''; CH.drag=null; CH.pinch=null; CH.hov=null; CH.kb=null; CH.ptrs.clear();
   if (typeof CHM!=='undefined') CHM=null; }
-// Esc handled by the chart UI (crosshair, drawing tools, dialogs): term.js leaves the next Esc alone for a moment, so a
-// second press does not cancel an order
-function chEscMark(){ CH.escT=Date.now(); }
-function chEscRecent(){ return Date.now()-(CH.escT||0)<700; }
 // redraw only the chart (and the order lines over it), once per frame
 function chQueue(){ if (CH.qr) return; CH.qr=requestAnimationFrame(()=>{ CH.qr=0; try{ if (CH.host && CH.host.isConnected && CH.sym && (typeof ST!=='object' || !ST || !ST.sel || CH.sym===ST.sel) && CH.host.getClientRects().length){ chRender(CH.host, CH.sym); if (typeof ST==='object' && ST.term && typeof termLines==='function') termLines(); } }catch(e){ try{ console.error(e); }catch(z){} } }); }
 function chDraw(){ const svg=CH.svg; if (!svg || !CH.L) return; const g=svg.querySelector('.ch-dr'); if (!g) return; let m='';
@@ -477,8 +473,8 @@ function chWheel(e){ const L=CH.L; if (!L) return; e.preventDefault(); chKinStop
   if (!e.ctrlKey && Math.abs(dx)>Math.abs(dy)){ chPanBy(-dx/L.cw); return; }
   const cur=CH.view.n || L.n; chZoomAt(cur*Math.exp(dy*(e.ctrlKey ? 0.01 : 0.0015)), p.x, null); }
 function chKey(e){ if (e.target!==CH.wrap || e.ctrlKey || e.metaKey || e.altKey) return; const L=CH.L; if (!L) return; const k=e.key, cur=CH.view.n || L.n, step=Math.max(1, Math.round(cur*0.1));
-  // Esc on the focused chart clears the crosshair; it never reaches the Trade-screen shortcut that cancels an order
-  if (k==='Escape'){ e.preventDefault(); e.stopPropagation(); chEscMark(); if (CH.kb!=null || CH.hov){ CH.kb=null; CH.hov=null; chCross(); } return; }
+  // Esc on the focused chart clears the crosshair
+  if (k==='Escape'){ e.preventDefault(); e.stopPropagation(); if (CH.kb!=null || CH.hov){ CH.kb=null; CH.hov=null; chCross(); } return; }
   let done=true;
   if (e.shiftKey && (k==='ArrowLeft' || k==='ArrowRight')){ const base=CH.kb!=null ? CH.kb : Math.min(L.N-1, L.i1); CH.kb=Math.max(0, Math.min(L.N-1, base+(k==='ArrowLeft' ? -1 : 1)));
     if (L.X(CH.kb)<0) CH.view.end+=1; else if (L.X(CH.kb)>L.plotW) CH.view.end-=1; chNow(); chQueue(); chCross(); }

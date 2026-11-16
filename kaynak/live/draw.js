@@ -553,13 +553,13 @@ document.addEventListener('change', e=>{ const t=e.target; if (t && t.getAttribu
 document.addEventListener('keydown', e=>{
   const t=e.target;
   if (DR.ed && t && t.closest && t.closest('.dr-ed')){
-    if (e.key==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); if (typeof chEscMark==='function') chEscMark(); drEdDone(false); return; }
+    if (e.key==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); drEdDone(false); return; }
     if (e.key==='Enter' && t.tagName==='INPUT'){ e.preventDefault(); e.stopImmediatePropagation(); drEdDone(true); return; }
     if (e.key==='Tab'){ const f=[...t.closest('.dr-ed').querySelectorAll('input,button')], i=f.indexOf(t); e.preventDefault(); f[(i+(e.shiftKey ? f.length-1 : 1))%f.length].focus(); }
     e.stopImmediatePropagation(); return; }     // typing a note: no page shortcuts
   if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
   if (!drVisible() || !drM()) return;
-  const stop=()=>{ e.preventDefault(); e.stopImmediatePropagation(); if (e.key==='Escape' && typeof chEscMark==='function') chEscMark(); };
+  const stop=()=>{ e.preventDefault(); e.stopImmediatePropagation(); };
   if (e.key==='Escape'){
     if (DR.ed){ stop(); drEdDone(false); return; }
     if (DR.place || DR.drag){ stop(); drAbort(); return; }

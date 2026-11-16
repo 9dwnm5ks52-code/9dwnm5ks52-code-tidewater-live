@@ -1,0 +1,54 @@
+# Phoenix Finance Club: the club fund's executor.
+# - A member's order: the site calls GitHub's "run workflow" API with the member's own token (inputs "order" and "cid").
+#   GitHub accepts that call only from accounts with write access to this repository (the club's collaborators), so
+#   being a collaborator IS the permission to trade. Nobody else can start this workflow.
+# - Every 5 minutes: resting limit and stop orders are checked against fresh prices, and the fund's value is recorded.
+# The fund lives in fund.json on the "data" branch; the site reads it from there. The branch keeps its history.
+name: club
+on:
+  workflow_dispatch:
+    inputs:
+      order:
+        description: 'The order, as JSON (sent by the site)'
+        required: false
+        type: string
+        default: ''
+      cid:
+        description: 'Client order id (sent by the site)'
+        required: false
+        type: string
+        default: ''
+  schedule:
+    - cron: '*/5 * * * *'     # GitHub runs scheduled jobs on a best-effort basis: often every 5 to 15 minutes
+permissions:
+  contents: write
+# Scheduled runs share one group, so a slow tick never piles up behind another. Orders are NOT put in a shared group:
+# GitHub keeps only one pending run per group and cancels the older pending one, which would drop orders when several
+# members trade at once. Instead every order runs at once and server/club_run.sh saves without force, retrying on the
+# newest data if another run saved first; fund.done[cid] makes sure an order is executed exactly once.
+concurrency:
+  group: club-${{ github.event_name == 'schedule' && 'schedule' || github.run_id }}
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run the fund and save it
+        # the inputs reach the script only as environment variables, never as part of the script text
+        env:
+          ORDER: ${{ inputs.order }}
+          CID: ${{ inputs.cid }}
+        run: bash server/club_run.sh
+      - name: Keep the schedule alive (GitHub pauses scheduled jobs after 60 days without activity in the repository)
+        if: github.event_name == 'schedule'
+        run: |
+          last=$(git log -1 --format=%ct); now=$(date +%s)
+          if [ $((now-last)) -gt 3888000 ]; then
+            git -c user.name="phoenix-club-fund" -c user.email="phoenix-club-fund@users.noreply.github.com" commit --allow-empty -qm "keepalive"
+            git push -q origin HEAD
+          fi
