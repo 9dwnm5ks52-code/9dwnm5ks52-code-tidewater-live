@@ -6,3 +6,4 @@ kaynak/_arsiv/
 node_modules/
 *.zip
 __pycache__/
+kaynak/*.png

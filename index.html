@@ -556,6 +556,173 @@ html.ch-full .cu-fullhost>.tr-find,html.ch-full .cu-fullhost>.tr-facts,html.ch-f
 html.ch-full .cu-fullhost #tr-chart{flex:1 1 auto;min-height:0}
 html.ch-full .toast,html.cu-lock .toast{z-index:90}
 @media print{#cu-layer{display:none!important}}
+
+/* ---------- Tidewater Live: the "glass" skin ----------
+   Deep green gradient, glass cards with large radii, mint accent, pill controls, one big number per card,
+   and numbers in the body font with tabular figures (mono only where columns must line up: order book, tape, chart axes).
+   Loaded last: it re-themes everything through the design tokens and restyles the shared components. */
+:root{
+  --bg:#050e0a; --surface-1:#0b1b14; --surface-2:#0f2219; --surface-3:#15302a;
+  --glass:rgba(6,18,13,.72); --scrim:rgba(0,6,3,.7);
+  --line:#163126; --line-strong:#24503d; --control-border:#4c7a65;
+  --ink:#ecfff5; --ink-2:#a9cbbb; --ink-3:#8db4a2;
+  --accent:#3cf3a1; --accent-hover:#72f7bb; --accent-press:#1fdc8a; --on-accent:#03150d; --accent-soft:#0e3424;
+  --gain:#3ce99e; --gain-soft:#0c2d20; --loss:#ff7d70; --loss-soft:#3a1916; --on-trade:#03150d;
+  --warn:#ffab4c; --warn-soft:#33240f; --focus:#3cf3a1;
+  --chart-grid:#11261d; --chart-line:#e6fff2; --chart-volume:#1d3a2e; --chart-compare:#8db4a2;
+  --elev-raised:0 24px 60px rgba(0,0,0,.45); --elev-overlay:0 30px 80px rgba(0,0,0,.65);
+  --r-card:26px; --r-ctl:14px;
+  --card-bg:linear-gradient(155deg,rgba(60,243,161,.085),rgba(60,243,161,.015) 52%,rgba(255,255,255,.01)),var(--surface-1);
+  --card-edge:inset 0 1px 0 rgba(200,255,228,.06);
+  --hero-bg:linear-gradient(140deg,#4af5aa 0%,#2ee596 45%,#17c47e 100%);
+  --page-bg:radial-gradient(1100px 620px at 78% -8%,rgba(40,224,146,.24),transparent 62%),radial-gradient(900px 520px at -6% 104%,rgba(20,140,92,.2),transparent 60%),linear-gradient(180deg,#071510 0%,#040b08 100%);
+}
+:root[data-tdx-theme="light"]{
+  --bg:#e9f3ee; --surface-1:#ffffff; --surface-2:#f5faf7; --surface-3:#e3efe8;
+  --glass:rgba(240,248,244,.8); --scrim:rgba(4,30,20,.4);
+  --line:#d3e5db; --line-strong:#b2cdbf; --control-border:#6c8b7d;
+  --ink:#05251a; --ink-2:#2c4d40; --ink-3:#476658;
+  --accent:#08754a; --accent-hover:#06633e; --accent-press:#055433; --on-accent:#ffffff; --accent-soft:#d5f2e3;
+  --gain:#08754a; --gain-soft:#dcf3e7; --loss:#bf2f2a; --loss-soft:#fbe4e2; --on-trade:#ffffff;
+  --warn:#8a5200; --warn-soft:#fbefdc; --focus:#08754a;
+  --chart-grid:#dde9e2; --chart-line:#05251a; --chart-volume:#cfe0d6; --chart-compare:#476658;
+  --elev-raised:0 1px 2px rgba(5,37,26,.05),0 14px 34px rgba(5,37,26,.08); --elev-overlay:0 24px 64px rgba(5,37,26,.18);
+  --card-bg:linear-gradient(155deg,rgba(8,117,74,.06),rgba(255,255,255,0) 55%),var(--surface-1);
+  --card-edge:inset 0 1px 0 rgba(255,255,255,.9);
+  --hero-bg:linear-gradient(140deg,#0b7a4b 0%,#086a41 50%,#065736 100%);
+  --page-bg:radial-gradient(1100px 600px at 80% -10%,rgba(60,243,161,.22),transparent 60%),radial-gradient(800px 480px at -8% 105%,rgba(8,117,74,.12),transparent 60%),linear-gradient(180deg,#eef7f2,#e4efe9);
+}
+body{background:var(--page-bg);background-attachment:fixed;letter-spacing:-.005em}
+
+/* numbers: the body font with even-width digits; mono stays only where columns must line up */
+.mono{font-family:var(--f-body);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.book .mono,.book,.tape,.tape .mono,#tm-tape .mono,.chart text,kbd,code{font-family:var(--f-mono)}
+.fld input,.fld select,input,select,textarea{font-family:var(--f-body);font-variant-numeric:tabular-nums}
+
+/* ---- shell: a floating header and an icon rail */
+.lv-top{background:var(--glass);border-bottom:1px solid var(--line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);padding-top:12px;padding-bottom:12px}
+.lv-brand{gap:10px}
+.lv-brand b{width:34px;height:34px;display:inline-grid;place-items:center;padding:0;border-radius:12px;font-size:.66rem;letter-spacing:.02em;background:var(--hero-bg);color:#03150d;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 8px 24px rgba(60,243,161,.28)}
+:root[data-tdx-theme="light"] .lv-brand b{color:#fff}
+.lv-tb{border:1px solid var(--line-strong);background:var(--surface-2);min-height:40px;border-radius:999px;padding:0 14px}
+.lv-tb:hover{border-color:var(--accent);color:var(--ink)}
+.lv-nw b{font-size:1.05rem;font-weight:700}
+.lv-dot{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+/* moon / sun theme switch */
+#lv-theme.th-sw{display:inline-flex;align-items:center;gap:2px;padding:3px;min-height:40px}
+#lv-theme .th-i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2)}
+#lv-theme .th-i svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#lv-theme .th-i.on{background:var(--accent);color:var(--on-accent);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 40%,transparent)}
+
+@media (min-width:761px){
+  .lv-shell{grid-template-columns:92px minmax(0,1fr)}
+  .lv-nav{top:74px;height:auto;max-height:calc(100vh - 92px);margin:4px 0 16px 16px;padding:12px 8px;gap:8px;border:1px solid var(--line);border-radius:30px;background:var(--card-bg);box-shadow:var(--card-edge),var(--elev-raised);align-items:center;overflow:visible}
+  .lv-nav a{position:relative;width:48px;height:48px;min-height:48px;padding:0;border-radius:50%;gap:0;color:var(--ink-2)}
+  .lv-nav a svg{width:21px;height:21px}
+  .lv-nav a span{position:absolute;left:58px;top:50%;transform:translateY(-50%) translateX(-4px);white-space:nowrap;padding:6px 10px;border-radius:10px;background:var(--surface-3);color:var(--ink);border:1px solid var(--line-strong);font-size:.78rem;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:30;box-shadow:var(--elev-raised)}
+  .lv-nav a:hover span,.lv-nav a:focus-visible span{opacity:1;transform:translateY(-50%)}
+  .lv-nav a:hover{background:var(--surface-3);color:var(--ink)}
+  .lv-nav a[aria-current="page"]{background:var(--accent);color:var(--on-accent);box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 38%,transparent)}
+  .lv-nav a[aria-current="page"] svg{stroke:var(--on-accent)}
+  .lv-main{padding-left:20px}
+}
+@media (max-width:760px){
+  .lv-nav{background:var(--glass);border-top:1px solid var(--line);border-radius:22px 22px 0 0}
+  .lv-nav a{border-radius:16px}
+  .lv-nav a[aria-current="page"]{background:var(--accent-soft)}
+  .lv-nav a[aria-current="page"] svg{stroke:var(--accent)}
+}
+
+/* ---- cards */
+.bd-t,.pn{background:var(--card-bg);border:1px solid var(--line);border-radius:var(--r-card);padding:20px;gap:10px;box-shadow:var(--card-edge)}
+.bd{gap:16px}
+.bd-th h2{font-size:.98rem;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.bd-dot{display:none}
+.bd-big{font-size:2.4rem;font-weight:700;letter-spacing:-.035em;line-height:1}
+.bd-sub{color:var(--ink-2)}
+.lv-h1{font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:700;letter-spacing:-.03em;margin-bottom:16px}
+.pn h2{letter-spacing:-.01em}
+
+/* ---- controls: pills */
+.go{border-radius:999px;min-height:44px;font-weight:700;box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 30%,transparent)}
+.go:hover{background:var(--accent-hover)}
+.ghost{background:var(--surface-2);border-color:var(--line-strong)}
+.ghost:hover{border-color:var(--accent)}
+.seg{background:var(--surface-2);border:1px solid var(--line);padding:4px}
+.seg button{min-height:34px;padding:0 14px}
+.seg button[aria-pressed="true"],.seg button[aria-checked="true"],.seg button[aria-selected="true"]{background:var(--accent);color:var(--on-accent);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 30%,transparent)}
+.b-buy{background:var(--gain);color:var(--on-trade)}.b-sell{background:var(--loss);color:#1d0503}
+:root[data-tdx-theme="light"] .b-sell{color:#fff}
+.fld input,.fld select{border-radius:var(--r-ctl);border-color:var(--line-strong);background:var(--surface-2);min-height:46px}
+.fld input:focus,.fld select:focus{border-color:var(--accent);outline:2px solid color-mix(in srgb,var(--accent) 35%,transparent);outline-offset:1px}
+.chip{border-radius:999px}
+details>summary{cursor:pointer}
+
+/* ---- tables: quiet lines, small caps headers */
+.tbl th{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;border-bottom-color:var(--line-strong)}
+.tbl td{border-bottom-color:var(--line);padding-top:10px;padding-bottom:10px}
+.tbl tbody tr:hover td{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.tblw{border-radius:16px}
+
+/* ---- market map tiles */
+.hm{gap:6px}
+.hm button{border-radius:16px!important;border:1px solid transparent}
+.hm button[aria-pressed="true"]{border-color:var(--accent)!important;box-shadow:0 0 0 1px var(--accent)}
+
+/* ---- the welcome page hero and highlighted cards use the bright mint gradient */
+.bd-t.hero{background:var(--hero-bg);border-color:transparent;color:#03150d;box-shadow:0 18px 48px color-mix(in srgb,var(--accent) 22%,transparent)}
+:root[data-tdx-theme="light"] .bd-t.hero{color:#fff}
+.bd-t.hero .bd-th h2,.bd-t.hero .bd-sub{color:inherit}
+
+@media (max-width:760px){ .bd-t,.pn{padding:16px;border-radius:22px} .bd-big{font-size:2rem} }
+@media print{ body{background:#fff} }
+
+/* ---- account bar: a slim glass strip, only on the screens where you trade */
+html[data-view]:not([data-view="trade"]):not([data-view="portfolio"]):not([data-view="challenge"]):not([data-view="report"]) .acct{display:none}
+.acct{margin:0 16px 4px;border:1px solid var(--line);border-radius:20px;background:var(--card-bg);box-shadow:var(--card-edge);padding:8px 18px}
+.acct small{color:var(--ink-3);letter-spacing:.06em}
+.acct-sel select{border-radius:999px;border-color:var(--line-strong);padding:0 12px}
+.hm-sec{font-family:var(--f-body);color:var(--ink-3);letter-spacing:.1em;font-weight:600}
+
+/* ---- Board bento: today, week, mood gauge, strategy dots */
+.hm-today .hm-say{margin:0;font-size:1.22rem;line-height:1.5;font-weight:500;letter-spacing:-.01em;max-width:60ch}
+.hm-today .hm-say b{font-weight:800}
+.hm-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.hm-pill{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border-radius:999px;border:1.5px solid currentColor;text-decoration:none;font-weight:700;font-size:.85rem;color:inherit}
+.hm-pill:hover{background:rgba(255,255,255,.18)}
+.hm-wk.empty{display:block;min-height:0}
+.hm-wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;min-height:150px}
+.hm-d{display:flex;flex-direction:column;gap:6px;padding:8px 4px;border-radius:16px;min-width:0;border-left:1px solid var(--line)}
+.hm-d:first-child{border-left:0}
+.hm-d.on{background:color-mix(in srgb,var(--accent) 10%,transparent);border-left-color:transparent}
+.hm-d.past{opacity:.55}
+.hm-dh{display:flex;flex-direction:column;align-items:center;font-size:.78rem;color:var(--ink-2)}
+.hm-dh b{font-size:1.05rem;color:var(--ink)}
+.hm-d.on .hm-dh b{color:var(--accent)}
+.hm-ev{border-radius:12px;padding:6px 8px;background:var(--surface-2);border:1px solid var(--line-strong);font-size:.7rem;line-height:1.25;min-width:0}
+.hm-ev b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-weight:700;overflow:hidden;word-break:break-word}
+.hm-ev span{color:var(--ink-2)}
+.hm-ev.hi{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+.hm-ev.hi span{color:inherit;opacity:.85}
+.hm-more{font-size:.7rem;color:var(--ink-3);text-align:center}
+.hm-gw{position:relative;display:grid;place-items:center;margin-top:4px}
+.hm-gw .hm-g{width:100%;max-width:220px;display:block}
+.hm-gw #m-v{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:2.2rem}
+#t-mood{align-items:stretch}
+#t-mood .gauge{display:none}
+#t-mood #m-l{text-align:center;font-weight:700;color:var(--ink);font-size:1rem}
+.hm-st{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.hm-st li{display:grid;grid-template-columns:minmax(0,1fr) auto 76px;gap:12px;align-items:center;padding:7px 10px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
+.hm-sn{font-weight:600;font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hm-dots{display:inline-grid;grid-template-columns:repeat(5,8px);gap:4px}
+.hm-dots i{width:8px;height:8px;border-radius:50%;background:var(--surface-3);border:1px solid var(--line-strong)}
+.hm-dots i.ok{background:var(--accent);border-color:transparent;box-shadow:0 0 8px color-mix(in srgb,var(--accent) 60%,transparent)}
+.hm-cg{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:760px){
+  .hm-wk{grid-template-columns:repeat(7,minmax(64px,1fr));overflow-x:auto;scrollbar-width:none}
+  .hm-today .hm-say{font-size:1.05rem}
+  .hm-st li{grid-template-columns:minmax(0,1fr) auto 62px;gap:8px}
+}
 </style>
 </head>
 <body>
@@ -2392,16 +2559,20 @@ function renderNow(){ const v=view(), Q=quotesAll(), A=ST.A, E=totalEq(Q);
   mktSetWatch(watchList()); if (v==='board') renderBoard(Q, E); else if (v==='markets') renderMarkets(Q); else if (v==='crypto') renderCrypto(Q); else if (v==='bots') renderBots(Q); else if (v==='news') renderNews(Q); else if (v==='lab') renderLab(); else if (v==='arena') renderArena(); else if (v==='desk') renderDesk(); else if (v==='journal') renderJournal(); else if (v==='learn') renderLearn(); else if (v==='welcome') renderWelcome(); else if (v==='report') renderReport(); else if (v==='challenge') renderChallenge(); else if (v==='trade') renderTrade(Q); else if (v==='portfolio') renderPortfolio(Q, E); else renderSettings(); if (typeof uiAfter==='function') uiAfter(v, Q); }
 function tile(id, cls, title, inner, dot){ return `<section class="bd-t ${cls}" id="t-${id}" aria-labelledby="t-${id}-h"><div class="bd-th"><span class="bd-dot ${dot||''}" aria-hidden="true"></span><h2 id="t-${id}-h">${esc(T(title))}</h2></div>${inner}</section>`; }
 function boardBuild(){ const el=$('#bd'); if (el.__lang===ST.lang) return; el.__lang=ST.lang;
+  const H=typeof hmTiles==='function' ? hmTiles() : {};
   el.innerHTML = tile('money','w2','Your money', `<div class="bd-row"><div class="bd-big mono" id="b-eq"></div><div class="mono" id="b-pl"></div></div><p class="bd-sub mono" id="b-cash"></p><div id="b-spark"></div>`)
-    + tile('map','w2 h2','Market map', `<div id="b-map"></div><a class="bd-more" href="#trade">${esc(T('Open the trade screen →'))}</a>`, 'mk')
+    + (H.today||'')
     + tile('quick','','Quick trade', `<div><div class="bd-big mono" id="q-px"></div><p class="bd-sub" id="q-nm"></p></div><span class="seg" role="group" aria-label="Amount" id="q-amt">${[100,1000,5000].map(a=>`<button type="button" data-qa="${a}" aria-pressed="false">$${F0.format(a)}</button>`).join('')}</span><div class="bs"><button class="b-buy" type="button" data-q="b">${esc(T('Buy'))}</button><button class="b-sell" type="button" data-q="s">${esc(T('Sell'))}</button></div><p class="msg" id="q-msg" role="status"></p><div id="q-oj"></div>`, 'mk')
-    + tile('mood','','Market mood', `<div class="bd-big mono" id="m-v"></div><p class="bd-sub" id="m-l"></p><div class="gauge" aria-hidden="true"><i id="m-g"></i></div><p class="bd-sub mono" id="m-d"></p>`, 'mk')
+    + tile('mood','','Market mood', `<div class="hm-gw"><div id="hm-gauge"></div><div class="bd-big mono" id="m-v"></div></div><p class="bd-sub" id="m-l"></p><div class="gauge" aria-hidden="true"><i id="m-g"></i></div><p class="bd-sub mono" id="m-d"></p>`, 'mk')
+    + (H.week||'')
+    + tile('map','w2 h2','Market map', `<div id="b-map"></div><a class="bd-more" href="#trade">${esc(T('Open the trade screen →'))}</a>`, 'mk')
+    + (H.strat||'')
     + tile('league','w2','League: you against the bots', `<ol class="lg" id="b-lg"></ol><p class="bd-sub" id="b-lg-s"></p>`, 'game')
-    + tile('cal','','Your days', `<div class="cal" id="b-cal"></div><p class="bd-sub" id="b-cal-s"></p>`)
     + tile('inbox','','Inbox', `<ul class="ib" id="b-ib"></ul>`, 'news')
     + tile('watch','','Watchlist', `<div id="b-wl"></div>`, 'mk')
     + tile('news','w2','Headlines', `<div id="b-news"></div><a class="bd-more" href="#news">${esc(T('All the news →'))}</a>`, 'news')
     + tile('earn','','Coming reports', `<div id="b-earn"></div>`, 'news')
+    + tile('cal','','Your days', `<div class="cal" id="b-cal"></div><p class="bd-sub" id="b-cal-s"></p>`)
     + tile('src','w2','Data', `<div id="b-src"></div>`, 'mk'); }
 function renderBoard(Q, E){ boardBuild(); const A=ST.A;
   txt('b-eq', money(E)); const pl=E-A.start, ple=$('#b-pl'); ple.className='mono '+cls(pl); txt('b-pl', `${pl>=0?'+':'−'}${money(Math.abs(pl)).replace('−','')} (${pct(E/A.start-1)}) ${T('since you started')}`);
@@ -2487,7 +2658,10 @@ function renderSettings(){ renderSettingsExtra(); for (const b of $$('#set-fee [
 /* ---- static text, language and theme ---- */
 function applyLang(){ document.documentElement.lang=ST.lang; const b=$('#lv-lang'); b.textContent = ST.lang==='tr' ? 'EN' : 'TR'; b.setAttribute('aria-label', ST.lang==='tr' ? 'English' : 'Türkçe');
   for (const el of $$('[data-i18n]')) el.textContent=T(el.dataset.i18n); $('#bd').__lang=null; render(); }
-function applyTheme(){ document.documentElement.dataset.tdxTheme=ST.theme; txt('lv-theme', T(ST.theme==='light'?'Dark':'Light')); }
+function applyTheme(){ document.documentElement.dataset.tdxTheme=ST.theme; const b=$('#lv-theme'); if (!b) return; const lt=ST.theme==='light';
+  b.classList.add('th-sw'); b.setAttribute('aria-label', L2(lt ? 'Switch to the dark theme' : 'Switch to the light theme', lt ? 'Koyu temaya geç' : 'Açık temaya geç'));
+  b.innerHTML=`<span class="th-i${lt ? '' : ' on'}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span class="th-i${lt ? ' on' : ''}" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2.5 12h2M19.5 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>`;
+  const m=document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', lt ? '#e9f3ee' : '#050e0a'); }
 function markI18n(){ // remember the English text of the static labels so they can switch language
   const sel='.lv-nav a span, .pn h2, .lv-h1, .seg button, #pf-reset, #set-save, #set-del, .set .bd-sub, details summary, .fld > span:first-child, #foot, .pn h3, #pt .bd-sub, #pt-go, #al-go, .pn > p > a.bd-more';
   for (const el of $$(sel)) if (!el.dataset.i18n && el.children.length===0) el.dataset.i18n=el.textContent.trim();
@@ -3617,7 +3791,7 @@ document.addEventListener('click', e=>{ const t=e.target; const li=t.closest('[d
 document.addEventListener('change', e=>{ if (e.target.id==='acct-k') acctUse(e.target.value); });
 
 // ---- after every render: the account bar, the futures and challenge engines, the loss limits, and the screen-specific extras
-function uiAfter(v, Q){ try{ renderAcctBar(); futTick(Q); chGuard(Q); boGuard(Q); if (v==='trade'){ futAfter(Q); termAfter(Q); } if (v==='bots') renderBotOps(Q); }catch(e){ console.error(e); } }
+function uiAfter(v, Q){ try{ document.documentElement.dataset.view=v; if (v==='board' && typeof renderHome==='function') renderHome(Q); renderAcctBar(); futTick(Q); chGuard(Q); boGuard(Q); if (v==='trade'){ futAfter(Q); termAfter(Q); } if (v==='bots') renderBotOps(Q); }catch(e){ console.error(e); } }
 
 /* ---------- Tidewater Live: the pro chart engine (piece 3 of the pro chart, prefix CH / ch) ----------
    chInit() makes sure ST.chart exists (see ds/CHART_SPEC.md). chRender(host, sym) draws the chart of the instrument into
@@ -5664,6 +5838,66 @@ function renderWelcome(){ const el=$('#welcome'); if (!el) return; const A=typeo
       ${card('📒', L2('Real-money journal','Gerçek para defteri'), L2('Position sizing, your own risk rules, Binance CSV import, discipline stats.','Pozisyon büyüklüğü, kendi risk kuralların, Binance CSV içe aktarma, disiplin istatistikleri.'), '#journal')}
       ${card('📚', L2('Academy','Akademi'), L2('Ten short lessons on risk, costs, overfitting and the trader’s own mind.','Risk, maliyet, aşırı uyum ve yatırımcının kendi zihni üzerine on kısa ders.'), '#learn')}</section>
     <p class="bd-sub wc-foot">${esc(L2('Free, no account, no AI fees: everything runs in your browser (and, if you host it, on free GitHub servers). Your data stays with you. Past results do not promise future results; this is not investment advice.','Ücretsiz, hesapsız, yapay zekâ ücreti yok: her şey tarayıcında çalışır (yayına alırsan ücretsiz GitHub sunucularında). Verilerin sende kalır. Geçmiş sonuçlar gelecek için söz vermez; yatırım tavsiyesi değildir.'))}</p>`); }
+
+/* ---------- Tidewater Live: the Board as a bento (glass skin) ----------
+   Extra tiles: "Today in one look" (a rule-based summary, no AI), this week's economic calendar, a semicircle gauge for
+   the market mood, and the Strategy Desk's five real-money checks as dots. Everything comes from data the site already has. */
+const HM = { sig:'' };
+function hmTile(id, cls, title, inner){ return `<section class="bd-t ${cls}" id="t-${id}" aria-labelledby="t-${id}-h"><div class="bd-th"><h2 id="t-${id}-h">${esc(L2(...title))}</h2></div>${inner}</section>`; }
+function hmTiles(){ return {
+  today:hmTile('today', 'w2 hero hm-today', ['Today in one look','Bugün tek bakışta'], `<p class="hm-say" id="hm-say"></p><div class="hm-pills" id="hm-pills"></div>`),
+  week:hmTile('week', 'w2 hm-week', ['This week','Bu hafta'], `<div class="hm-wk" id="hm-wk"></div>`),
+  strat:hmTile('strat', 'w2 hm-strat', ['Strategy checks','Strateji kontrolleri'], `<div class="bd-row"><div><div class="bd-big" id="hm-pass"></div><p class="bd-sub" id="hm-pass-s"></p></div><a class="bd-more" href="#desk">${esc(L2('Open the Desk →','Masa’yı aç →'))}</a></div><ul class="hm-st" id="hm-st"></ul>`) }; }
+
+// what a Desk strategy holds today: the live daily engine if the Desk has loaded, else the server's sealed forward record
+function hmHold(id){ try{ if (typeof DLY!=='undefined' && DLY.D && typeof dlyToday==='function'){ const r=dlyToday(DLY.D)[id]; if (r) return r.now||{}; } }catch(e){}
+  const F=(typeof SRV!=='undefined' && SRV.fwd) || ST.fwd, row=F && F.rows && F.rows[F.rows.length-1]; return row && row.w ? row.w[id]||{} : null; }
+const hmSyms = w => Object.keys(w||{}).filter(s=>w[s]>.004).sort((a,b)=>w[b]-w[a]);
+const hmStrats = () => { const A=typeof dkData==='function' ? dkData() : null; return A && Array.isArray(A.strats) ? A.strats : []; };
+const hmName = id => { const S=(typeof DLY_STRATS!=='undefined' ? DLY_STRATS : []).find(x=>x.id===id); return S ? { ico:S.ico, n:L2(...S.name) } : { ico:'', n:id }; };
+const hmUSD = () => { const C=typeof SRV!=='undefined' && SRV.cal; return C && Array.isArray(C.events) ? C.events.filter(e=>e.country==='USD' && (e.impact==='High' || e.impact==='Medium')) : []; };
+const hmLoc = () => ST.lang==='tr' ? 'tr-TR' : 'en-US';
+const hmTime = t => new Date(t).toLocaleTimeString(hmLoc(), { hour:'2-digit', minute:'2-digit', hour12:false });
+const hmDay = t => new Date(t).toLocaleDateString(hmLoc(), { weekday:'short' });
+
+function hmGauge(v){ // a semicircle from 0 (extreme fear) to 100 (extreme greed)
+  const r=70, cx=90, cy=86, a=Math.PI*(1-Math.max(0, Math.min(100, v))/100), x=cx+r*Math.cos(a), y=cy-r*Math.sin(a);
+  return `<svg class="hm-g" viewBox="0 0 180 100" aria-hidden="true"><defs><linearGradient id="hm-gr" x1="0" x2="1"><stop offset="0" stop-color="var(--loss)"/><stop offset=".5" stop-color="var(--warn)"/><stop offset="1" stop-color="var(--gain)"/></linearGradient></defs>`+
+    `<path d="M20 86 A70 70 0 0 1 160 86" fill="none" stroke="var(--surface-3)" stroke-width="12" stroke-linecap="round"/>`+
+    `<path d="M20 86 A70 70 0 0 1 160 86" fill="none" stroke="url(#hm-gr)" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="${Math.max(.5, v)} 100"/>`+
+    `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8" fill="var(--surface-1)" stroke="var(--ink)" stroke-width="3"/></svg>`; }
+
+function renderHome(Q){ try{
+  const now=Date.now(), mood=+(($('#m-v')||{}).textContent||NaN), moodL=($('#m-l')||{}).textContent||'';
+  // the mood gauge sits on top of the number
+  const mg=$('#hm-gauge'); if (mg && isFinite(mood) && mg.__v!==mood){ mg.__v=mood; setHTML(mg, hmGauge(mood)); }
+  // strategy checks (from the Desk's record since 2018)
+  const SS=hmStrats(), pass=SS.filter(s=>s.ready && s.ready.ok), best=SS.slice().sort((a,b)=>(b.ready && b.ready.ok)-(a.ready && a.ready.ok) || b.cagr-a.cagr)[0];
+  const ev=hmUSD().filter(e=>e.t>now).sort((a,b)=>a.t-b.t), next=ev.find(e=>e.impact==='High') || ev[0];
+  const btc=Q.BTC, held=best ? hmSyms(hmHold(best.id)) : null;
+  const sig=[ST.lang, ST.theme, mood, moodL, btc && btc.chg && btc.chg.toFixed(3), SS.length, held && held.join(), next && next.t, ev.length, Math.floor(now/6e4)].join('|');
+  if (sig===HM.sig) return; HM.sig=sig;
+  // today in one look: plain sentences built from rules
+  const bits=[]; if (isFinite(mood)) bits.push(L2(`The market mood is <b>${esc(moodL.toLowerCase())}</b> (${mood}).`, `Piyasa havası <b>${esc(moodL.toLocaleLowerCase('tr'))}</b> (${mood}).`));
+  if (btc && btc.chg!=null) bits.push(L2(`Bitcoin is <b>${esc(pct(btc.chg))}</b> in 24 hours.`, `Bitcoin 24 saatte <b>${esc(pct(btc.chg))}</b>.`));
+  if (best){ const nm=hmName(best.id).n; bits.push(held==null ? L2(`The Desk’s strongest strategy is <b>${esc(nm)}</b>.`, `Masa’nın en güçlü stratejisi <b>${esc(nm)}</b>.`)
+      : held.length ? L2(`<b>${esc(nm)}</b> holds <b>${esc(held.slice(0,4).join(', '))}</b> today.`, `<b>${esc(nm)}</b> bugün <b>${esc(held.slice(0,4).join(', '))}</b> tutuyor.`)
+      : L2(`<b>${esc(nm)}</b> is in cash today.`, `<b>${esc(nm)}</b> bugün nakitte.`)); }
+  if (next) bits.push(L2(`Next big US release: <b>${esc(next.title)}</b>, ${esc(hmDay(next.t))} ${esc(hmTime(next.t))}.`, `Sıradaki önemli ABD verisi: <b>${esc(next.title)}</b>, ${esc(hmDay(next.t))} ${esc(hmTime(next.t))}.`));
+  setHTML($('#hm-say'), bits.join(' ') || esc(L2('Prices are coming in…','Fiyatlar geliyor…')));
+  setHTML($('#hm-pills'), [[ '#desk', L2('Strategy Desk','Strateji Masası') ], [ '#trade', L2('Trade','İşlem yap') ], [ '#news', L2('Calendar & news','Takvim ve haberler') ]].map(([h, n])=>`<a class="hm-pill" href="${h}">${esc(n)}</a>`).join(''));
+  // this week: Monday to Sunday, the US releases that move markets
+  const d0=new Date(); d0.setHours(0,0,0,0); const mon=new Date(d0); mon.setDate(d0.getDate()-((d0.getDay()+6)%7));
+  const all=hmUSD(), days=[...Array(7)].map((_,k)=>{ const a=new Date(mon); a.setDate(mon.getDate()+k); const b=new Date(a); b.setDate(a.getDate()+1); return { a:+a, b:+b, today:+a===+d0, ev:all.filter(e=>e.t>=+a && e.t<+b).sort((x,y)=>x.t-y.t) }; });
+  const wk=$('#hm-wk'); if (wk) wk.classList.toggle('empty', !all.length); if (wk) setHTML(wk, !all.length ? `<p class="bd-sub">${esc(L2('The economic calendar comes from the server on the hosted site.','Ekonomik takvim, yayındaki sitede sunucudan gelir.'))}</p>`
+    : days.map(D=>`<div class="hm-d${D.today ? ' on' : ''}${D.b<now ? ' past' : ''}"><div class="hm-dh"><span>${esc(new Date(D.a).toLocaleDateString(hmLoc(), { weekday:'short' }))}</span><b>${new Date(D.a).getDate()}</b></div>`+
+      D.ev.slice(0,3).map(e=>`<div class="hm-ev ${e.impact==='High' ? 'hi' : ''}" title="${esc(e.title+' · '+hmTime(e.t)+(e.forecast ? ' · '+L2('forecast ','beklenti ')+e.forecast : ''))}"><b>${esc(e.title)}</b><span>${esc(hmTime(e.t))}</span></div>`).join('')+
+      (D.ev.length>3 ? `<span class="hm-more">+${D.ev.length-3}</span>` : '')+`</div>`).join(''));
+  // strategy checks as dots: one dot per real-money check, filled when it passed
+  const ps=$('#hm-st'); if (ps){ txt('hm-pass', SS.length ? `${pass.length}/${SS.length}` : '—');
+    txt('hm-pass-s', L2('strategies passed all five real-money checks','strateji beş gerçek para kontrolünün hepsini geçti'));
+    setHTML(ps, SS.map(s=>{ const nm=hmName(s.id), c=(s.ready && s.ready.c)||[]; return `<li><span class="hm-sn">${nm.ico} ${esc(nm.n)}</span><span class="hm-dots" role="img" aria-label="${esc(L2(`${c.filter(x=>x[0]).length} of ${c.length} checks passed`, `${c.length} kontrolden ${c.filter(x=>x[0]).length} geçti`))}">${c.map(x=>`<i class="${x[0] ? 'ok' : ''}" title="${esc((x[0] ? '✓ ' : '✗ ')+L2(...x[1]))}"></i>`).join('')}</span><span class="hm-cg ${cls(s.cagr)}">${esc(pct(s.cagr))}</span></li>`; }).join('')); }
+} catch(e){ console.error(e); } }
 
 start();</script>
 </body>

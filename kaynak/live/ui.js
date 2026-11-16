@@ -59,4 +59,4 @@ document.addEventListener('click', e=>{ const t=e.target; const li=t.closest('[d
 document.addEventListener('change', e=>{ if (e.target.id==='acct-k') acctUse(e.target.value); });
 
 // ---- after every render: the account bar, the futures and challenge engines, the loss limits, and the screen-specific extras
-function uiAfter(v, Q){ try{ renderAcctBar(); futTick(Q); chGuard(Q); boGuard(Q); if (v==='trade'){ futAfter(Q); termAfter(Q); } if (v==='bots') renderBotOps(Q); }catch(e){ console.error(e); } }
+function uiAfter(v, Q){ try{ document.documentElement.dataset.view=v; if (v==='board' && typeof renderHome==='function') renderHome(Q); renderAcctBar(); futTick(Q); chGuard(Q); boGuard(Q); if (v==='trade'){ futAfter(Q); termAfter(Q); } if (v==='bots') renderBotOps(Q); }catch(e){ console.error(e); } }

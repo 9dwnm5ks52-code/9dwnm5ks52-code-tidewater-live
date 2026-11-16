@@ -30,7 +30,7 @@ async function mocks(p, seen){
   check('a first visit opens the welcome page (what the site is, the evidence, where to start)', wc0.hash==='#welcome' && wc0.hero && wc0.cards===8, JSON.stringify(wc0)); await p.evaluate(()=>location.hash='#board');
   await p.waitForFunction(()=>LIVE.status==='live' && LIVE_CRYPTO.every(d=>LIVE.q[d.sym] && LIVE.q[d.sym].last>0) && MKT.list.length>5000 && CX.list.length>20 && AI.status==='live', null, { timeout:45000 }); await p.waitForTimeout(800);
   const boot=await p.evaluate(()=>({ tiles:$$('#bd .bd-t').length, map:$$('#b-map [data-sym]').length, priced:$$('#b-map [data-sym]').filter(b=>/\$/.test(b.textContent)).length, us:US.status, eq:$('#lv-nw').textContent, apCalls:0 }));
-  check('the board opens with live crypto prices and delayed US prices, with no key and no call to Alpaca', boot.tiles===11 && boot.map===26 && boot.priced===26 && boot.us==='nokey' && boot.eq==='$100,000.00' && seen.ap===0, JSON.stringify(boot));
+  check('the board opens with live crypto prices and delayed US prices, with no key and no call to Alpaca', boot.tiles===14 && boot.map===26 && boot.priced===26 && boot.us==='nokey' && boot.eq==='$100,000.00' && seen.ap===0, JSON.stringify(boot));
   // quick trade
   await p.click('#b-map [data-sym="ETH"]'); await p.click('#q-amt [data-qa="1000"]'); await p.click('#t-quick [data-q="b"]'); await p.waitForTimeout(400);
   const qb=await p.evaluate(()=>({ pos:ST.A.pos.ETH, cash:ST.A.cash, inbox:ST.inbox.length, oj:!!$('#q-oj .oj'), msg:$('#q-msg').textContent, toast:!$('#toast').hidden }));
@@ -203,7 +203,7 @@ async function mocks(p, seen){
   await p.evaluate(()=>location.hash='#desk'); await p.waitForTimeout(400);
   const tabs={}; for (const k of ['today','results','tools','track']){ await p.click(`[data-dk-tab="${k}"]`); await p.waitForTimeout(300); tabs[k]=await p.evaluate(()=>$('#desk').innerText); }
   check('Desk, Today: event risk and whether strategies and bots agree', /48 hours|Event risk/.test(tabs.today) && /Do strategies and bots agree/.test(tabs.today), '');
-  check('Desk, Results: a year’s range (1 in 20), rolling 12 months, correlations, Turkish lira, weekday check and the ideas that failed', /What one year can look like/.test(tabs.results) && /12 months, at every point/.test(tabs.results) && /move together/.test(tabs.results) && /In Turkish lira/.test(tabs.results) && /Trading weekday/.test(tabs.results) && /Tried and failed/.test(tabs.results), '');
+  check('Desk, Results: a year’s range (1 in 20), rolling 12 months, correlations, Turkish lira, weekday check and the ideas that failed', /What one year can look like/i.test(tabs.results) && /12 months, at every point/i.test(tabs.results) && /move together/i.test(tabs.results) && /In Turkish lira/i.test(tabs.results) && /Trading weekday/i.test(tabs.results) && /Tried and failed/i.test(tabs.results), '');
   check('Desk, Tools: the DCA planner (three plans) and the own-rule tester', /Every month, always/.test(tabs.tools) && /Everything at the start/.test(tabs.tools) && /Test your own daily rule/.test(tabs.tools), '');
   check('Desk, Tracking: the forward test is recorded from today', /Forward test/.test(tabs.track) && await p.evaluate(()=>!!(ST.fwd && ST.fwd.rows.length)), '');
   await p.click('[data-dk-tab="today"]');

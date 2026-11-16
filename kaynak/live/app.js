@@ -163,16 +163,20 @@ function renderNow(){ const v=view(), Q=quotesAll(), A=ST.A, E=totalEq(Q);
   mktSetWatch(watchList()); if (v==='board') renderBoard(Q, E); else if (v==='markets') renderMarkets(Q); else if (v==='crypto') renderCrypto(Q); else if (v==='bots') renderBots(Q); else if (v==='news') renderNews(Q); else if (v==='lab') renderLab(); else if (v==='arena') renderArena(); else if (v==='desk') renderDesk(); else if (v==='journal') renderJournal(); else if (v==='learn') renderLearn(); else if (v==='welcome') renderWelcome(); else if (v==='report') renderReport(); else if (v==='challenge') renderChallenge(); else if (v==='trade') renderTrade(Q); else if (v==='portfolio') renderPortfolio(Q, E); else renderSettings(); if (typeof uiAfter==='function') uiAfter(v, Q); }
 function tile(id, cls, title, inner, dot){ return `<section class="bd-t ${cls}" id="t-${id}" aria-labelledby="t-${id}-h"><div class="bd-th"><span class="bd-dot ${dot||''}" aria-hidden="true"></span><h2 id="t-${id}-h">${esc(T(title))}</h2></div>${inner}</section>`; }
 function boardBuild(){ const el=$('#bd'); if (el.__lang===ST.lang) return; el.__lang=ST.lang;
+  const H=typeof hmTiles==='function' ? hmTiles() : {};
   el.innerHTML = tile('money','w2','Your money', `<div class="bd-row"><div class="bd-big mono" id="b-eq"></div><div class="mono" id="b-pl"></div></div><p class="bd-sub mono" id="b-cash"></p><div id="b-spark"></div>`)
-    + tile('map','w2 h2','Market map', `<div id="b-map"></div><a class="bd-more" href="#trade">${esc(T('Open the trade screen →'))}</a>`, 'mk')
+    + (H.today||'')
     + tile('quick','','Quick trade', `<div><div class="bd-big mono" id="q-px"></div><p class="bd-sub" id="q-nm"></p></div><span class="seg" role="group" aria-label="Amount" id="q-amt">${[100,1000,5000].map(a=>`<button type="button" data-qa="${a}" aria-pressed="false">$${F0.format(a)}</button>`).join('')}</span><div class="bs"><button class="b-buy" type="button" data-q="b">${esc(T('Buy'))}</button><button class="b-sell" type="button" data-q="s">${esc(T('Sell'))}</button></div><p class="msg" id="q-msg" role="status"></p><div id="q-oj"></div>`, 'mk')
-    + tile('mood','','Market mood', `<div class="bd-big mono" id="m-v"></div><p class="bd-sub" id="m-l"></p><div class="gauge" aria-hidden="true"><i id="m-g"></i></div><p class="bd-sub mono" id="m-d"></p>`, 'mk')
+    + tile('mood','','Market mood', `<div class="hm-gw"><div id="hm-gauge"></div><div class="bd-big mono" id="m-v"></div></div><p class="bd-sub" id="m-l"></p><div class="gauge" aria-hidden="true"><i id="m-g"></i></div><p class="bd-sub mono" id="m-d"></p>`, 'mk')
+    + (H.week||'')
+    + tile('map','w2 h2','Market map', `<div id="b-map"></div><a class="bd-more" href="#trade">${esc(T('Open the trade screen →'))}</a>`, 'mk')
+    + (H.strat||'')
     + tile('league','w2','League: you against the bots', `<ol class="lg" id="b-lg"></ol><p class="bd-sub" id="b-lg-s"></p>`, 'game')
-    + tile('cal','','Your days', `<div class="cal" id="b-cal"></div><p class="bd-sub" id="b-cal-s"></p>`)
     + tile('inbox','','Inbox', `<ul class="ib" id="b-ib"></ul>`, 'news')
     + tile('watch','','Watchlist', `<div id="b-wl"></div>`, 'mk')
     + tile('news','w2','Headlines', `<div id="b-news"></div><a class="bd-more" href="#news">${esc(T('All the news →'))}</a>`, 'news')
     + tile('earn','','Coming reports', `<div id="b-earn"></div>`, 'news')
+    + tile('cal','','Your days', `<div class="cal" id="b-cal"></div><p class="bd-sub" id="b-cal-s"></p>`)
     + tile('src','w2','Data', `<div id="b-src"></div>`, 'mk'); }
 function renderBoard(Q, E){ boardBuild(); const A=ST.A;
   txt('b-eq', money(E)); const pl=E-A.start, ple=$('#b-pl'); ple.className='mono '+cls(pl); txt('b-pl', `${pl>=0?'+':'−'}${money(Math.abs(pl)).replace('−','')} (${pct(E/A.start-1)}) ${T('since you started')}`);
@@ -258,7 +262,10 @@ function renderSettings(){ renderSettingsExtra(); for (const b of $$('#set-fee [
 /* ---- static text, language and theme ---- */
 function applyLang(){ document.documentElement.lang=ST.lang; const b=$('#lv-lang'); b.textContent = ST.lang==='tr' ? 'EN' : 'TR'; b.setAttribute('aria-label', ST.lang==='tr' ? 'English' : 'Türkçe');
   for (const el of $$('[data-i18n]')) el.textContent=T(el.dataset.i18n); $('#bd').__lang=null; render(); }
-function applyTheme(){ document.documentElement.dataset.tdxTheme=ST.theme; txt('lv-theme', T(ST.theme==='light'?'Dark':'Light')); }
+function applyTheme(){ document.documentElement.dataset.tdxTheme=ST.theme; const b=$('#lv-theme'); if (!b) return; const lt=ST.theme==='light';
+  b.classList.add('th-sw'); b.setAttribute('aria-label', L2(lt ? 'Switch to the dark theme' : 'Switch to the light theme', lt ? 'Koyu temaya geç' : 'Açık temaya geç'));
+  b.innerHTML=`<span class="th-i${lt ? '' : ' on'}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span class="th-i${lt ? ' on' : ''}" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2.5 12h2M19.5 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>`;
+  const m=document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', lt ? '#e9f3ee' : '#050e0a'); }
 function markI18n(){ // remember the English text of the static labels so they can switch language
   const sel='.lv-nav a span, .pn h2, .lv-h1, .seg button, #pf-reset, #set-save, #set-del, .set .bd-sub, details summary, .fld > span:first-child, #foot, .pn h3, #pt .bd-sub, #pt-go, #al-go, .pn > p > a.bd-more';
   for (const el of $$(sel)) if (!el.dataset.i18n && el.children.length===0) el.dataset.i18n=el.textContent.trim();
