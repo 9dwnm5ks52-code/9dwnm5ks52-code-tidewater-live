@@ -1,4 +1,4 @@
-// Tidewater Live: chart indicators (Piece 1 of the pro chart, prefix IND / ind). Pure math, no DOM.
+// Phoenix Finance Club: chart indicators (Piece 1 of the pro chart, prefix IND / ind). Pure math, no DOM.
 //
 // IND_DEFS[id] = { n:[en,tr], sn:'short name', d:[en,tr] one-line description, cat:'trend'|'momentum'|'volatility'|
 //   'volume'|'other', pane:'main'|'sub', p:{ name:{ v:default, min, max, step, n:[en,tr] } },

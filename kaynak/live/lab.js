@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the strategy lab (build rules, backtest them, run them as your own bot) ---------- */
+/* ---------- Phoenix Finance Club: the strategy lab (build rules, backtest them, run them as your own bot) ---------- */
 const LAB_K={ none:['—','—'], rsi_below:['RSI is under','RSI şunun altında'], rsi_above:['RSI is over','RSI şunun üstünde'], cross_up:['The fast average crosses above the slow one','Hızlı ortalama yavaşın üstüne geçer'],
   above_ema:['The price is above its average','Fiyat ortalamasının üstünde'], breakout:['The price breaks its recent high','Fiyat son zirvesini kırar'], drop:['The price has fallen sharply','Fiyat sert düşmüş'] };
 const LAB_P={ rsi_below:[['RSI','RSI']], rsi_above:[['RSI','RSI']], cross_up:[['Fast average (candles)','Hızlı ortalama (mum)'],['Slow average (candles)','Yavaş ortalama (mum)']], above_ema:[['Average (candles)','Ortalama (mum)']], breakout:[['Highest of the last … candles','Son … mumun en yükseği']], drop:[['Fall (%)','Düşüş (%)'],['Within … candles','… mum içinde']] };

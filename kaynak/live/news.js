@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the News screen, and news on the Board and the Trade screen ---------- */
+/* ---------- Phoenix Finance Club: the News screen, and news on the Board and the Trade screen ---------- */
 const NV={ tab:'top', mine:false, items:{}, loading:{}, tk:null };
 const NEWS_TABS=[['top','Top news','Öne çıkanlar'],['stocks','Your stocks','Hisselerin'],['crypto','Crypto','Kripto'],['economy','Economy','Ekonomi'],['earn','Earnings','Bilançolar'],['filings','Filings','Resmî bildirimler']];
 function ago(t){ if (!t) return ''; const m=Math.max(0, Math.round((Date.now()-t)/60000)); if (m<60) return L2(`${m} min ago`,`${m} dk önce`); const h=Math.round(m/60); if (h<24) return L2(`${h} h ago`,`${h} sa önce`); return new Date(t).toLocaleDateString(ST.lang==='tr'?'tr-TR':'en-US', { day:'numeric', month:'short' }); }

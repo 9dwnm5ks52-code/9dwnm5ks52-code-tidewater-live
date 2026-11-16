@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the interface ---------- */
+/* ---------- Phoenix Finance Club: the interface ---------- */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const INST=[...LIVE_CRYPTO.map(d=>({ ...d, kind:'crypto' })), ...LIVE_US.map(d=>({ ...d, kind:'stock' }))];

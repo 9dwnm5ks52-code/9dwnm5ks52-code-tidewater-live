@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: performance, measured the way funds measure it ----------
+/* ---------- Phoenix Finance Club: performance, measured the way funds measure it ----------
    Volatility and the Sharpe ratio come from 5-minute log returns (annualised over 365 days, as crypto trades every day; no risk-free rate);
    the deepest fall (maximum drawdown) from every point; win rate and profit factor from closed trades. Benchmarks: holding Bitcoin, or the S&P 500 (SPY), over the same time. */
 const PERF_STEP=300000;

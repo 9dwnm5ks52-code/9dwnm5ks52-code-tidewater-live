@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the Journal (for your real trades) ----------
+/* ---------- Phoenix Finance Club: the Journal (for your real trades) ----------
    Your own risk rules; a position-size calculator; a rebalance helper that turns a strategy's targets into the orders to place on your exchange;
    and a journal of the trades you make with real money (typed in or imported from Binance's CSV), with the numbers that show whether you follow your plan.
    Everything stays in this browser. Nothing here places orders. */

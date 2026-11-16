@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the Strategy Desk ----------
+/* ---------- Phoenix Finance Club: the Strategy Desk ----------
    Daily strategies from published research, tested on 30 coins since 2018 (results made by the server, or the copy built into this page),
    today's targets from fresh daily candles, the market report (trend, momentum, funding, order book), and paper accounts that follow a strategy day by day. */
 const DESK = { fund:{}, fundT:0, obi:{}, obiT:0, busy:false };
@@ -27,7 +27,7 @@ function dkChart(series, H){ H=H||260; const W=Math.max(320, Math.round(($('#dk-
     <p class="pf-leg">${series.map(s=>`<span><i style="background:${s.c}"></i>${esc(s.n)} <b class="mono">×${F2.format(s.xs[s.xs.length-1])}</b></span>`).join('')}</p>`; }
 const DK_C = ['var(--accent)','#5ab0ff','#ff9f43','#c084fc','#2dd4bf','#f472b6'];
 function dkReport(){ const D=DLY.D, R=DLY.D ? dlyToday(D) : {}, B=D ? dlyBoard(D) : [], A=dkData(), d=new Date().toLocaleDateString(ST.lang==='tr'?'tr-TR':'en-US', { day:'numeric', month:'long', year:'numeric' }), lines=[];
-  lines.push(`Tidewater · ${L2('daily report','günlük rapor')} · ${d}`); if (D){ const b=B.find(r=>r.s==='BTC'); if (b) lines.push(`BTC $${fpx(b.px)} · ${L2('vs 50-day average','50 günlük ortalamaya göre')} ${pct(b.sma50)} · ${L2('vs 200-day','200 günlüğe göre')} ${pct(b.sma200)} · ${L2('30-day volatility','30 günlük oynaklık')} ${p0(b.vol)}`); }
+  lines.push(`Phoenix Finance Club · ${L2('daily report','günlük rapor')} · ${d}`); if (D){ const b=B.find(r=>r.s==='BTC'); if (b) lines.push(`BTC $${fpx(b.px)} · ${L2('vs 50-day average','50 günlük ortalamaya göre')} ${pct(b.sma50)} · ${L2('vs 200-day','200 günlüğe göre')} ${pct(b.sma200)} · ${L2('30-day volatility','30 günlük oynaklık')} ${p0(b.vol)}`); }
   lines.push('', L2('Strategies — hold from today:','Stratejiler — bugünden itibaren tut:')); for (const S of DLY_STRATS){ const r=R[S.id]; if (!r) continue; lines.push(`${S.ico} ${L2(...S.name)}: ${dkW(r.now)} (${dkDiff(r.prev, r.now)})`); }
   const up=B.filter(r=>r.trend>=.75).sort((a,b)=>b.trend-a.trend).map(r=>r.s), top=B.filter(r=>r.rank && r.rank<=5 && r.mom>0).sort((a,b)=>a.rank-b.rank).map(r=>`${r.s} ${pct(r.mom)}`);
   lines.push('', `${L2('Strong trends','Güçlü trendler')}: ${up.join(', ')||'—'}`, `${L2('Best positive momentum (1-4 weeks)','En iyi pozitif momentum (1-4 hafta)')}: ${top.join(', ')||L2('none: every coin fell','yok: tüm coinler düştü')}`);

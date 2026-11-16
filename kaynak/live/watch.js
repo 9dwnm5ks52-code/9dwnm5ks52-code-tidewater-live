@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the watchlist and alerts ----------
+/* ---------- Phoenix Finance Club: the watchlist and alerts ----------
    Alerts are checked against every price update while the page is open; each fires once, then turns itself off.
    They show as a message here, in the inbox and, if you allow it, as a notification from your browser. */
 const AL_KIND={ above:['Price rises above','Fiyat şunun üstüne çıkarsa'], below:['Price falls below','Fiyat şunun altına inerse'], up:['Day’s rise reaches (%)','Günlük yükseliş şuna ulaşırsa (%)'], down:['Day’s fall reaches (%)','Günlük düşüş şuna ulaşırsa (%)'] };
@@ -8,7 +8,7 @@ function wlToggle(sym){ if (wlHas(sym)) ST.watch=ST.watch.filter(s=>s!==sym); el
 function alText(a){ const d=IM[a.sym], v=a.kind==='above' || a.kind==='below' ? '$'+fpx(a.v) : (a.kind==='up' ? '+' : '−')+F2.format(a.v)+'%'; return `${a.sym}: ${L2(...AL_KIND[a.kind])} ${v}`; }
 function alFiredText(a, q){ const p='$'+fpx(q.last), ch=(q.chg>=0 ? '+' : '−')+F2.format(Math.abs(q.chg*100))+'%'; return { above:`${a.sym} rose above $${fpx(a.v)}: now ${p}`, below:`${a.sym} fell below $${fpx(a.v)}: now ${p}`,
   up:`${a.sym} is up ${ch} today (alert at +${F2.format(a.v)}%)`, down:`${a.sym} is down ${ch} today (alert at −${F2.format(a.v)}%)` }[a.kind]; }
-function alNotify(msg){ try{ if ('Notification' in window && Notification.permission==='granted') new Notification('Tidewater Live', { body:msg, tag:'tdl-'+msg.slice(0,40) }); }catch(e){} }
+function alNotify(msg){ try{ if ('Notification' in window && Notification.permission==='granted') new Notification('Phoenix Finance Club', { body:msg, tag:'tdl-'+msg.slice(0,40) }); }catch(e){} }
 function alAdd(sym, kind, v){ const q=quote(sym); if (!(v>0)) return L2('Enter a value above zero.','Sıfırdan büyük bir değer gir.');
   if (q && kind==='above' && v<=q.last) return L2('That is already below the price now; pick a higher one.','Bu şu anki fiyatın zaten altında; daha yüksek bir değer seç.');
   if (q && kind==='below' && v>=q.last) return L2('That is already above the price now; pick a lower one.','Bu şu anki fiyatın zaten üstünde; daha düşük bir değer seç.');

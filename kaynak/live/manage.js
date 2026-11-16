@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: money you hand to a bot ----------
+/* ---------- Phoenix Finance Club: money you hand to a bot ----------
    The money moves from your cash into its own account, which copies the bot's portfolio in the same proportions:
    when the bot buys or sells, the account follows (checked every 30 seconds; differences under 2% are left alone, so it does not trade for crumbs).
    It pays the same prices and fees as everyone. Withdrawing sells everything and returns the cash to you. */

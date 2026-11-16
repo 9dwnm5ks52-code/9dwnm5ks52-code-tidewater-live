@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the Bot Arena screen ----------
+/* ---------- Phoenix Finance Club: the Bot Arena screen ----------
    Results of replaying every candle bot over the last 30 days of real 5-minute candles (walk-forward: each bot learns only from the past),
    against holding Bitcoin, holding all six coins and 1,000 random bots; engine v1 against v2. Fresh every day on the hosted site; otherwise the copy built into this page. */
 const ARV={ v:null };

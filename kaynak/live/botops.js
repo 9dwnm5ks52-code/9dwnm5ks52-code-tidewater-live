@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the bot control centre ----------
+/* ---------- Phoenix Finance Club: the bot control centre ----------
    One card per bot: a status light, profit/loss, a 7-day line, how much of its money is in the market, its last decision,
    an off switch and your own loss limit (the bot stops itself if it falls that far from its best). A live log of every bot,
    and a risk-balanced split of capital (each bot weighted by the inverse of its volatility). */
@@ -12,7 +12,7 @@ const boVol = r => { if (r.length<3) return null; const m=r.reduce((a,b)=>a+b,0)
 // your loss limits: checked after every bot step
 function boGuard(Q){ const L=ST.botLim||{}, P=ST.botPeak||(ST.botPeak={}); let ch=false;
   for (const b of ST.ai||[]){ const E=brkEquity(b.A, Q); if (!(E>0)) continue; P[b.id]=Math.max(P[b.id]||E, E); const lim=L[b.id]; if (!lim || !b.on) continue;
-    if ((P[b.id]-E)/P[b.id]>=lim/100){ b.on=false; ch=true; note(`${aiName(b.id)} was stopped by your loss limit (${lim}% from its best)`, '🛑'); if (typeof ntfySend==='function') ntfySend(T(`${aiName(b.id)} was stopped by your loss limit (${lim}% from its best)`), 'Tidewater'); } }
+    if ((P[b.id]-E)/P[b.id]>=lim/100){ b.on=false; ch=true; note(`${aiName(b.id)} was stopped by your loss limit (${lim}% from its best)`, '🛑'); if (typeof ntfySend==='function') ntfySend(T(`${aiName(b.id)} was stopped by your loss limit (${lim}% from its best)`), 'Phoenix Finance Club'); } }
   if (ch) save(); }
 TRP.push([/^(.+) was stopped by your loss limit \(([\d.]+)% from its best\)$/, m=>`${m[1]} kayıp sınırın yüzünden durduruldu (zirvesinden %${m[2]})`]);
 function renderBotOps(Q){ let el=$('#bo-ops'); const host=$('#v-bots'); if (!host) return; if (!el){ el=document.createElement('div'); el.id='bo-ops'; const h1=host.querySelector('h1'); (h1 || host.firstChild).after(el); }

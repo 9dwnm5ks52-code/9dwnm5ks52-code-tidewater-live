@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: terminal mode for the Trade screen ----------
+/* ---------- Phoenix Finance Club: terminal mode for the Trade screen ----------
    A dense workspace: chart, live order book, the tape of every trade, the ticket and a blotter (positions, orders, fills with slippage).
    Orders sit on the chart as lines you can drag to a new price. Keyboard shortcuts; price flashes; on a phone the ticket is a sheet that slides up. */
 const TM={ last:null, flashT:0, drag:null, sheet:false };

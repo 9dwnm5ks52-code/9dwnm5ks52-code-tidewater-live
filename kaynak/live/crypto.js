@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the Crypto screen and the leading self-trading bots ---------- */
+/* ---------- Phoenix Finance Club: the Crypto screen and the leading self-trading bots ---------- */
 const CXV={ q:'', sort:'rank', open:null };
 const L2=(en, tr)=>ST.lang==='tr' ? tr : en;
 const p0=v=>v==null ? '—' : ST.lang==='tr' ? '%'+F0.format(v*100) : F0.format(v*100)+'%';

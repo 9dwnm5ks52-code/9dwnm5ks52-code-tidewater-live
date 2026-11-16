@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the Markets screen (the whole US market, 15 minutes delayed) ---------- */
+/* ---------- Phoenix Finance Club: the Markets screen (the whole US market, 15 minutes delayed) ---------- */
 const MKV={ q:'', type:'all', sec:'', sort:'big', n:50, key:'', rows:[] };
 const IDX=[ { sym:'SPY', name:'S&P 500' }, { sym:'QQQ', name:'Nasdaq 100' }, { sym:'DIA', name:'Dow Jones' }, { sym:'IWM', name:'Russell 2000' } ];
 const big=v=>{ if (!(v>0)) return '—'; const u=[[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']].find(x=>v>=x[0]); return u ? F2.format(v/u[0]).replace(/\.?0+$/,'')+u[1] : F0.format(v); };

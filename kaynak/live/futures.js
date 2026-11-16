@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: paper futures (perpetual swaps) ----------
+/* ---------- Phoenix Finance Club: paper futures (perpetual swaps) ----------
    A separate futures wallet: long or short, 1 to 20 times leverage, isolated margin (a position can only lose its own margin),
    the liquidation price, funding every 8 hours at the market's current rate (OKX), and futures fees (0.05% taker, 0.02% maker).
    Liquidation: when the mark price reaches the liquidation price the position is closed and its margin is lost. */

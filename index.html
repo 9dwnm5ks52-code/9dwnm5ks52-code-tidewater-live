@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Tidewater Live: paper trading with real prices</title>
+<title>Phoenix Finance Club: the club fund, with real prices</title>
 <meta name="description" content="Practise trading crypto and the whole US stock market with play money and real prices. Free, no sign-up.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b0d10">
@@ -557,40 +557,40 @@ html.ch-full .cu-fullhost #tr-chart{flex:1 1 auto;min-height:0}
 html.ch-full .toast,html.cu-lock .toast{z-index:90}
 @media print{#cu-layer{display:none!important}}
 
-/* ---------- Tidewater Live: the "glass" skin ----------
+/* ---------- Phoenix Finance Club: the "glass" skin, in navy ----------
    Deep green gradient, glass cards with large radii, mint accent, pill controls, one big number per card,
    and numbers in the body font with tabular figures (mono only where columns must line up: order book, tape, chart axes).
    Loaded last: it re-themes everything through the design tokens and restyles the shared components. */
 :root{
-  --bg:#050e0a; --surface-1:#0b1b14; --surface-2:#0f2219; --surface-3:#15302a;
-  --glass:rgba(6,18,13,.72); --scrim:rgba(0,6,3,.7);
-  --line:#163126; --line-strong:#24503d; --control-border:#4c7a65;
-  --ink:#ecfff5; --ink-2:#a9cbbb; --ink-3:#8db4a2;
-  --accent:#3cf3a1; --accent-hover:#72f7bb; --accent-press:#1fdc8a; --on-accent:#03150d; --accent-soft:#0e3424;
-  --gain:#3ce99e; --gain-soft:#0c2d20; --loss:#ff7d70; --loss-soft:#3a1916; --on-trade:#03150d;
-  --warn:#ffab4c; --warn-soft:#33240f; --focus:#3cf3a1;
-  --chart-grid:#11261d; --chart-line:#e6fff2; --chart-volume:#1d3a2e; --chart-compare:#8db4a2;
+  --bg:#050a17; --surface-1:#0a1326; --surface-2:#0e1930; --surface-3:#15233f;
+  --glass:rgba(5,10,23,.74); --scrim:rgba(1,4,12,.7);
+  --line:#172540; --line-strong:#283c62; --control-border:#53698f;
+  --ink:#eef3ff; --ink-2:#aab8d6; --ink-3:#909fc0;
+  --accent:#7db4ff; --accent-hover:#a3cbff; --accent-press:#5f9df5; --on-accent:#04112a; --accent-soft:#132a4f;
+  --gain:#3dd68c; --gain-soft:#0d2b22; --loss:#ff7a75; --loss-soft:#3a1a1d; --on-trade:#03140c;
+  --warn:#f5b546; --warn-soft:#33270f; --focus:#7db4ff;
+  --chart-grid:#111d34; --chart-line:#e8efff; --chart-volume:#1d2c4a; --chart-compare:#909fc0;
   --elev-raised:0 24px 60px rgba(0,0,0,.45); --elev-overlay:0 30px 80px rgba(0,0,0,.65);
-  --r-card:26px; --r-ctl:14px;
-  --card-bg:linear-gradient(155deg,rgba(60,243,161,.085),rgba(60,243,161,.015) 52%,rgba(255,255,255,.01)),var(--surface-1);
-  --card-edge:inset 0 1px 0 rgba(200,255,228,.06);
-  --hero-bg:linear-gradient(140deg,#4af5aa 0%,#2ee596 45%,#17c47e 100%);
-  --page-bg:radial-gradient(1100px 620px at 78% -8%,rgba(40,224,146,.24),transparent 62%),radial-gradient(900px 520px at -6% 104%,rgba(20,140,92,.2),transparent 60%),linear-gradient(180deg,#071510 0%,#040b08 100%);
+  --r-card:24px; --r-ctl:14px;
+  --card-bg:linear-gradient(155deg,rgba(125,180,255,.075),rgba(125,180,255,.012) 52%,rgba(255,255,255,.01)),var(--surface-1);
+  --card-edge:inset 0 1px 0 rgba(210,225,255,.06);
+  --hero-bg:linear-gradient(140deg,#2c5fd6 0%,#1f48b0 55%,#173a91 100%);
+  --page-bg:radial-gradient(1100px 620px at 78% -8%,rgba(64,116,226,.22),transparent 62%),radial-gradient(900px 520px at -6% 104%,rgba(30,64,150,.2),transparent 60%),linear-gradient(180deg,#071025 0%,#040814 100%);
 }
 :root[data-tdx-theme="light"]{
-  --bg:#e9f3ee; --surface-1:#ffffff; --surface-2:#f5faf7; --surface-3:#e3efe8;
-  --glass:rgba(240,248,244,.8); --scrim:rgba(4,30,20,.4);
-  --line:#d3e5db; --line-strong:#b2cdbf; --control-border:#6c8b7d;
-  --ink:#05251a; --ink-2:#2c4d40; --ink-3:#476658;
-  --accent:#08754a; --accent-hover:#06633e; --accent-press:#055433; --on-accent:#ffffff; --accent-soft:#d5f2e3;
-  --gain:#08754a; --gain-soft:#dcf3e7; --loss:#bf2f2a; --loss-soft:#fbe4e2; --on-trade:#ffffff;
-  --warn:#8a5200; --warn-soft:#fbefdc; --focus:#08754a;
-  --chart-grid:#dde9e2; --chart-line:#05251a; --chart-volume:#cfe0d6; --chart-compare:#476658;
-  --elev-raised:0 1px 2px rgba(5,37,26,.05),0 14px 34px rgba(5,37,26,.08); --elev-overlay:0 24px 64px rgba(5,37,26,.18);
-  --card-bg:linear-gradient(155deg,rgba(8,117,74,.06),rgba(255,255,255,0) 55%),var(--surface-1);
+  --bg:#eef2f9; --surface-1:#ffffff; --surface-2:#f6f8fc; --surface-3:#e5ebf5;
+  --glass:rgba(242,246,252,.82); --scrim:rgba(8,20,48,.4);
+  --line:#d8e0ee; --line-strong:#b9c6dc; --control-border:#6b7a96;
+  --ink:#0a1630; --ink-2:#33415f; --ink-3:#4c5a78;
+  --accent:#1d4ed8; --accent-hover:#1a43bd; --accent-press:#1739a1; --on-accent:#ffffff; --accent-soft:#dde7fd;
+  --gain:#0a7a4b; --gain-soft:#dcf3e7; --loss:#bf2f2a; --loss-soft:#fbe4e2; --on-trade:#ffffff;
+  --warn:#8a5200; --warn-soft:#fbefdc; --focus:#1d4ed8;
+  --chart-grid:#e1e7f1; --chart-line:#0a1630; --chart-volume:#d3dcec; --chart-compare:#4c5a78;
+  --elev-raised:0 1px 2px rgba(10,22,48,.05),0 14px 34px rgba(10,22,48,.08); --elev-overlay:0 24px 64px rgba(10,22,48,.18);
+  --card-bg:linear-gradient(155deg,rgba(29,78,216,.05),rgba(255,255,255,0) 55%),var(--surface-1);
   --card-edge:inset 0 1px 0 rgba(255,255,255,.9);
-  --hero-bg:linear-gradient(140deg,#0b7a4b 0%,#086a41 50%,#065736 100%);
-  --page-bg:radial-gradient(1100px 600px at 80% -10%,rgba(60,243,161,.22),transparent 60%),radial-gradient(800px 480px at -8% 105%,rgba(8,117,74,.12),transparent 60%),linear-gradient(180deg,#eef7f2,#e4efe9);
+  --hero-bg:linear-gradient(140deg,#1e40af 0%,#1a3796 50%,#152d7c 100%);
+  --page-bg:radial-gradient(1100px 600px at 80% -10%,rgba(29,78,216,.14),transparent 60%),radial-gradient(800px 480px at -8% 105%,rgba(30,64,150,.1),transparent 60%),linear-gradient(180deg,#f2f5fb,#e8edf6);
 }
 body{background:var(--page-bg);background-attachment:fixed;letter-spacing:-.005em}
 
@@ -602,8 +602,9 @@ body{background:var(--page-bg);background-attachment:fixed;letter-spacing:-.005e
 /* ---- shell: a floating header and an icon rail */
 .lv-top{background:var(--glass);border-bottom:1px solid var(--line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);padding-top:12px;padding-bottom:12px}
 .lv-brand{gap:10px}
-.lv-brand b{width:34px;height:34px;display:inline-grid;place-items:center;padding:0;border-radius:12px;font-size:.66rem;letter-spacing:.02em;background:var(--hero-bg);color:#03150d;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 8px 24px rgba(60,243,161,.28)}
-:root[data-tdx-theme="light"] .lv-brand b{color:#fff}
+.lv-brand b{width:34px;height:34px;display:inline-grid;place-items:center;padding:0;border-radius:11px;background:var(--hero-bg);color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 8px 22px rgba(29,78,216,.32)}
+.lv-brand b svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.lv-brand span{font-weight:700;letter-spacing:-.02em}
 .lv-tb{border:1px solid var(--line-strong);background:var(--surface-2);min-height:40px;border-radius:999px;padding:0 14px}
 .lv-tb:hover{border-color:var(--accent);color:var(--ink)}
 .lv-nw b{font-size:1.05rem;font-weight:700}
@@ -670,8 +671,7 @@ details>summary{cursor:pointer}
 .hm button[aria-pressed="true"]{border-color:var(--accent)!important;box-shadow:0 0 0 1px var(--accent)}
 
 /* ---- the welcome page hero and highlighted cards use the bright mint gradient */
-.bd-t.hero{background:var(--hero-bg);border-color:transparent;color:#03150d;box-shadow:0 18px 48px color-mix(in srgb,var(--accent) 22%,transparent)}
-:root[data-tdx-theme="light"] .bd-t.hero{color:#fff}
+.bd-t.hero{background:var(--hero-bg);border-color:transparent;color:#fff;box-shadow:0 18px 48px color-mix(in srgb,var(--accent) 22%,transparent)}
 .bd-t.hero .bd-th h2,.bd-t.hero .bd-sub{color:inherit}
 
 @media (max-width:760px){ .bd-t,.pn{padding:16px;border-radius:22px} .bd-big{font-size:2rem} }
@@ -689,7 +689,7 @@ html[data-view]:not([data-view="trade"]):not([data-view="portfolio"]):not([data-
 .hm-today .hm-say b{font-weight:800}
 .hm-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
 .hm-pill{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border-radius:999px;border:1.5px solid currentColor;text-decoration:none;font-weight:700;font-size:.85rem;color:inherit}
-.hm-pill:hover{background:rgba(255,255,255,.18)}
+.hm-pill:hover{background:rgba(255,255,255,.16)}
 .hm-wk.empty{display:block;min-height:0}
 .hm-wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;min-height:150px}
 .hm-d{display:flex;flex-direction:column;gap:6px;padding:8px 4px;border-radius:16px;min-width:0;border-left:1px solid var(--line)}
@@ -723,11 +723,29 @@ html[data-view]:not([data-view="trade"]):not([data-view="portfolio"]):not([data-
   .hm-today .hm-say{font-size:1.05rem}
   .hm-st li{grid-template-columns:minmax(0,1fr) auto 62px;gap:8px}
 }
+
+/* ---- company fundamentals under the chart */
+#tr-fund .bd-th h2{font-size:1.05rem}
+.fd-rg{display:grid;gap:6px;max-width:520px}
+.fd-rg>span{font-size:.78rem;color:var(--ink-2);font-weight:600}
+.fd-rb{position:relative;height:8px;border-radius:999px;background:linear-gradient(90deg,var(--loss),var(--warn),var(--gain));opacity:.85}
+.fd-rb i{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--surface-1);border:3px solid var(--ink)}
+.fd-rl{display:flex;justify-content:space-between;font-size:.8rem;font-variant-numeric:tabular-nums}
+.fd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.fd-g{border:1px solid var(--line);border-radius:18px;background:var(--surface-2);padding:14px 16px}
+.fd-g h3{margin:0 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:700}
+.fd-g dl{margin:0;display:grid;gap:2px}
+.fd-kv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line);font-size:.85rem}
+.fd-kv:last-child{border-bottom:0}
+.fd-kv dt{color:var(--ink-2)}
+.fd-kv dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.fd-kv dd.up{color:var(--gain)}.fd-kv dd.down{color:var(--loss)}
+.fd-src{font-size:.74rem}
 </style>
 </head>
 <body>
 <header class="lv-top">
-  <a class="lv-brand" href="#welcome"><b>TDL</b><span>Tidewater Live</span></a>
+  <a class="lv-brand" href="#welcome" aria-label="Phoenix Finance Club"><b aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M7 23l6-7 4 4 8-10"/><path d="M20 10h5v5"/></svg></b><span>Phoenix Finance Club</span></a>
   <div class="lv-dots" id="lv-dots" aria-live="polite"></div>
   <span class="sp"></span>
   <div class="lv-nw"><b class="mono" id="lv-nw"></b><small class="mono" id="lv-pl"></small></div>
@@ -774,6 +792,7 @@ html[data-view]:not([data-view="trade"]):not([data-view="portfolio"]):not([data-
             <div id="tr-chart"></div>
             <div id="tr-det"></div>
           </div>
+          <section class="pn" id="tr-fund" hidden aria-label="Fundamentals"></section>
           <div class="pn"><div class="bd-th"><h2 id="tr-bk-h">Order book</h2></div><div id="tr-book"></div></div>
           <div class="pn"><div class="bd-th"><h2>News</h2></div><div id="tr-news"></div></div>
         </div>
@@ -1766,7 +1785,7 @@ function stDecide(r, bars, pos){ const i=bars.length-1, X=stCtx(bars, r), c=X.c[
   if (!pos){ if (stEnter(r, X, i)) return { act:'b', code:'my_buy', vals:{}, stop:(r.out && r.out.stop) ? c*(1-r.out.stop/100) : 0, size:.95 }; return { code:'my_wait', vals:{} }; }
   const held=Math.round((bars[i].t-(pos.bt||bars[i].t))/AI_CFG.BAR), why=stExit(r, X, i, pos.entry, held); if (why) return { act:'s', code:'my_'+why, vals:{} }; return { code:'my_hold', vals:{} }; }
 
-// Tidewater Live: chart indicators (Piece 1 of the pro chart, prefix IND / ind). Pure math, no DOM.
+// Phoenix Finance Club: chart indicators (Piece 1 of the pro chart, prefix IND / ind). Pure math, no DOM.
 //
 // IND_DEFS[id] = { n:[en,tr], sn:'short name', d:[en,tr] one-line description, cat:'trend'|'momentum'|'volatility'|
 //   'volume'|'other', pane:'main'|'sub', p:{ name:{ v:default, min, max, step, n:[en,tr] } },
@@ -2186,7 +2205,7 @@ function indCache(key, fn){
   return v;
 }
 
-/* ---------- Tidewater Live: candles per timeframe for the pro chart (piece 2, prefix CD) ----------
+/* ---------- Phoenix Finance Club: candles per timeframe for the pro chart (piece 2, prefix CD) ----------
    cdBars(sym, tf) → ascending bars { t, o, h, l, c, v } for the instrument and timeframe, or null while the first
    download is running (it starts the download itself, once per sym|tf, and calls render() when bars arrive).
    Crypto: Binance klines (Coinbase candles as the fallback; 4h and 1w are built from 1h / 1d there). The last bar is kept
@@ -2394,7 +2413,7 @@ function cdErr(sym, tf){ const c=CD.c.get(sym+'|'+(CD_TF[tf] ? tf : '1m')); retu
 function cdMoreLeft(sym, tf){ try{ const d=typeof liveDef==='function' ? liveDef(sym) : null; if (!d) return false;
   const c=CD.c.get(sym+'|'+(CD_TF[tf] ? tf : '1m')); return !c || !(c.end || (c.bars && c.bars.length>=CD.MAX)); } catch(e){ return false; } }
 
-/* ---------- Tidewater Live: the interface ---------- */
+/* ---------- Phoenix Finance Club: the interface ---------- */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const INST=[...LIVE_CRYPTO.map(d=>({ ...d, kind:'crypto' })), ...LIVE_US.map(d=>({ ...d, kind:'stock' }))];
@@ -2714,7 +2733,7 @@ function onBotTrades(acts){ if ((ST.mg||[]).length) mgSync(quotesAll(), Date.now
 function feeApply(){ BRK.FEES.crypto = ST.fee==='maker' ? .00075 : .001; }
 document.addEventListener('click', e=>{ const b=e.target.closest('#set-fee [data-fee]'); if (!b) return; ST.fee=b.dataset.fee; feeApply(); for (const x of $$('#set-fee [data-fee]')) x.setAttribute('aria-checked', String(x===b)); save(); render(); });
 
-/* ---------- Tidewater Live: the Markets screen (the whole US market, 15 minutes delayed) ---------- */
+/* ---------- Phoenix Finance Club: the Markets screen (the whole US market, 15 minutes delayed) ---------- */
 const MKV={ q:'', type:'all', sec:'', sort:'big', n:50, key:'', rows:[] };
 const IDX=[ { sym:'SPY', name:'S&P 500' }, { sym:'QQQ', name:'Nasdaq 100' }, { sym:'DIA', name:'Dow Jones' }, { sym:'IWM', name:'Russell 2000' } ];
 const big=v=>{ if (!(v>0)) return '—'; const u=[[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']].find(x=>v>=x[0]); return u ? F2.format(v/u[0]).replace(/\.?0+$/,'')+u[1] : F0.format(v); };
@@ -2793,7 +2812,7 @@ function detHTML(sym, q){ const d=MKT.all[sym], det=d && d.det; if (!det) return
   return `<div class="tr-facts tr-det">${f('Type', T(d.type==='etf' ? 'ETF' : d.type==='adr' ? 'ADR' : 'Stock'))}${f('Sector', d.sector ? esc(secT(d.sector)) : '')}${f('Size', d.type==='etf' ? (d.val ? '$'+big(d.val) : '') : (d.cap ? '$'+big(d.cap) : ''))}${f('P/E', det.pe>0 ? F2.format(det.pe) : '')}${f('Dividend yield', det.dy>0 ? pct(det.dy).replace('+','') : '')}${f('Beta (1 y)', det.beta!=null ? F2.format(det.beta) : '')}${f('RSI (14)', det.rsi!=null ? F0.format(det.rsi) : '')}${f('50-day average', det.sma50 ? '$'+fpx(det.sma50) : '')}${f('200-day average', det.sma200 ? '$'+fpx(det.sma200) : '')}${f('Avg. volume (30 d)', det.avgv ? big(det.avgv) : '')}${f('Next earnings', dt)}</div>`; }
 Object.assign(TR, { 'Loading how it did over time…':'Zaman içindeki performansı yükleniyor…','How it did':'Nasıl gitti','52-week range':'52 haftalık aralık','now':'şimdi','P/E':'F/K','Dividend yield':'Temettü verimi','Beta (1 y)':'Beta (1 y)','RSI (14)':'RSI (14)','50-day average':'50 günlük ortalama','200-day average':'200 günlük ortalama','Avg. volume (30 d)':'Ort. hacim (30 g)','Next earnings':'Sonraki bilanço' });
 
-/* ---------- Tidewater Live: the Crypto screen and the leading self-trading bots ---------- */
+/* ---------- Phoenix Finance Club: the Crypto screen and the leading self-trading bots ---------- */
 const CXV={ q:'', sort:'rank', open:null };
 const L2=(en, tr)=>ST.lang==='tr' ? tr : en;
 const p0=v=>v==null ? '—' : ST.lang==='tr' ? '%'+F0.format(v*100) : F0.format(v*100)+'%';
@@ -2844,7 +2863,7 @@ document.addEventListener('click', e=>{ const t=e.target;
   });
 document.addEventListener('input', e=>{ if (e.target.id==='cx-q'){ CXV.q=e.target.value; render(); } });
 
-/* ---------- Tidewater Live: the Bots screen (the bots that trade by themselves) ---------- */
+/* ---------- Phoenix Finance Club: the Bots screen (the bots that trade by themselves) ---------- */
 const BOTV={ f:'all', open:{} };
 const MK_BOTH=['Crypto + US stocks','Kripto + ABD hisseleri'], MK_US=['US stocks','ABD hisseleri'];
 const AI_INFO={
@@ -2977,7 +2996,7 @@ function aiEdgeOn(bot){ const T=bot.tune; if (bot.custom) return null;
   return null; }
 function edgeWatch(){ const E=ST.edge||(ST.edge={}); let changed=false;
   for (const b of ST.ai){ const on=aiEdgeOn(b); if (on==null) continue; const prev=E[b.id]; E[b.id]=on; if (prev==null || prev===on) continue; changed=true;
-    const msg=on ? `${aiName(b.id)} proved an edge and may trade now` : `${aiName(b.id)} lost its edge and stopped opening trades`; note(msg, on ? '✅' : '⏸'); alNotify(T(msg)); if (typeof ntfySend==='function') ntfySend(T(msg), 'Tidewater'); }
+    const msg=on ? `${aiName(b.id)} proved an edge and may trade now` : `${aiName(b.id)} lost its edge and stopped opening trades`; note(msg, on ? '✅' : '⏸'); alNotify(T(msg)); if (typeof ntfySend==='function') ntfySend(T(msg), 'Phoenix Finance Club'); }
   if (changed) save(); }
 TRP.push([/^(.+) proved an edge and may trade now$/, m=>`${m[1]} avantajını kanıtladı, artık işlem açabilir`], [/^(.+) lost its edge and stopped opening trades$/, m=>`${m[1]} avantajını kaybetti, yeni işlem açmayı bıraktı`]);
 // ---- trade replay: a chart of the candles around one trade, with where it went in and out
@@ -3008,7 +3027,7 @@ function rpOpen(i){ const x=BOTS_LOGV[i]; if (!x) return; const pr=rpPair(x); if
 document.addEventListener('click', e=>{ const t=e.target; if (t.closest('[data-rp-x]') || t.id==='replay'){ const el=$('#replay'); if (el) el.hidden=true; return; } const r=t.closest('.ai-log tr[data-rp]'); if (r) rpOpen(+r.dataset.rp); });
 document.addEventListener('keydown', e=>{ const el=$('#replay'); if (e.key==='Escape' && el && !el.hidden){ el.hidden=true; return; } const r=e.target.closest && e.target.closest('.ai-log tr[data-rp]'); if (r && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); rpOpen(+r.dataset.rp); } });
 
-/* ---------- Tidewater Live: the News screen, and news on the Board and the Trade screen ---------- */
+/* ---------- Phoenix Finance Club: the News screen, and news on the Board and the Trade screen ---------- */
 const NV={ tab:'top', mine:false, items:{}, loading:{}, tk:null };
 const NEWS_TABS=[['top','Top news','Öne çıkanlar'],['stocks','Your stocks','Hisselerin'],['crypto','Crypto','Kripto'],['economy','Economy','Ekonomi'],['earn','Earnings','Bilançolar'],['filings','Filings','Resmî bildirimler']];
 function ago(t){ if (!t) return ''; const m=Math.max(0, Math.round((Date.now()-t)/60000)); if (m<60) return L2(`${m} min ago`,`${m} dk önce`); const h=Math.round(m/60); if (h<24) return L2(`${h} h ago`,`${h} sa önce`); return new Date(t).toLocaleDateString(ST.lang==='tr'?'tr-TR':'en-US', { day:'numeric', month:'short' }); }
@@ -3065,7 +3084,7 @@ document.addEventListener('change', e=>{ if (e.target.id==='nw-mine'){ NV.mine=e
 // fresh headlines every 10 minutes
 setInterval(()=>{ NV.items={}; }, 600000);
 
-/* ---------- Tidewater Live: performance, measured the way funds measure it ----------
+/* ---------- Phoenix Finance Club: performance, measured the way funds measure it ----------
    Volatility and the Sharpe ratio come from 5-minute log returns (annualised over 365 days, as crypto trades every day; no risk-free rate);
    the deepest fall (maximum drawdown) from every point; win rate and profit factor from closed trades. Benchmarks: holding Bitcoin, or the S&P 500 (SPY), over the same time. */
 const PERF_STEP=300000;
@@ -3101,7 +3120,7 @@ function renderPerf(Q, E){ const A=ST.A, pts=(ST.eqi||[]).concat([{ t:Date.now()
     <p class="bd-sub">${esc(L2('Sharpe and volatility use 5-minute points and need about 2 hours of data. Benchmarks count from when this page started keeping prices.','Sharpe ve oynaklık 5 dakikalık noktalarla hesaplanır ve yaklaşık 2 saatlik veri ister. Karşılaştırmalar, bu sayfanın fiyat tutmaya başladığı andan itibaren sayılır.'))}</p>`); }
 function botPerf(bot, Q){ const E=brkEquity(bot.A, Q); return perfStats((bot.eqi||[]).concat([{ t:Date.now(), v:E }]), bot.A.fills, bot.A.start); }
 
-/* ---------- Tidewater Live: the watchlist and alerts ----------
+/* ---------- Phoenix Finance Club: the watchlist and alerts ----------
    Alerts are checked against every price update while the page is open; each fires once, then turns itself off.
    They show as a message here, in the inbox and, if you allow it, as a notification from your browser. */
 const AL_KIND={ above:['Price rises above','Fiyat şunun üstüne çıkarsa'], below:['Price falls below','Fiyat şunun altına inerse'], up:['Day’s rise reaches (%)','Günlük yükseliş şuna ulaşırsa (%)'], down:['Day’s fall reaches (%)','Günlük düşüş şuna ulaşırsa (%)'] };
@@ -3111,7 +3130,7 @@ function wlToggle(sym){ if (wlHas(sym)) ST.watch=ST.watch.filter(s=>s!==sym); el
 function alText(a){ const d=IM[a.sym], v=a.kind==='above' || a.kind==='below' ? '$'+fpx(a.v) : (a.kind==='up' ? '+' : '−')+F2.format(a.v)+'%'; return `${a.sym}: ${L2(...AL_KIND[a.kind])} ${v}`; }
 function alFiredText(a, q){ const p='$'+fpx(q.last), ch=(q.chg>=0 ? '+' : '−')+F2.format(Math.abs(q.chg*100))+'%'; return { above:`${a.sym} rose above $${fpx(a.v)}: now ${p}`, below:`${a.sym} fell below $${fpx(a.v)}: now ${p}`,
   up:`${a.sym} is up ${ch} today (alert at +${F2.format(a.v)}%)`, down:`${a.sym} is down ${ch} today (alert at −${F2.format(a.v)}%)` }[a.kind]; }
-function alNotify(msg){ try{ if ('Notification' in window && Notification.permission==='granted') new Notification('Tidewater Live', { body:msg, tag:'tdl-'+msg.slice(0,40) }); }catch(e){} }
+function alNotify(msg){ try{ if ('Notification' in window && Notification.permission==='granted') new Notification('Phoenix Finance Club', { body:msg, tag:'tdl-'+msg.slice(0,40) }); }catch(e){} }
 function alAdd(sym, kind, v){ const q=quote(sym); if (!(v>0)) return L2('Enter a value above zero.','Sıfırdan büyük bir değer gir.');
   if (q && kind==='above' && v<=q.last) return L2('That is already below the price now; pick a higher one.','Bu şu anki fiyatın zaten altında; daha yüksek bir değer seç.');
   if (q && kind==='below' && v>=q.last) return L2('That is already above the price now; pick a lower one.','Bu şu anki fiyatın zaten üstünde; daha düşük bir değer seç.');
@@ -3144,7 +3163,7 @@ document.addEventListener('click', e=>{ const t=e.target;
   if (t.closest('#al-ask')){ try{ Notification.requestPermission().then(()=>render()); }catch(x){} return; } });
 document.addEventListener('change', e=>{ if (e.target.id==='al-kind'){ const q=quote(ST.sel), k=e.target.value; if (q) $('#al-v').value = k==='above' ? String(+(q.last*1.05).toFixed(pxd(q.last))) : k==='below' ? String(+(q.last*.95).toFixed(pxd(q.last))) : '5'; } });
 
-/* ---------- Tidewater Live: money you hand to a bot ----------
+/* ---------- Phoenix Finance Club: money you hand to a bot ----------
    The money moves from your cash into its own account, which copies the bot's portfolio in the same proportions:
    when the bot buys or sells, the account follows (checked every 30 seconds; differences under 2% are left alone, so it does not trade for crumbs).
    It pays the same prices and fees as everyone. Withdrawing sells everything and returns the cash to you. */
@@ -3187,7 +3206,7 @@ document.addEventListener('click', e=>{ const t=e.target;
   if (t.closest('#mg-go')){ const r=mgGive($('#mg-bot').value, +$('#mg-usd').value); txt('mg-msg', T(r.msg)); if (r.ok) toast(r.msg); render(); return; }
   const tk=t.closest('[data-mg-take]'); if (tk){ const r=mgTake(tk.dataset.mgTake, quotesAll()); if (r.msg){ toast(r.msg); txt('mg-msg', T(r.msg)); } render(); return; } });
 
-/* ---------- Tidewater Live: the strategy lab (build rules, backtest them, run them as your own bot) ---------- */
+/* ---------- Phoenix Finance Club: the strategy lab (build rules, backtest them, run them as your own bot) ---------- */
 const LAB_K={ none:['—','—'], rsi_below:['RSI is under','RSI şunun altında'], rsi_above:['RSI is over','RSI şunun üstünde'], cross_up:['The fast average crosses above the slow one','Hızlı ortalama yavaşın üstüne geçer'],
   above_ema:['The price is above its average','Fiyat ortalamasının üstünde'], breakout:['The price breaks its recent high','Fiyat son zirvesini kırar'], drop:['The price has fallen sharply','Fiyat sert düşmüş'] };
 const LAB_P={ rsi_below:[['RSI','RSI']], rsi_above:[['RSI','RSI']], cross_up:[['Fast average (candles)','Hızlı ortalama (mum)'],['Slow average (candles)','Yavaş ortalama (mum)']], above_ema:[['Average (candles)','Ortalama (mum)']], breakout:[['Highest of the last … candles','Son … mumun en yükseği']], drop:[['Fall (%)','Düşüş (%)'],['Within … candles','… mum içinde']] };
@@ -3252,7 +3271,7 @@ document.addEventListener('click', e=>{ const t=e.target;
   const d=t.closest('[data-lb-del]'); if (d){ if (confirm(L2('Remove this bot? Its account and history will be cleared.','Bu bot kaldırılsın mı? Hesabı ve geçmişi silinecek.'))){ ST.ai=ST.ai.filter(b=>b.id!==d.dataset.lbDel); const k=AI_DEFS.findIndex(x=>x.id===d.dataset.lbDel); if (k>=0) AI_DEFS.splice(k, 1); ST.mg=(ST.mg||[]).filter(m=>m.bot!==d.dataset.lbDel || (mgTake(m.bot, quotesAll()), false)); save(); render(); } return; } });
 document.addEventListener('change', e=>{ if (/^lb-/.test(e.target.id||'')){ labRead(); render(); } });
 
-/* ---------- Tidewater Live: when the site is hosted, the bots run on a server ----------
+/* ---------- Phoenix Finance Club: when the site is hosted, the bots run on a server ----------
    On GitHub Pages (or with ?srv=<folder> for testing), the bots come from data/state.json, written every 5 minutes by a free GitHub Actions job,
    so they keep learning and trading while this page is closed. Your own strategy bots still run in your browser.
    The same job saves this week's economic calendar (data/calendar.json). The hosted site can also be installed as an app. */
@@ -3281,7 +3300,7 @@ function calTable(){ const C=SRV.cal; if (!C || !C.events) return ''; const now=
 (function(){ try{ if (location.protocol==='https:' && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){} })();
 setInterval(()=>{ if (SRV.url) srvLoad(); }, 120000);
 
-/* ---------- Tidewater Live: the Bot Arena screen ----------
+/* ---------- Phoenix Finance Club: the Bot Arena screen ----------
    Results of replaying every candle bot over the last 30 days of real 5-minute candles (walk-forward: each bot learns only from the past),
    against holding Bitcoin, holding all six coins and 1,000 random bots; engine v1 against v2. Fresh every day on the hosted site; otherwise the copy built into this page. */
 const ARV={ v:null };
@@ -3337,7 +3356,7 @@ function renderArena(){ const el=$('#arena'), A=arData();
       <p class="bd-sub">${esc(L2('Regimes are read from Bitcoin: rising or falling when its 50-candle average trends; stormy when it swings 1.6 times more than usual; sideways otherwise. Past results say nothing certain about the future.','Rejimler Bitcoin’den okunur: 50 mumluk ortalaması yön gösterdiğinde yükseliş ya da düşüş; normalden 1,6 kat fazla salındığında fırtınalı; diğer durumlarda yatay. Geçmiş sonuçlar gelecek hakkında kesin bir şey söylemez.'))}</p></div>`); }
 document.addEventListener('click', e=>{ const b=e.target.closest('[data-arv]'); if (b){ ARV.v=b.dataset.arv; render(); } });
 
-/* ---------- Tidewater Live: the Strategy Desk ----------
+/* ---------- Phoenix Finance Club: the Strategy Desk ----------
    Daily strategies from published research, tested on 30 coins since 2018 (results made by the server, or the copy built into this page),
    today's targets from fresh daily candles, the market report (trend, momentum, funding, order book), and paper accounts that follow a strategy day by day. */
 const DESK = { fund:{}, fundT:0, obi:{}, obiT:0, busy:false };
@@ -3366,7 +3385,7 @@ function dkChart(series, H){ H=H||260; const W=Math.max(320, Math.round(($('#dk-
     <p class="pf-leg">${series.map(s=>`<span><i style="background:${s.c}"></i>${esc(s.n)} <b class="mono">×${F2.format(s.xs[s.xs.length-1])}</b></span>`).join('')}</p>`; }
 const DK_C = ['var(--accent)','#5ab0ff','#ff9f43','#c084fc','#2dd4bf','#f472b6'];
 function dkReport(){ const D=DLY.D, R=DLY.D ? dlyToday(D) : {}, B=D ? dlyBoard(D) : [], A=dkData(), d=new Date().toLocaleDateString(ST.lang==='tr'?'tr-TR':'en-US', { day:'numeric', month:'long', year:'numeric' }), lines=[];
-  lines.push(`Tidewater · ${L2('daily report','günlük rapor')} · ${d}`); if (D){ const b=B.find(r=>r.s==='BTC'); if (b) lines.push(`BTC $${fpx(b.px)} · ${L2('vs 50-day average','50 günlük ortalamaya göre')} ${pct(b.sma50)} · ${L2('vs 200-day','200 günlüğe göre')} ${pct(b.sma200)} · ${L2('30-day volatility','30 günlük oynaklık')} ${p0(b.vol)}`); }
+  lines.push(`Phoenix Finance Club · ${L2('daily report','günlük rapor')} · ${d}`); if (D){ const b=B.find(r=>r.s==='BTC'); if (b) lines.push(`BTC $${fpx(b.px)} · ${L2('vs 50-day average','50 günlük ortalamaya göre')} ${pct(b.sma50)} · ${L2('vs 200-day','200 günlüğe göre')} ${pct(b.sma200)} · ${L2('30-day volatility','30 günlük oynaklık')} ${p0(b.vol)}`); }
   lines.push('', L2('Strategies — hold from today:','Stratejiler — bugünden itibaren tut:')); for (const S of DLY_STRATS){ const r=R[S.id]; if (!r) continue; lines.push(`${S.ico} ${L2(...S.name)}: ${dkW(r.now)} (${dkDiff(r.prev, r.now)})`); }
   const up=B.filter(r=>r.trend>=.75).sort((a,b)=>b.trend-a.trend).map(r=>r.s), top=B.filter(r=>r.rank && r.rank<=5 && r.mom>0).sort((a,b)=>a.rank-b.rank).map(r=>`${r.s} ${pct(r.mom)}`);
   lines.push('', `${L2('Strong trends','Güçlü trendler')}: ${up.join(', ')||'—'}`, `${L2('Best positive momentum (1-4 weeks)','En iyi pozitif momentum (1-4 hafta)')}: ${top.join(', ')||L2('none: every coin fell','yok: tüm coinler düştü')}`);
@@ -3429,7 +3448,7 @@ document.addEventListener('click', async e=>{ const t=e.target;
     ST.desk.acc[st.dataset.dkStart]={ t0:D.days[D.days.length-1], cash:10000, cost:ST.fee==='maker' ? 'maker' : 'taker' }; save(); render(); return; }
   const sp=t.closest('[data-dk-stop]'); if (sp && ST.desk && ST.desk.acc){ delete ST.desk.acc[sp.dataset.dkStop]; save(); render(); } });
 
-/* ---------- Tidewater Live: the Strategy Desk, part 2 ----------
+/* ---------- Phoenix Finance Club: the Strategy Desk, part 2 ----------
    Tabs; the forward test (the record from today on); what a year can look like; rolling years; how strategies move together; results in Turkish lira;
    a DCA planner; your own daily strategy test (with a counter of how many you tried); event risk; and how far strategies and bots agree. */
 const DK_TABS=[['today',['Today','Bugün']],['results',['Results since 2018','2018’den beri sonuçlar']],['tools',['Planner and tester','Planlayıcı ve test']],['track',['Tracking','Takip']]];
@@ -3537,7 +3556,7 @@ document.addEventListener('click', async e=>{ const t=e.target; const tb=t.close
   if (t.closest('#dkt-go')){ ST.dkt={ a:$('#dkt-a').value, n:+$('#dkt-n').value, vt:+$('#dkt-vt').value }; await dkTestLoad(); if (DKT.raw) dkTestRun(); render(); } });
 document.addEventListener('change', e=>{ const t=e.target; if (t.id==='dca-amt' || t.id==='dca-y'){ const P=ST.dca||(ST.dca={ amt:1000, y:2021, cur:'usd' }); P.amt=Math.max(1, +$('#dca-amt').value||1000); P.y=+$('#dca-y').value; save(); render(); } });
 
-/* ---------- Tidewater Live: the Journal (for your real trades) ----------
+/* ---------- Phoenix Finance Club: the Journal (for your real trades) ----------
    Your own risk rules; a position-size calculator; a rebalance helper that turns a strategy's targets into the orders to place on your exchange;
    and a journal of the trades you make with real money (typed in or imported from Binance's CSV), with the numbers that show whether you follow your plan.
    Everything stays in this browser. Nothing here places orders. */
@@ -3656,17 +3675,17 @@ document.addEventListener('click', async e=>{ const t=e.target; const J=jr();
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')], { type:'text/csv' })); a.download='tidewater-journal.csv'; a.click(); return; }
   if (t.closest('#jr-rb-copy')){ const R=DLY.D ? dlyToday(DLY.D) : {}; const txt=$$('#journal .tbl tbody tr').filter(r=>/^(Buy|Sell|Al|Sat) /.test(r.cells[0] && r.cells[0].innerText)).map(r=>Array.from(r.cells).map(c=>c.innerText).join(' · ')).join('\n'); try{ await navigator.clipboard.writeText(txt); toast(L2('Orders copied','Emirler kopyalandı')); }catch(x){} } });
 
-/* ---------- Tidewater Live: extras ----------
+/* ---------- Phoenix Finance Club: extras ----------
    Phone notifications (ntfy, free), backup and restore, privacy mode, the weekly summary, data health, and the Academy. */
 // ---- phone notifications: ntfy.sh, free and without an account. Anyone who knows the topic name can read it, so the name is long and random.
 function ntfyTopic(){ return (ST.ntfy||'').trim(); }
-async function ntfySend(msg, title){ const t=ntfyTopic(); if (!t) return false; try{ const r=await fetch('https://ntfy.sh/'+encodeURIComponent(t), { method:'POST', body:msg, headers:{ Title:(title||'Tidewater').normalize('NFD').replace(/[^\x20-\x7e]/g, '') } }); return r.ok; }catch(e){ return false; } }
+async function ntfySend(msg, title){ const t=ntfyTopic(); if (!t) return false; try{ const r=await fetch('https://ntfy.sh/'+encodeURIComponent(t), { method:'POST', body:msg, headers:{ Title:(title||'Phoenix Finance Club').normalize('NFD').replace(/[^\x20-\x7e]/g, '') } }); return r.ok; }catch(e){ return false; } }
 const ntfyNew = () => 'tidewater-'+Array.from(crypto.getRandomValues(new Uint8Array(12)), b=>b.toString(36).padStart(2,'0')).join('').slice(0, 20);
 // ---- backup: everything this site keeps in this browser, as one file (API keys only if you tick the box)
 function bkCollect(withKeys){ const out={ app:'tidewater-live', v:1, t:Date.now(), data:{} }; for (let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if (!/tidewater|tdl/i.test(k)) continue; if (!withKeys && /key|secret|alpaca|finnhub/i.test(k)) continue; out.data[k]=localStorage.getItem(k); } return out; }
 function bkDownload(){ const withKeys=$('#bk-keys') && $('#bk-keys').checked, b=bkCollect(withKeys), a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(b)], { type:'application/json' })); a.download=`tidewater-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); ST.bkT=Date.now(); save(); }
 async function bkRestore(file){ try{ const b=JSON.parse(await file.text()); if (b.app!=='tidewater-live' || !b.data) throw new Error('not a Tidewater backup'); for (const k in b.data) localStorage.setItem(k, b.data[k]); toast(L2('Backup restored; reloading…','Yedek geri yüklendi; yeniden açılıyor…')); setTimeout(()=>location.reload(), 600); }
-  catch(e){ toast(L2('This file is not a Tidewater backup.','Bu dosya bir Tidewater yedeği değil.')); } }
+  catch(e){ toast(L2('This file is not a backup from this site.','Bu dosya bu sitenin bir yedeği değil.')); } }
 // ---- privacy mode: hides money amounts (for screenshots or a shared screen)
 function privApply(){ document.documentElement.classList.toggle('priv', !!ST.priv); const b=$('#lv-priv'); if (b){ b.setAttribute('aria-pressed', String(!!ST.priv)); b.setAttribute('aria-label', ST.priv ? L2('Show amounts','Tutarları göster') : L2('Hide amounts','Tutarları gizle')); b.textContent=ST.priv ? '🙈' : '👁'; } }
 // ---- the weekly summary (each Monday, in the inbox and, if set, on the phone)
@@ -3725,12 +3744,12 @@ function renderLearn(){ const el=$('#learn'); if (!el) return; const L=ST.learnL
 document.addEventListener('click', async e=>{ const t=e.target;
   if (t.closest('#lv-priv') || t.closest('[data-priv]')){ ST.priv=!ST.priv; privApply(); save(); render(); return; }
   if (t.closest('#nt-new')){ ST.ntfy=ntfyNew(); save(); render(); return; }
-  if (t.closest('#nt-test')){ const ok=await ntfySend(L2('Test from Tidewater Live: notifications work.','Tidewater Live’dan deneme: bildirimler çalışıyor.'), 'Tidewater'); toast(ok ? L2('Sent: check the ntfy app','Gönderildi: ntfy uygulamasına bak') : L2('Could not send','Gönderilemedi')); return; }
+  if (t.closest('#nt-test')){ const ok=await ntfySend(L2('Test from Phoenix Finance Club: notifications work.','Phoenix Finance Club’dan deneme: bildirimler çalışıyor.'), 'Phoenix Finance Club'); toast(ok ? L2('Sent: check the ntfy app','Gönderildi: ntfy uygulamasına bak') : L2('Could not send','Gönderilemedi')); return; }
   if (t.closest('#bk-dl')){ bkDownload(); render(); return; } });
 document.addEventListener('change', e=>{ const t=e.target; if (t.id==='nt-topic'){ ST.ntfy=t.value.trim().replace(/[^A-Za-z0-9_-]/g,'').slice(0, 64); save(); render(); }
   if (t.id==='bk-file' && t.files && t.files[0]) bkRestore(t.files[0]); if (t.id==='lr-loss'){ ST.learnLoss=Math.max(1, Math.min(99, +t.value||30)); save(); render(); } });
 
-/* ---------- Tidewater Live: the professional shell ----------
+/* ---------- Phoenix Finance Club: the professional shell ----------
    An account bar that is always in view (which account, equity, today's P/L, buying power, futures margin, open risk),
    switching between your main account and a challenge account, a command palette (Ctrl+K), keyboard shortcuts,
    compact density and a colour-blind-safe palette. */
@@ -3791,9 +3810,9 @@ document.addEventListener('click', e=>{ const t=e.target; const li=t.closest('[d
 document.addEventListener('change', e=>{ if (e.target.id==='acct-k') acctUse(e.target.value); });
 
 // ---- after every render: the account bar, the futures and challenge engines, the loss limits, and the screen-specific extras
-function uiAfter(v, Q){ try{ document.documentElement.dataset.view=v; if (v==='board' && typeof renderHome==='function') renderHome(Q); renderAcctBar(); futTick(Q); chGuard(Q); boGuard(Q); if (v==='trade'){ futAfter(Q); termAfter(Q); } if (v==='bots') renderBotOps(Q); }catch(e){ console.error(e); } }
+function uiAfter(v, Q){ try{ document.documentElement.dataset.view=v; if (v==='board' && typeof renderHome==='function') renderHome(Q); renderAcctBar(); futTick(Q); chGuard(Q); boGuard(Q); if (v==='trade'){ futAfter(Q); termAfter(Q); if (typeof fdRender==='function') fdRender(); } if (v==='bots') renderBotOps(Q); }catch(e){ console.error(e); } }
 
-/* ---------- Tidewater Live: the pro chart engine (piece 3 of the pro chart, prefix CH / ch) ----------
+/* ---------- Phoenix Finance Club: the pro chart engine (piece 3 of the pro chart, prefix CH / ch) ----------
    chInit() makes sure ST.chart exists (see ds/CHART_SPEC.md). chRender(host, sym) draws the chart of the instrument into
    host (#tr-chart) and returns true, or shows a message and returns false when there are no bars yet.
    One <svg class="chart">: the price pane on top, one pane per 'sub' indicator below it, the time axis at the bottom
@@ -4299,7 +4318,7 @@ setInterval(()=>{ const L=CH.L, svg=CH.svg; if (!L || !svg || !svg.isConnected |
 // full-screen mode and window resizes change the height available to the chart
 addEventListener('resize', ()=>{ if (CH.L) chQueue(); });
 
-// Tidewater Live: chart toolbar, indicator picker, indicator settings and templates (Piece 4 of the pro chart, prefix CU / cu).
+// Phoenix Finance Club: chart toolbar, indicator picker, indicator settings and templates (Piece 4 of the pro chart, prefix CU / cu).
 //
 // cuToolbar() → HTML for the bar above the chart (#tr-tf's row). Its string only changes when the chart state, the
 // language or an open menu changes, so setHTML() leaves it alone on price ticks.
@@ -4514,7 +4533,7 @@ function cuShot(){
         g.textAlign='right'; g.font=`600 12px ${font}`; g.fillStyle=ink3; g.fillText(stamp, W-10, 16); g.textAlign='left';
         if (inds.length){ g.font=`500 12px ${font}`; let s=inds.join(' · '); while (s.length>4 && g.measureText(s).width>W-20) s=s.slice(0, -2); if (s.length<inds.join(' · ').length) s=s.replace(/.$/, '…'); g.fillText(s, 10, 38); }
         g.drawImage(img, 0, head, W, H);
-        g.font=`500 11px ${font}`; g.fillStyle=ink3; g.textAlign='right'; g.fillText(L2('Tidewater Live · paper trading', 'Tidewater Live · sanal işlem'), W-10, head+H+foot/2);
+        g.font=`500 11px ${font}`; g.fillStyle=ink3; g.textAlign='right'; g.fillText(L2('Phoenix Finance Club · paper trading', 'Phoenix Finance Club · sanal işlem'), W-10, head+H+foot/2);
         const name=`tidewater-${sym.replace(/[^\w.-]+/g, '') || 'chart'}-${S.tf}-${stamp.replace(/[-: ]/g, '').replace(/^(\d{8})/, '$1-')}.png`;
         const done=blob=>{ const a=document.createElement('a'); a.download=name; a.href=blob ? URL.createObjectURL(blob) : cv.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove(); if (blob) setTimeout(()=>URL.revokeObjectURL(a.href), 4000); CU.lastShot={ name, w:cv.width, h:cv.height }; toast(L2('Chart saved as a PNG image', 'Grafik PNG resmi olarak kaydedildi')); res(true); };
         if (cv.toBlob) cv.toBlob(done, 'image/png'); else done(null);
@@ -4860,7 +4879,7 @@ addEventListener('resize', ()=>{ if (CU.open && CU.open.kind==='type') cuPlaceMe
 // the desktop type menu is anchored to its button: close it when the page itself scrolls (phones show a bottom sheet)
 addEventListener('scroll', e=>{ const t=e.target; if (!CU.open || CU.open.kind!=='type' || innerWidth<=560) return; if (t!==document && t!==document.documentElement && t!==document.body) return; cuClose(); }, true);
 
-/* ---------- Tidewater Live: drawing tools on the pro chart (piece 5 of the pro chart, prefix DR / dr) ----------
+/* ---------- Phoenix Finance Club: drawing tools on the pro chart (piece 5 of the pro chart, prefix DR / dr) ----------
    Drawings live per instrument in ST.chart.draw[sym] as { id, tool, a:{ t, px }, b?:{ t, px }, c?:{ t, px }, txt?, col, w?, dash? }
    (bar time + price, so they survive zoom, pan, log scale and timeframe changes).
    tool: 'trend' | 'ray' | 'ext' (extended both ways) | 'hline' | 'hray' | 'vline' | 'chan' (parallel channel: a-b is the
@@ -5493,7 +5512,7 @@ function drCss(){ if (document.getElementById('dr-css')) return; const st=docume
 @media (max-width:560px){.dr-b{min-width:30px;height:30px;padding:0 5px}.dr-pal .dr-sp{margin:0 1px}}
 `; document.head.appendChild(st); }
 
-/* ---------- Tidewater Live: terminal mode for the Trade screen ----------
+/* ---------- Phoenix Finance Club: terminal mode for the Trade screen ----------
    A dense workspace: chart, live order book, the tape of every trade, the ticket and a blotter (positions, orders, fills with slippage).
    Orders sit on the chart as lines you can drag to a new price. Keyboard shortcuts; price flashes; on a phone the ticket is a sheet that slides up. */
 const TM={ last:null, flashT:0, drag:null, sheet:false };
@@ -5559,7 +5578,7 @@ document.addEventListener('keydown', e=>{ if (e.key==='Enter' && e.shiftKey && (
 document.addEventListener('click', e=>{ const t=e.target; if (t.closest('#tm-tog')){ ST.term=!ST.term; termApply(); save(); render(); return; } const b=t.closest('[data-blot]'); if (b){ ST.blot=b.dataset.blot; save(); render(); return; }
   if (t.closest('#tm-sheet')){ TM.sheet=!TM.sheet; render(); return; } const r=t.closest('#tm-blot tr[data-sym]'); if (r && !t.closest('button')){ ST.sel=r.dataset.sym; save(); render(); } });
 
-/* ---------- Tidewater Live: paper futures (perpetual swaps) ----------
+/* ---------- Phoenix Finance Club: paper futures (perpetual swaps) ----------
    A separate futures wallet: long or short, 1 to 20 times leverage, isolated margin (a position can only lose its own margin),
    the liquidation price, funding every 8 hours at the market's current rate (OKX), and futures fees (0.05% taker, 0.02% maker).
    Liquidation: when the mark price reaches the liquidation price the position is closed and its margin is lost. */
@@ -5633,7 +5652,7 @@ function futAfter(Q){ const col=$$('#v-trade .tr-col')[1], tk=$('#tk'); if (!col
   const fp=$('#fut-tk'), fut=ST.mkt==='fut'; tk.hidden=fut; fp.hidden=!fut; if (!fut) return;
   if (fp.contains(document.activeElement) && $('#fut-calc')) setHTML($('#fut-calc'), futCalc(Q)); else setHTML(fp, futTicket(Q)); }
 
-/* ---------- Tidewater Live: the bot control centre ----------
+/* ---------- Phoenix Finance Club: the bot control centre ----------
    One card per bot: a status light, profit/loss, a 7-day line, how much of its money is in the market, its last decision,
    an off switch and your own loss limit (the bot stops itself if it falls that far from its best). A live log of every bot,
    and a risk-balanced split of capital (each bot weighted by the inverse of its volatility). */
@@ -5647,7 +5666,7 @@ const boVol = r => { if (r.length<3) return null; const m=r.reduce((a,b)=>a+b,0)
 // your loss limits: checked after every bot step
 function boGuard(Q){ const L=ST.botLim||{}, P=ST.botPeak||(ST.botPeak={}); let ch=false;
   for (const b of ST.ai||[]){ const E=brkEquity(b.A, Q); if (!(E>0)) continue; P[b.id]=Math.max(P[b.id]||E, E); const lim=L[b.id]; if (!lim || !b.on) continue;
-    if ((P[b.id]-E)/P[b.id]>=lim/100){ b.on=false; ch=true; note(`${aiName(b.id)} was stopped by your loss limit (${lim}% from its best)`, '🛑'); if (typeof ntfySend==='function') ntfySend(T(`${aiName(b.id)} was stopped by your loss limit (${lim}% from its best)`), 'Tidewater'); } }
+    if ((P[b.id]-E)/P[b.id]>=lim/100){ b.on=false; ch=true; note(`${aiName(b.id)} was stopped by your loss limit (${lim}% from its best)`, '🛑'); if (typeof ntfySend==='function') ntfySend(T(`${aiName(b.id)} was stopped by your loss limit (${lim}% from its best)`), 'Phoenix Finance Club'); } }
   if (ch) save(); }
 TRP.push([/^(.+) was stopped by your loss limit \(([\d.]+)% from its best\)$/, m=>`${m[1]} kayıp sınırın yüzünden durduruldu (zirvesinden %${m[2]})`]);
 function renderBotOps(Q){ let el=$('#bo-ops'); const host=$('#v-bots'); if (!host) return; if (!el){ el=document.createElement('div'); el.id='bo-ops'; const h1=host.querySelector('h1'); (h1 || host.firstChild).after(el); }
@@ -5675,7 +5694,7 @@ document.addEventListener('change', e=>{ const t=e.target; if (t.dataset && t.da
 document.addEventListener('click', e=>{ const b1=e.target.closest('[data-bo-on]'); if (b1){ const b=(ST.ai||[]).find(x=>x.id===b1.dataset.boOn); if (b){ b.on=!b.on; if (b.on && ST.botPeak) ST.botPeak[b.id]=0; save(); render(); } return; } });
 document.addEventListener('click', e=>{ const t=e.target.closest('[data-bo-all]'); if (!t) return; const on=t.dataset.boAll==='on'; for (const b of ST.ai||[]) b.on=on; save(); toast(on ? L2('All bots started','Tüm botlar başlatıldı') : L2('All bots stopped','Tüm botlar durduruldu')); render(); });
 
-/* ---------- Tidewater Live: the performance report (tear sheet) ----------
+/* ---------- Phoenix Finance Club: the performance report (tear sheet) ----------
    For any account or bot: headline numbers, equity and drawdown, monthly returns, rolling Sharpe, the spread of trade results,
    each trade's worst and best moment (MAE/MFE), and what it holds. Compare two side by side; print or save as PDF. */
 function rpSubjects(){ const out=[['main', L2('Your main account','Ana hesabın')]]; if (ST.accts && ST.accts.ch) out.push(['ch', L2('Challenge account','Sınav hesabı')]); if (ST.fut) out.push(['fut', L2('Futures wallet','Vadeli cüzdan')]);
@@ -5731,7 +5750,7 @@ function renderReport(){ const el=$('#report'); if (!el) return; const Q=quotesA
   const sel=(id, cur, blank)=>`<select id="${id}">${blank ? `<option value="">${esc(L2('— compare with —','— şununla karşılaştır —'))}</option>` : ''}${subs.map(([v,n])=>`<option value="${esc(v)}"${v===cur ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>`;
   const norm=D=>D.pts.length ? D.pts.map(p=>({ t:p.t, v:p.v/(D.pts[0].v||1) })) : [];
   setHTML(el, `<div class="rp-bar no-print"><label class="fld" for="rp-a">${esc(L2('Report on','Rapor'))}${sel('rp-a', k)}</label><label class="fld" for="rp-b">${esc(L2('Compare','Karşılaştır'))}${sel('rp-b', k2, true)}</label><button class="go" type="button" id="rp-print">🖨 ${esc(L2('Print / save as PDF','Yazdır / PDF olarak kaydet'))}</button></div>
-    <article class="rp-sheet"><header class="rp-head"><div><h2>${esc(A.nm)}${B ? ' · '+esc(B.nm) : ''}</h2><p class="bd-sub">${esc(L2(`Tidewater Live performance report · ${now} · paper trading`,`Tidewater Live performans raporu · ${now} · kâğıt üstünde işlem`))}</p></div></header>
+    <article class="rp-sheet"><header class="rp-head"><div><h2>${esc(A.nm)}${B ? ' · '+esc(B.nm) : ''}</h2><p class="bd-sub">${esc(L2(`Phoenix Finance Club performance report · ${now} · paper trading`,`Phoenix Finance Club performans raporu · ${now} · kâğıt üstünde işlem`))}</p></div></header>
       <div class="rp-cols"><section><h3>${esc(L2('Key numbers','Temel rakamlar'))}</h3><table class="tbl"><thead><tr><th></th><th class="r">${esc(A.nm)}</th>${SB ? `<th class="r">${esc(B.nm)}</th>` : ''}</tr></thead><tbody>
         ${row(L2('Return','Getiri'), S.ret, SB && SB.ret, P)}${row(L2('A year (if 30+ days)','Yıllık (30+ gün ise)'), S.cagr, SB && SB.cagr, P)}${row(L2('Volatility (a year)','Oynaklık (yıllık)'), S.vol, SB && SB.vol, P)}${row('Sharpe', S.sharpe, SB && SB.sharpe, f2)}${row('Sortino', S.sortino, SB && SB.sortino, f2)}
         ${row(L2('Deepest fall','En derin düşüş'), S.dd==null ? null : -S.dd, SB && -SB.dd, P)}${row('Calmar', S.calmar, SB && SB.calmar, f2)}${row(L2('Closed trades','Kapanan işlem'), S.n, SB && SB.n, N)}${row(L2('Won','Kazanan'), S.win, SB && SB.win, v=>v==null ? '—' : p0(v))}${row(L2('Profit factor','Kâr faktörü'), S.pf, SB && SB.pf, f2)}${row(L2('Average trade','Ortalama işlem'), S.avg, SB && SB.avg, P)}${row(L2('Days of history','Geçmiş gün'), Math.round(S.days), SB && Math.round(SB.days), N)}</tbody></table></section>
@@ -5745,7 +5764,7 @@ function renderReport(){ const el=$('#report'); if (!el) return; const Q=quotesA
 document.addEventListener('change', e=>{ if (e.target.id==='rp-a'){ ST.rpA=e.target.value; save(); render(); } if (e.target.id==='rp-b'){ ST.rpB=e.target.value; save(); render(); } });
 document.addEventListener('click', e=>{ if (e.target.closest('#rp-print')) window.print(); });
 
-/* ---------- Tidewater Live: the evaluation challenge ----------
+/* ---------- Phoenix Finance Club: the evaluation challenge ----------
    Like a trading firm's evaluation: reach the profit target without breaking the daily loss limit or the maximum drawdown, within the time,
    trading on at least a few different days. A separate challenge account (switch accounts in the bar at the top). The bots are judged by the same rules. */
 const CH_PRESETS={
@@ -5804,7 +5823,7 @@ document.addEventListener('click', e=>{ const t=e.target; const s=t.closest('[da
   if (t.closest('#ch-quit') && ST.ch && confirm(L2('Give up this challenge?','Bu sınavdan vazgeçilsin mi?'))){ ST.ch.status='failed'; ST.ch.why=['given up','vazgeçildi']; ST.ch.end=Date.now(); ST.ch.final={ profit:0, worstDay:ST.ch.worstDay||0, worstDD:ST.ch.worstDD||0, days:0 }; (ST.chHist=ST.chHist||[]).push({ preset:ST.ch.preset, t0:ST.ch.t0, end:Date.now(), status:'failed', why:ST.ch.why, ...ST.ch.final }); if (ST.acct==='ch') acctUse('main'); save(); render(); return; }
   if (t.closest('#ch-png')) chPng(); });
 
-/* ---------- Tidewater Live: the welcome page ----------
+/* ---------- Phoenix Finance Club: the welcome page ----------
    What the site is, the evidence (results since 2018, the live record), and where to start. First visit lands here; the logo leads back. */
 function wcGuardChart(A){ const V=A && A.vis; if (!V || V.length<10) return ''; const W=900, H=300, lo=Math.log(Math.min(...V.map(v=>v[1]))), hi=Math.log(Math.max(...V.map(v=>v[1]))), X=k=>10+(W-80)*k/(V.length-1), Y=v=>10+(H-40)*(1-(Math.log(v)-lo)/((hi-lo)||1));
   let bands='', k0=null; for (let k=0;k<=V.length;k++){ const on=k<V.length && V[k][2]>0; if (on && k0==null) k0=k; if (!on && k0!=null){ bands+=`<rect x="${X(k0).toFixed(1)}" y="10" width="${Math.max(1, X(k-1)-X(k0)).toFixed(1)}" height="${H-40}" fill="var(--gain)" fill-opacity=".14"/>`; k0=null; } }
@@ -5839,7 +5858,7 @@ function renderWelcome(){ const el=$('#welcome'); if (!el) return; const A=typeo
       ${card('📚', L2('Academy','Akademi'), L2('Ten short lessons on risk, costs, overfitting and the trader’s own mind.','Risk, maliyet, aşırı uyum ve yatırımcının kendi zihni üzerine on kısa ders.'), '#learn')}</section>
     <p class="bd-sub wc-foot">${esc(L2('Free, no account, no AI fees: everything runs in your browser (and, if you host it, on free GitHub servers). Your data stays with you. Past results do not promise future results; this is not investment advice.','Ücretsiz, hesapsız, yapay zekâ ücreti yok: her şey tarayıcında çalışır (yayına alırsan ücretsiz GitHub sunucularında). Verilerin sende kalır. Geçmiş sonuçlar gelecek için söz vermez; yatırım tavsiyesi değildir.'))}</p>`); }
 
-/* ---------- Tidewater Live: the Board as a bento (glass skin) ----------
+/* ---------- Phoenix Finance Club: the Board as a bento (glass skin) ----------
    Extra tiles: "Today in one look" (a rule-based summary, no AI), this week's economic calendar, a semicircle gauge for
    the market mood, and the Strategy Desk's five real-money checks as dots. Everything comes from data the site already has. */
 const HM = { sig:'' };
@@ -5898,6 +5917,52 @@ function renderHome(Q){ try{
     txt('hm-pass-s', L2('strategies passed all five real-money checks','strateji beş gerçek para kontrolünün hepsini geçti'));
     setHTML(ps, SS.map(s=>{ const nm=hmName(s.id), c=(s.ready && s.ready.c)||[]; return `<li><span class="hm-sn">${nm.ico} ${esc(nm.n)}</span><span class="hm-dots" role="img" aria-label="${esc(L2(`${c.filter(x=>x[0]).length} of ${c.length} checks passed`, `${c.length} kontrolden ${c.filter(x=>x[0]).length} geçti`))}">${c.map(x=>`<i class="${x[0] ? 'ok' : ''}" title="${esc((x[0] ? '✓ ' : '✗ ')+L2(...x[1]))}"></i>`).join('')}</span><span class="hm-cg ${cls(s.cagr)}">${esc(pct(s.cagr))}</span></li>`; }).join('')); }
 } catch(e){ console.error(e); } }
+
+/* ---------- Phoenix: a company's fundamentals under its chart ----------
+   Valuation, profitability, income, growth, balance sheet, dividends, share data and performance, from the free
+   TradingView screener (the same source as the US prices). TTM = trailing twelve months, FQ = the last reported quarter. */
+const FD = { c:{}, busy:{} }, FD_SECT = new Set(['Electronic Technology','Technology Services','Finance','Health Technology','Health Services','Retail Trade','Consumer Services','Consumer Durables','Consumer Non-Durables','Energy Minerals','Non-Energy Minerals','Producer Manufacturing','Process Industries','Industrial Services','Commercial Services','Communications','Utilities','Transportation','Distribution Services','Miscellaneous']);
+// [field, label en, label tr, format]  formats: $ money, x ratio, % percent, n count, d date, r analyst rating, s text
+const FD_GROUPS = [
+  ['about', ['About','Hakkında'], [['sector','Sector','Sektör','s'],['industry','Industry','Endüstri','s'],['country','Country','Ülke','s'],['exchange','Exchange','Borsa','s'],['number_of_employees','Employees','Çalışan','n'],['earnings_release_next_date','Next earnings','Sonraki bilanço','d'],['recommendation_mark','Analyst view','Analist görüşü','r']]],
+  ['val', ['Valuation','Değerleme'], [['market_cap_basic','Market value','Piyasa değeri','$'],['enterprise_value_current','Enterprise value','Firma değeri','$'],['price_earnings_ttm','P/E (TTM)','F/K (TTM)','x'],['price_book_fq','Price / book','Piyasa / defter','x'],['price_sales_current','Price / sales','Fiyat / satış','x'],['enterprise_value_ebitda_ttm','EV / EBITDA','FD / FAVÖK','x'],['price_free_cash_flow_ttm','Price / free cash flow','Fiyat / serbest nakit','x']]],
+  ['inc', ['Income (TTM)','Gelir tablosu (TTM)'], [['total_revenue_ttm','Revenue','Gelir','$'],['gross_profit_ttm','Gross profit','Brüt kâr','$'],['ebitda_ttm','EBITDA','FAVÖK','$'],['net_income_ttm','Net income','Net kâr','$'],['earnings_per_share_diluted_ttm','EPS (diluted)','Hisse başı kâr','$1'],['free_cash_flow_ttm','Free cash flow','Serbest nakit akışı','$']]],
+  ['prof', ['Profitability','Kârlılık'], [['gross_margin_ttm','Gross margin','Brüt marj','%'],['operating_margin_ttm','Operating margin','Faaliyet marjı','%'],['net_margin_ttm','Net margin','Net marj','%'],['return_on_equity_fq','Return on equity','Özkaynak kârlılığı','%'],['return_on_assets_fq','Return on assets','Aktif kârlılığı','%'],['return_on_invested_capital_fq','Return on invested capital','Yatırılan sermaye getirisi','%']]],
+  ['grow', ['Growth','Büyüme'], [['total_revenue_yoy_growth_ttm','Revenue growth (1 y)','Gelir büyümesi (1 y)','%s'],['earnings_per_share_diluted_yoy_growth_ttm','EPS growth (1 y)','HBK büyümesi (1 y)','%s'],['earnings_per_share_forecast_next_fq','EPS forecast (next quarter)','HBK beklentisi (sonraki çeyrek)','$1']]],
+  ['bal', ['Balance sheet (FQ)','Bilanço (FQ)'], [['total_assets_fq','Total assets','Toplam varlıklar','$'],['total_debt_fq','Total debt','Toplam borç','$'],['total_equity_fq','Equity','Özkaynak','$'],['cash_n_short_term_invest_fq','Cash & short-term investments','Nakit ve kısa vadeli yatırımlar','$'],['debt_to_equity_fq','Debt / equity','Borç / özkaynak','x'],['current_ratio_fq','Current ratio','Cari oran','x'],['quick_ratio_fq','Quick ratio','Asit-test oranı','x']]],
+  ['div', ['Dividends','Temettü'], [['dividends_yield_current','Dividend yield','Temettü verimi','%'],['dividends_per_share_fq','Dividend per share (quarter)','Hisse başı temettü (çeyrek)','$1'],['dividend_payout_ratio_ttm','Payout ratio','Dağıtım oranı','%']]],
+  ['share', ['Shares & trading','Hisse ve işlem'], [['beta_1_year','Beta (1 y)','Beta (1 y)','x'],['Volatility.M','Volatility (month)','Oynaklık (ay)','%'],['volume','Volume today','Bugünkü hacim','n'],['average_volume_30d_calc','Average volume (30 d)','Ortalama hacim (30 g)','n'],['total_shares_outstanding_fundamental','Shares outstanding','Dolaşımdaki hisse','n'],['float_shares_outstanding_current','Free float','Halka açık hisse','n'],['High.All','All-time high','Tüm zamanların zirvesi','$1'],['Low.All','All-time low','Tüm zamanların dibi','$1']]],
+  ['perf', ['Performance','Performans'], [['Perf.W','1 week','1 hafta','%s'],['Perf.1M','1 month','1 ay','%s'],['Perf.3M','3 months','3 ay','%s'],['Perf.6M','6 months','6 ay','%s'],['Perf.YTD','Year to date','Yılbaşından beri','%s'],['Perf.Y','1 year','1 yıl','%s'],['Perf.5Y','5 years','5 yıl','%s']]],
+];
+const FD_COLS = ['description','close','price_52_week_high','price_52_week_low'].concat(...FD_GROUPS.map(g=>g[2].map(f=>f[0])));
+async function fdLoad(sym){ const d=typeof MKT!=='undefined' && MKT.all[sym]; if (!d || !d.tv || FD.busy[sym]) return; const c=FD.c[sym]; if (c && Date.now()-c.t<10*6e4) return;
+  FD.busy[sym]=true; try{ const x=await mktPost({ symbols:{ tickers:[d.tv] }, columns:FD_COLS }), v=x && x.data && x.data[0] && x.data[0].d;
+    if (v){ const o={}; FD_COLS.forEach((k,i)=>{ o[k]=v[i]; }); FD.c[sym]={ t:Date.now(), v:o }; } else FD.c[sym]={ t:Date.now(), v:null }; }
+  catch(e){ FD.c[sym]={ t:Date.now()-9*6e4, v:null, err:String(e && e.message || e) }; }
+  finally { FD.busy[sym]=false; if (typeof render==='function') render(); } }
+function fdFmt(v, f){ if (v==null || v==='' || (typeof v==='number' && !isFinite(v))) return null;
+  const loc=ST.lang==='tr' ? 'tr-TR' : 'en-US', num=(x, d)=>new Intl.NumberFormat(loc, { maximumFractionDigits:d, minimumFractionDigits:d }).format(x);
+  if (f==='s') return typeof secT==='function' && FD_SECT.has(v) ? secT(v) : String(v);
+  if (f==='$') return (v<0 ? '−' : '')+'$'+big(Math.abs(v));
+  if (f==='$1') return (v<0 ? '−$' : '$')+num(Math.abs(v), 2);
+  if (f==='x') return num(v, 2)+'×';
+  if (f==='%') return ST.lang==='tr' ? '%'+num(v, 2) : num(v, 2)+'%';
+  if (f==='%s') return pct(v/100);
+  if (f==='n') return big(v);
+  if (f==='d') return new Date(v*1000).toLocaleDateString(loc, { day:'numeric', month:'short', year:'numeric' });
+  if (f==='r'){ const k=v<1.5 ? 0 : v<2.5 ? 1 : v<3.5 ? 2 : v<4.5 ? 3 : 4; return L2(...[['Strong buy','Güçlü al'],['Buy','Al'],['Hold','Tut'],['Sell','Sat'],['Strong sell','Güçlü sat']][k])+` (${num(v, 1)})`; }
+  return String(v); }
+function fdHTML(sym){ const c=FD.c[sym], v=c && c.v; if (!v) return `<p class="bd-sub">${esc(c && c.err ? L2('Fundamentals are unavailable right now.','Temel veriler şu an alınamıyor.') : L2('Loading the company’s fundamentals…','Şirketin temel verileri yükleniyor…'))}</p>`;
+  const hi=v.price_52_week_high, lo=v.price_52_week_low, px=v.close, at=hi>lo ? Math.max(0, Math.min(100, (px-lo)/(hi-lo)*100)) : null;
+  const range=at==null ? '' : `<div class="fd-rg"><span>${esc(L2('52-week range','52 haftalık aralık'))}</span><div class="fd-rb" role="img" aria-label="${esc(L2(`52-week range ${fdFmt(lo,'$1')} to ${fdFmt(hi,'$1')}, now ${fdFmt(px,'$1')}`, `52 haftalık aralık ${fdFmt(lo,'$1')} ile ${fdFmt(hi,'$1')} arası, şimdi ${fdFmt(px,'$1')}`))}"><i style="left:${at.toFixed(1)}%"></i></div><div class="fd-rl"><b>${fdFmt(lo,'$1')}</b><b>${fdFmt(hi,'$1')}</b></div></div>`;
+  const groups=FD_GROUPS.map(([id, name, fs])=>{ const rows=fs.map(([k, en, tr, f])=>{ const t=fdFmt(v[k], f); if (t==null) return ''; const sign=(f==='%s' || f==='$') && typeof v[k]==='number' ? (v[k]>0 ? ' up' : v[k]<0 ? ' down' : '') : '';
+      return `<div class="fd-kv"><dt>${esc(L2(en, tr))}</dt><dd class="${f==='%s' ? sign.trim() : ''}">${esc(t)}</dd></div>`; }).join('');
+    return rows ? `<section class="fd-g fd-${id}"><h3>${esc(L2(...name))}</h3><dl>${rows}</dl></section>` : ''; }).join('');
+  return `<div class="bd-th"><h2>${esc(v.description || sym)} · ${esc(L2('Fundamentals','Temel veriler'))}</h2></div>${range}<div class="fd-grid">${groups}</div>
+    <p class="bd-sub fd-src">${esc(L2('Source: TradingView screener · TTM = last twelve months · FQ = last reported quarter · updated every 10 minutes','Kaynak: TradingView tarayıcısı · TTM = son on iki ay · FQ = son açıklanan çeyrek · 10 dakikada bir güncellenir'))}</p>`; }
+// shown on the Trade screen under the chart, for US stocks and ETFs
+function fdRender(){ const el=$('#tr-fund'); if (!el) return; const sym=ST.sel, d=typeof MKT!=='undefined' && MKT.all[sym], stock=d && d.tv && !(typeof liveDef==='function' && liveDef(sym));
+  el.hidden=!stock; if (!stock) return; fdLoad(sym); const h=fdHTML(sym), k=sym+'|'+ST.lang+'|'+((FD.c[sym]||{}).t||0); if (el.__k!==k){ el.__k=k; setHTML(el, h); } }
 
 start();</script>
 </body>

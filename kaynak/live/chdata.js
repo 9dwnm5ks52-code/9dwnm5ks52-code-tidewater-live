@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: candles per timeframe for the pro chart (piece 2, prefix CD) ----------
+/* ---------- Phoenix Finance Club: candles per timeframe for the pro chart (piece 2, prefix CD) ----------
    cdBars(sym, tf) → ascending bars { t, o, h, l, c, v } for the instrument and timeframe, or null while the first
    download is running (it starts the download itself, once per sym|tf, and calls render() when bars arrive).
    Crypto: Binance klines (Coinbase candles as the fallback; 4h and 1w are built from 1h / 1d there). The last bar is kept

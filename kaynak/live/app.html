@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Tidewater Live: paper trading with real prices</title>
+<title>Phoenix Finance Club: the club fund, with real prices</title>
 <meta name="description" content="Practise trading crypto and the whole US stock market with play money and real prices. Free, no sign-up.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b0d10">
@@ -16,7 +16,7 @@
 </head>
 <body>
 <header class="lv-top">
-  <a class="lv-brand" href="#welcome"><b>TDL</b><span>Tidewater Live</span></a>
+  <a class="lv-brand" href="#welcome" aria-label="Phoenix Finance Club"><b aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M7 23l6-7 4 4 8-10"/><path d="M20 10h5v5"/></svg></b><span>Phoenix Finance Club</span></a>
   <div class="lv-dots" id="lv-dots" aria-live="polite"></div>
   <span class="sp"></span>
   <div class="lv-nw"><b class="mono" id="lv-nw"></b><small class="mono" id="lv-pl"></small></div>
@@ -63,6 +63,7 @@
             <div id="tr-chart"></div>
             <div id="tr-det"></div>
           </div>
+          <section class="pn" id="tr-fund" hidden aria-label="Fundamentals"></section>
           <div class="pn"><div class="bd-th"><h2 id="tr-bk-h">Order book</h2></div><div id="tr-book"></div></div>
           <div class="pn"><div class="bd-th"><h2>News</h2></div><div id="tr-news"></div></div>
         </div>

@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the Board as a bento (glass skin) ----------
+/* ---------- Phoenix Finance Club: the Board as a bento (glass skin) ----------
    Extra tiles: "Today in one look" (a rule-based summary, no AI), this week's economic calendar, a semicircle gauge for
    the market mood, and the Strategy Desk's five real-money checks as dots. Everything comes from data the site already has. */
 const HM = { sig:'' };

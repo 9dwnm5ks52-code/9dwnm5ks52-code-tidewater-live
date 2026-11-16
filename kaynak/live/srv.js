@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: when the site is hosted, the bots run on a server ----------
+/* ---------- Phoenix Finance Club: when the site is hosted, the bots run on a server ----------
    On GitHub Pages (or with ?srv=<folder> for testing), the bots come from data/state.json, written every 5 minutes by a free GitHub Actions job,
    so they keep learning and trading while this page is closed. Your own strategy bots still run in your browser.
    The same job saves this week's economic calendar (data/calendar.json). The hosted site can also be installed as an app. */

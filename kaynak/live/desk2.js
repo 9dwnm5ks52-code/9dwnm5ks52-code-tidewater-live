@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the Strategy Desk, part 2 ----------
+/* ---------- Phoenix Finance Club: the Strategy Desk, part 2 ----------
    Tabs; the forward test (the record from today on); what a year can look like; rolling years; how strategies move together; results in Turkish lira;
    a DCA planner; your own daily strategy test (with a counter of how many you tried); event risk; and how far strategies and bots agree. */
 const DK_TABS=[['today',['Today','Bugün']],['results',['Results since 2018','2018’den beri sonuçlar']],['tools',['Planner and tester','Planlayıcı ve test']],['track',['Tracking','Takip']]];

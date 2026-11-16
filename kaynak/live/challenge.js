@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the evaluation challenge ----------
+/* ---------- Phoenix Finance Club: the evaluation challenge ----------
    Like a trading firm's evaluation: reach the profit target without breaking the daily loss limit or the maximum drawdown, within the time,
    trading on at least a few different days. A separate challenge account (switch accounts in the bar at the top). The bots are judged by the same rules. */
 const CH_PRESETS={

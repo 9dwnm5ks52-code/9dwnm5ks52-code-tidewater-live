@@ -1,4 +1,4 @@
-// Tidewater Live: chart toolbar, indicator picker, indicator settings and templates (Piece 4 of the pro chart, prefix CU / cu).
+// Phoenix Finance Club: chart toolbar, indicator picker, indicator settings and templates (Piece 4 of the pro chart, prefix CU / cu).
 //
 // cuToolbar() → HTML for the bar above the chart (#tr-tf's row). Its string only changes when the chart state, the
 // language or an open menu changes, so setHTML() leaves it alone on price ticks.
@@ -213,7 +213,7 @@ function cuShot(){
         g.textAlign='right'; g.font=`600 12px ${font}`; g.fillStyle=ink3; g.fillText(stamp, W-10, 16); g.textAlign='left';
         if (inds.length){ g.font=`500 12px ${font}`; let s=inds.join(' · '); while (s.length>4 && g.measureText(s).width>W-20) s=s.slice(0, -2); if (s.length<inds.join(' · ').length) s=s.replace(/.$/, '…'); g.fillText(s, 10, 38); }
         g.drawImage(img, 0, head, W, H);
-        g.font=`500 11px ${font}`; g.fillStyle=ink3; g.textAlign='right'; g.fillText(L2('Tidewater Live · paper trading', 'Tidewater Live · sanal işlem'), W-10, head+H+foot/2);
+        g.font=`500 11px ${font}`; g.fillStyle=ink3; g.textAlign='right'; g.fillText(L2('Phoenix Finance Club · paper trading', 'Phoenix Finance Club · sanal işlem'), W-10, head+H+foot/2);
         const name=`tidewater-${sym.replace(/[^\w.-]+/g, '') || 'chart'}-${S.tf}-${stamp.replace(/[-: ]/g, '').replace(/^(\d{8})/, '$1-')}.png`;
         const done=blob=>{ const a=document.createElement('a'); a.download=name; a.href=blob ? URL.createObjectURL(blob) : cv.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove(); if (blob) setTimeout(()=>URL.revokeObjectURL(a.href), 4000); CU.lastShot={ name, w:cv.width, h:cv.height }; toast(L2('Chart saved as a PNG image', 'Grafik PNG resmi olarak kaydedildi')); res(true); };
         if (cv.toBlob) cv.toBlob(done, 'image/png'); else done(null);

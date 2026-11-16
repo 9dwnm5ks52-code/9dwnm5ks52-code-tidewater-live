@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the pro chart engine (piece 3 of the pro chart, prefix CH / ch) ----------
+/* ---------- Phoenix Finance Club: the pro chart engine (piece 3 of the pro chart, prefix CH / ch) ----------
    chInit() makes sure ST.chart exists (see ds/CHART_SPEC.md). chRender(host, sym) draws the chart of the instrument into
    host (#tr-chart) and returns true, or shows a message and returns false when there are no bars yet.
    One <svg class="chart">: the price pane on top, one pane per 'sub' indicator below it, the time axis at the bottom

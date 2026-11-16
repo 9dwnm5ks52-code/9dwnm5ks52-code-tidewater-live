@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the welcome page ----------
+/* ---------- Phoenix Finance Club: the welcome page ----------
    What the site is, the evidence (results since 2018, the live record), and where to start. First visit lands here; the logo leads back. */
 function wcGuardChart(A){ const V=A && A.vis; if (!V || V.length<10) return ''; const W=900, H=300, lo=Math.log(Math.min(...V.map(v=>v[1]))), hi=Math.log(Math.max(...V.map(v=>v[1]))), X=k=>10+(W-80)*k/(V.length-1), Y=v=>10+(H-40)*(1-(Math.log(v)-lo)/((hi-lo)||1));
   let bands='', k0=null; for (let k=0;k<=V.length;k++){ const on=k<V.length && V[k][2]>0; if (on && k0==null) k0=k; if (!on && k0!=null){ bands+=`<rect x="${X(k0).toFixed(1)}" y="10" width="${Math.max(1, X(k-1)-X(k0)).toFixed(1)}" height="${H-40}" fill="var(--gain)" fill-opacity=".14"/>`; k0=null; } }

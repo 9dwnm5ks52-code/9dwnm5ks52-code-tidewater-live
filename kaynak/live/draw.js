@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: drawing tools on the pro chart (piece 5 of the pro chart, prefix DR / dr) ----------
+/* ---------- Phoenix Finance Club: drawing tools on the pro chart (piece 5 of the pro chart, prefix DR / dr) ----------
    Drawings live per instrument in ST.chart.draw[sym] as { id, tool, a:{ t, px }, b?:{ t, px }, c?:{ t, px }, txt?, col, w?, dash? }
    (bar time + price, so they survive zoom, pan, log scale and timeframe changes).
    tool: 'trend' | 'ray' | 'ext' (extended both ways) | 'hline' | 'hray' | 'vline' | 'chan' (parallel channel: a-b is the

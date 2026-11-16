@@ -1,4 +1,4 @@
-/* ---------- Tidewater Live: the Bots screen (the bots that trade by themselves) ---------- */
+/* ---------- Phoenix Finance Club: the Bots screen (the bots that trade by themselves) ---------- */
 const BOTV={ f:'all', open:{} };
 const MK_BOTH=['Crypto + US stocks','Kripto + ABD hisseleri'], MK_US=['US stocks','ABD hisseleri'];
 const AI_INFO={
@@ -131,7 +131,7 @@ function aiEdgeOn(bot){ const T=bot.tune; if (bot.custom) return null;
   return null; }
 function edgeWatch(){ const E=ST.edge||(ST.edge={}); let changed=false;
   for (const b of ST.ai){ const on=aiEdgeOn(b); if (on==null) continue; const prev=E[b.id]; E[b.id]=on; if (prev==null || prev===on) continue; changed=true;
-    const msg=on ? `${aiName(b.id)} proved an edge and may trade now` : `${aiName(b.id)} lost its edge and stopped opening trades`; note(msg, on ? '✅' : '⏸'); alNotify(T(msg)); if (typeof ntfySend==='function') ntfySend(T(msg), 'Tidewater'); }
+    const msg=on ? `${aiName(b.id)} proved an edge and may trade now` : `${aiName(b.id)} lost its edge and stopped opening trades`; note(msg, on ? '✅' : '⏸'); alNotify(T(msg)); if (typeof ntfySend==='function') ntfySend(T(msg), 'Phoenix Finance Club'); }
   if (changed) save(); }
 TRP.push([/^(.+) proved an edge and may trade now$/, m=>`${m[1]} avantajını kanıtladı, artık işlem açabilir`], [/^(.+) lost its edge and stopped opening trades$/, m=>`${m[1]} avantajını kaybetti, yeni işlem açmayı bıraktı`]);
 // ---- trade replay: a chart of the candles around one trade, with where it went in and out

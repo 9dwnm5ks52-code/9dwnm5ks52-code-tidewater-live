@@ -1,14 +1,14 @@
-/* ---------- Tidewater Live: extras ----------
+/* ---------- Phoenix Finance Club: extras ----------
    Phone notifications (ntfy, free), backup and restore, privacy mode, the weekly summary, data health, and the Academy. */
 // ---- phone notifications: ntfy.sh, free and without an account. Anyone who knows the topic name can read it, so the name is long and random.
 function ntfyTopic(){ return (ST.ntfy||'').trim(); }
-async function ntfySend(msg, title){ const t=ntfyTopic(); if (!t) return false; try{ const r=await fetch('https://ntfy.sh/'+encodeURIComponent(t), { method:'POST', body:msg, headers:{ Title:(title||'Tidewater').normalize('NFD').replace(/[^\x20-\x7e]/g, '') } }); return r.ok; }catch(e){ return false; } }
+async function ntfySend(msg, title){ const t=ntfyTopic(); if (!t) return false; try{ const r=await fetch('https://ntfy.sh/'+encodeURIComponent(t), { method:'POST', body:msg, headers:{ Title:(title||'Phoenix Finance Club').normalize('NFD').replace(/[^\x20-\x7e]/g, '') } }); return r.ok; }catch(e){ return false; } }
 const ntfyNew = () => 'tidewater-'+Array.from(crypto.getRandomValues(new Uint8Array(12)), b=>b.toString(36).padStart(2,'0')).join('').slice(0, 20);
 // ---- backup: everything this site keeps in this browser, as one file (API keys only if you tick the box)
 function bkCollect(withKeys){ const out={ app:'tidewater-live', v:1, t:Date.now(), data:{} }; for (let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if (!/tidewater|tdl/i.test(k)) continue; if (!withKeys && /key|secret|alpaca|finnhub/i.test(k)) continue; out.data[k]=localStorage.getItem(k); } return out; }
 function bkDownload(){ const withKeys=$('#bk-keys') && $('#bk-keys').checked, b=bkCollect(withKeys), a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(b)], { type:'application/json' })); a.download=`tidewater-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); ST.bkT=Date.now(); save(); }
 async function bkRestore(file){ try{ const b=JSON.parse(await file.text()); if (b.app!=='tidewater-live' || !b.data) throw new Error('not a Tidewater backup'); for (const k in b.data) localStorage.setItem(k, b.data[k]); toast(L2('Backup restored; reloading…','Yedek geri yüklendi; yeniden açılıyor…')); setTimeout(()=>location.reload(), 600); }
-  catch(e){ toast(L2('This file is not a Tidewater backup.','Bu dosya bir Tidewater yedeği değil.')); } }
+  catch(e){ toast(L2('This file is not a backup from this site.','Bu dosya bu sitenin bir yedeği değil.')); } }
 // ---- privacy mode: hides money amounts (for screenshots or a shared screen)
 function privApply(){ document.documentElement.classList.toggle('priv', !!ST.priv); const b=$('#lv-priv'); if (b){ b.setAttribute('aria-pressed', String(!!ST.priv)); b.setAttribute('aria-label', ST.priv ? L2('Show amounts','Tutarları göster') : L2('Hide amounts','Tutarları gizle')); b.textContent=ST.priv ? '🙈' : '👁'; } }
 // ---- the weekly summary (each Monday, in the inbox and, if set, on the phone)
@@ -67,7 +67,7 @@ function renderLearn(){ const el=$('#learn'); if (!el) return; const L=ST.learnL
 document.addEventListener('click', async e=>{ const t=e.target;
   if (t.closest('#lv-priv') || t.closest('[data-priv]')){ ST.priv=!ST.priv; privApply(); save(); render(); return; }
   if (t.closest('#nt-new')){ ST.ntfy=ntfyNew(); save(); render(); return; }
-  if (t.closest('#nt-test')){ const ok=await ntfySend(L2('Test from Tidewater Live: notifications work.','Tidewater Live’dan deneme: bildirimler çalışıyor.'), 'Tidewater'); toast(ok ? L2('Sent: check the ntfy app','Gönderildi: ntfy uygulamasına bak') : L2('Could not send','Gönderilemedi')); return; }
+  if (t.closest('#nt-test')){ const ok=await ntfySend(L2('Test from Phoenix Finance Club: notifications work.','Phoenix Finance Club’dan deneme: bildirimler çalışıyor.'), 'Phoenix Finance Club'); toast(ok ? L2('Sent: check the ntfy app','Gönderildi: ntfy uygulamasına bak') : L2('Could not send','Gönderilemedi')); return; }
   if (t.closest('#bk-dl')){ bkDownload(); render(); return; } });
 document.addEventListener('change', e=>{ const t=e.target; if (t.id==='nt-topic'){ ST.ntfy=t.value.trim().replace(/[^A-Za-z0-9_-]/g,'').slice(0, 64); save(); render(); }
   if (t.id==='bk-file' && t.files && t.files[0]) bkRestore(t.files[0]); if (t.id==='lr-loss'){ ST.learnLoss=Math.max(1, Math.min(99, +t.value||30)); save(); render(); } });
