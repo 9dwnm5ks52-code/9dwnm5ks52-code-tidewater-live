@@ -1,0 +1,15 @@
+{
+  "name": "Tidewater Live",
+  "short_name": "Tidewater",
+  "description": "Paper trading with real prices: crypto live, the whole US stock market, 13 self-trading bots and the news.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

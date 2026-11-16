@@ -1,0 +1,39 @@
+# Tidewater Live: runs the bots every 5 minutes on GitHub's servers (free for public repositories)
+# and saves their state, and the economic calendar, to the "data" branch. The site reads them from there.
+name: bots
+on:
+  schedule:
+    - cron: '*/5 * * * *'     # GitHub runs scheduled jobs on a best-effort basis: often every 5 to 15 minutes
+  workflow_dispatch: {}       # a "Run workflow" button in the Actions tab
+permissions:
+  contents: write
+concurrency:
+  group: bots
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Load the saved state
+        run: |
+          mkdir -p data
+          if git fetch --depth=1 origin data 2>/dev/null; then git --work-tree=data checkout FETCH_HEAD -- . ; fi
+          ls -la data
+      - name: Run the bots
+        run: node server/run.js data
+        env:
+          NTFY_TOPIC: ${{ vars.NTFY_TOPIC }}
+          NTFY_LANG: ${{ vars.NTFY_LANG }}
+      - name: Save the state
+        run: |
+          cd data
+          git init -q
+          git checkout -q -b data
+          git add -A
+          git -c user.name="tidewater-bots" -c user.email="tidewater-bots@users.noreply.github.com" commit -qm "bots $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" data

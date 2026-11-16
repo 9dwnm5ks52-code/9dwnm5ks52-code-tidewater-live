@@ -1,0 +1,8 @@
+# built or downloaded inside kaynak/ (rebuilt by build_live.py / build_hosting.py, axe-core comes from npm)
+kaynak/dist/
+kaynak/hosting/
+kaynak/axe/
+kaynak/_arsiv/
+node_modules/
+*.zip
+__pycache__/

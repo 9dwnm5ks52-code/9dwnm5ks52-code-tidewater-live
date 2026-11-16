@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tidewater Live: paper trading with real prices</title>
+<meta name="description" content="Practise trading crypto and the whole US stock market with play money and real prices. Free, no sign-up.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0d10">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>/*CSS*/</style>
+</head>
+<body>
+<header class="lv-top">
+  <a class="lv-brand" href="#welcome"><b>TDL</b><span>Tidewater Live</span></a>
+  <div class="lv-dots" id="lv-dots" aria-live="polite"></div>
+  <span class="sp"></span>
+  <div class="lv-nw"><b class="mono" id="lv-nw"></b><small class="mono" id="lv-pl"></small></div>
+  <button class="lv-tb" type="button" id="lv-priv" aria-pressed="false" aria-label="Hide amounts">👁</button>
+  <button class="lv-tb" type="button" id="lv-lang" aria-label="Türkçe">TR</button>
+  <button class="lv-tb" type="button" id="lv-theme">Light</button>
+</header>
+<div class="lv-shell">
+  <nav class="lv-nav" aria-label="Main">
+    <a href="#board" data-nav="board"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="10" height="7" rx="2"/><rect x="15.5" y="3.5" width="5" height="7" rx="2"/><rect x="3.5" y="12.5" width="5" height="8" rx="2"/><rect x="10.5" y="12.5" width="10" height="8" rx="2"/></svg><span>Board</span></a>
+    <a href="#markets" data-nav="markets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg><span>Markets</span></a>
+    <a href="#crypto" data-nav="crypto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 8h4a2 2 0 0 1 0 4h-4m0 0h4.5a2 2 0 0 1 0 4H9.5V8m1.5-2v2m2-2v2m-2 8v2m2-2v2"/></svg><span>Crypto</span></a>
+    <a href="#bots" data-nav="bots"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="7.5" width="15" height="11" rx="3"/><path d="M12 3.5v4M9 12.5h.01M15 12.5h.01M9.5 15.5h5"/></svg><span>Bots</span></a>
+    <a href="#desk" data-nav="desk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17"/><path d="M5.5 16l4-5 3.5 3 5.5-7"/><circle cx="18.5" cy="7" r="1.5"/></svg><span>Desk</span></a>
+    <a href="#journal" data-nav="journal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h11a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6z"/><path d="M6 3.5v17M9.5 8h5.5M9.5 11.5h5.5"/></svg><span>Journal</span></a>
+    <a href="#news" data-nav="news"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M7.5 9h9M7.5 12.5h9M7.5 16h5"/></svg><span>News</span></a>
+    <a href="#trade" data-nav="trade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg><span>Trade</span></a>
+    <a href="#portfolio" data-nav="portfolio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5"/><path d="M8.5 6.5V5a1.5 1.5 0 0 1 1.5-1.5h4A1.5 1.5 0 0 1 15.5 5v1.5"/><path d="M3.5 12h17"/></svg><span>Portfolio</span></a>
+    <a href="#settings" data-nav="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Settings</span></a>
+  </nav>
+  <main class="lv-main" id="main">
+    <section class="lv-view" id="v-board" aria-labelledby="h-board"><h1 class="sr" id="h-board">Board</h1><div class="bd" id="bd"></div></section>
+    <section class="lv-view" id="v-markets" aria-labelledby="h-mk" hidden><h1 class="lv-h1" id="h-mk">US market</h1><div id="mk"></div></section>
+    <section class="lv-view" id="v-crypto" aria-labelledby="h-cx" hidden><h1 class="lv-h1" id="h-cx">Crypto · live</h1><div id="cx"></div></section>
+    <section class="lv-view" id="v-bots" aria-labelledby="h-bots" hidden><h1 class="lv-h1" id="h-bots">AI bots</h1><div id="bots"></div></section>
+    <section class="lv-view" id="v-news" aria-labelledby="h-news" hidden><h1 class="lv-h1" id="h-news">News</h1><div id="nw"></div></section>
+    <section class="lv-view" id="v-lab" aria-labelledby="h-lab" hidden><h1 class="lv-h1" id="h-lab">Strategy lab</h1><div id="lab"></div></section>
+    <section class="lv-view" id="v-desk" aria-labelledby="h-desk" hidden><h1 class="lv-h1" id="h-desk">Strategy Desk</h1><div id="desk"></div></section>
+    <section class="lv-view" id="v-journal" aria-labelledby="h-journal" hidden><h1 class="lv-h1" id="h-journal">Journal</h1><div id="journal"></div></section>
+    <section class="lv-view" id="v-learn" aria-labelledby="h-learn" hidden><h1 class="lv-h1" id="h-learn">Academy</h1><div id="learn"></div></section>
+    <section class="lv-view" id="v-welcome" aria-labelledby="h-welcome" hidden><h1 class="sr" id="h-welcome">Welcome</h1><div id="welcome"></div></section>
+    <section class="lv-view" id="v-report" aria-labelledby="h-report" hidden><h1 class="lv-h1 no-print" id="h-report">Performance report</h1><div id="report"></div></section>
+    <section class="lv-view" id="v-challenge" aria-labelledby="h-challenge" hidden><h1 class="lv-h1" id="h-challenge">Challenge</h1><div id="challenge"></div></section>
+    <section class="lv-view" id="v-arena" aria-labelledby="h-arena" hidden><h1 class="lv-h1" id="h-arena">Bot Arena</h1><div id="arena"></div></section>
+    <section class="lv-view" id="v-trade" aria-labelledby="h-trade" hidden><h1 class="sr" id="h-trade">Trade</h1>
+      <div class="tr-grid">
+        <div class="tr-col">
+          <div class="pn">
+            <div class="tr-find"><label class="fld" for="tr-find"><span>Search any US stock or ETF</span><input id="tr-find" type="search" autocomplete="off" spellcheck="false" placeholder="AAPL, Tesla, S&amp;P…" aria-controls="tr-hits"></label><ul class="tr-hits" id="tr-hits"></ul></div>
+            <div class="tr-head"><label class="sr" for="tr-sym">Instrument</label><select id="tr-sym"></select><button class="lv-tb tr-star" type="button" id="tr-star" aria-pressed="false" aria-label="Add to the watchlist">☆</button>
+              <div><div class="tr-px mono" id="tr-px"></div><div class="mono" id="tr-chg"></div></div></div>
+            <div class="tr-facts" id="tr-facts"></div>
+            <div class="tr-tbr"><div id="tr-tf"></div><span class="bd-sub" id="tr-src"></span></div>
+            <div id="tr-chart"></div>
+            <div id="tr-det"></div>
+          </div>
+          <div class="pn"><div class="bd-th"><h2 id="tr-bk-h">Order book</h2></div><div id="tr-book"></div></div>
+          <div class="pn"><div class="bd-th"><h2>News</h2></div><div id="tr-news"></div></div>
+        </div>
+        <div class="tr-col">
+          <div class="pn" id="tk">
+            <div class="bd-th"><h2>Order</h2></div>
+            <span class="seg" role="group" aria-label="Side" id="tk-side"><button type="button" data-side="b" aria-pressed="true">Buy</button><button type="button" data-side="s" aria-pressed="false">Sell</button></span>
+            <span class="seg" role="group" aria-label="Order type" id="tk-type"><button type="button" data-type="mkt" aria-pressed="true">Market</button><button type="button" data-type="lmt" aria-pressed="false">Limit</button><button type="button" data-type="stp" aria-pressed="false">Stop</button><button type="button" data-type="trl" aria-pressed="false">Trailing</button></span>
+            <div class="fld-row"><label class="fld" for="tk-amt"><span id="tk-amt-l">Amount in dollars</span><input id="tk-amt" type="number" min="0" step="any" inputmode="decimal" value="1000"></label>
+              <span class="seg" role="group" aria-label="Amount in" id="tk-unit"><button type="button" data-unit="usd" aria-pressed="true">$</button><button type="button" data-unit="qty" aria-pressed="false">Units</button></span></div>
+            <label class="fld" for="tk-tr" id="tk-trw" hidden><span>Trail (% below the high)</span><input id="tk-tr" type="number" min="0.5" max="50" step="0.5" inputmode="decimal" value="5"></label>
+            <label class="fld" for="tk-px" id="tk-pxw" hidden><span id="tk-px-l">Limit price</span><input id="tk-px" type="number" min="0" step="any" inputmode="decimal"></label>
+            <p class="bd-sub mono" id="tk-est"></p>
+            <button class="go" type="button" id="tk-go">Buy</button>
+            <p class="msg" id="tk-msg" role="status"></p>
+            <div id="tk-oj"></div>
+          </div>
+          <div class="pn"><div class="bd-th"><h2>Your position</h2></div><div id="tr-pos"></div>
+            <div id="pt" hidden><h3 class="perf-h">Protect this position</h3><p class="bd-sub">Take profit above the price and a stop-loss below it, at the same time: whichever trades first cancels the other.</p>
+              <div class="fld-row"><label class="fld" for="pt-tp"><span>Take profit at</span><input id="pt-tp" type="number" min="0" step="any" inputmode="decimal"></label><label class="fld" for="pt-sl"><span>Stop-loss at</span><input id="pt-sl" type="number" min="0" step="any" inputmode="decimal"></label></div>
+              <button class="ghost" type="button" id="pt-go">Protect it</button><p class="msg" id="pt-msg" role="status"></p></div></div>
+          <div class="pn"><div class="bd-th"><h2>Open orders</h2></div><div id="tr-ord"></div></div>
+          <div class="pn" id="al-tr"><div class="bd-th"><h2>Alerts</h2></div><div class="fld-row"><label class="fld" for="al-kind"><span>Alert when</span><select id="al-kind"></select></label><label class="fld" for="al-v"><span>Value</span><input id="al-v" type="number" min="0" step="any" inputmode="decimal"></label></div>
+            <button class="ghost" type="button" id="al-go">Set alert</button><p class="msg" id="al-msg" role="status"></p><div id="al-mine"></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="lv-view" id="v-portfolio" aria-labelledby="h-pf" hidden><h1 class="lv-h1" id="h-pf">Portfolio</h1><div class="bd" id="pf-top"></div>
+      <div class="pn" style="margin-top:12px;max-width:1400px"><div class="bd-th"><h2>Performance</h2></div><div id="pf-perf"></div></div>
+      <div class="pn" style="margin-top:12px;max-width:1400px"><div class="bd-th"><h2>Holdings</h2></div><div class="tblw" id="pf-pos"></div></div>
+      <div class="pn" style="margin-top:12px;max-width:1400px"><div class="bd-th"><h2>Trade history</h2></div><div class="tblw" id="pf-fills"></div></div>
+      <div class="pn" style="margin-top:12px;max-width:1400px"><div class="bd-th"><h2>Managed by bots</h2></div><div id="pf-mg"></div><p><a class="bd-more" href="#bots">Hand money to a bot →</a></p></div>
+      <div class="pn" style="margin-top:12px;max-width:1400px"><div class="bd-th"><h2>Watchlist</h2></div><div id="wl-list"></div><h3 class="perf-h">Alerts</h3><p class="bd-sub" id="al-perm"></p><div id="al-list"></div></div>
+      <p><button class="ghost" type="button" id="pf-reset">Start again with $100,000</button></p>
+    </section>
+    <section class="lv-view" id="v-settings" aria-labelledby="h-set" hidden><h1 class="lv-h1" id="h-set">Settings</h1>
+      <div class="set">
+        <div class="pn"><h2>Trading costs</h2><p class="bd-sub">Used by your paper account, the bots and the Strategy Desk. Check your exchange’s fee page: these are typical Binance rates.</p>
+          <div class="seg" role="radiogroup" aria-label="Trading costs" id="set-fee"><button type="button" role="radio" data-fee="taker">Standard 0.10%</button><button type="button" role="radio" data-fee="maker">Limit orders + BNB 0.075%</button></div></div>
+        <div id="set-extra"></div>
+        <div class="pn"><h2>Crypto prices</h2><p class="bd-sub">Live from Binance's public market data, with Coinbase as a backup. Free, no sign-up.</p><p id="set-cx"></p></div>
+        <div class="pn"><h2>US stock prices</h2>
+          <p class="bd-sub">US stocks: the whole market, about 10,000 stocks, ETFs and ADRs, from TradingView's free screener. Prices are 15 minutes delayed. No sign-up.</p><p id="set-mk"></p>
+          <p class="bd-sub">Optional: paste the two keys of a free Alpaca account (paper trading is enough) to get real-time prices and daily candles for the 14 big names. They stay in this browser only and are sent only to Alpaca.</p>
+          <label class="fld" for="set-ap-id">Alpaca Key ID<input id="set-ap-id" type="text" autocomplete="off" spellcheck="false"></label>
+          <label class="fld" for="set-ap-sec">Alpaca Secret Key<input id="set-ap-sec" type="password" autocomplete="off" spellcheck="false"></label>
+          <details><summary class="bd-sub">Optional backup: a free Finnhub key</summary><label class="fld" for="set-fh">Finnhub API key<input id="set-fh" type="password" autocomplete="off" spellcheck="false"></label></details>
+          <div class="bd-row" style="justify-content:flex-start"><button class="go" type="button" id="set-save">Save and connect</button><button class="ghost" type="button" id="set-del">Remove the keys</button></div>
+          <p class="msg" id="set-msg" role="status"></p><p id="set-us"></p>
+        </div>
+        <div class="pn"><h2>About</h2><p class="bd-sub">Play money only: nothing here is real trading or financial advice. Prices are real: crypto live from Binance or Coinbase; US stocks 15 minutes delayed from TradingView's screener, or real time from Alpaca's free IEX feed if you add its keys. TradingView's screener is not an official public service, so it may change or stop. Crypto fees: 0.1% a trade. US stocks: no commission.</p></div>
+      </div>
+    </section>
+    <p class="lv-foot" id="foot">Play money only. Not financial advice. Prices: Binance or Coinbase (crypto, live), TradingView screener (US, 15 min delayed), Alpaca IEX (optional).</p>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>/*JS*/</script>
+</body>
+</html>

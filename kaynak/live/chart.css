@@ -1,0 +1,70 @@
+/* ---------- pro chart engine (piece 3): everything under #tr-chart / .ch-* ---------- */
+#tr-chart{position:relative;min-width:0}
+#tr-chart .ch-empty{min-height:200px;display:grid;place-items:center;margin:0}
+#tr-chart .ch-wrap{position:relative;outline:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;border-radius:8px}
+#tr-chart .ch-wrap:focus-visible{box-shadow:0 0 0 2px var(--focus)}
+#tr-chart svg.chart{width:100%;display:block;touch-action:pan-y;cursor:crosshair;overflow:hidden}
+#tr-chart svg.chart.ch-grab{cursor:grabbing}
+/* candles, bars, line, area */
+.chart .ch-wk{fill:none;stroke-width:1}
+.chart rect.cu,.chart rect.cd{stroke-width:0}
+.chart rect.ch-ho{fill-opacity:0;stroke-width:1}
+.chart .ch-ob{stroke-width:1.2}
+.chart .ch-ln{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linejoin:round}
+.chart .ch-ar{stroke:none}
+/* axes, separators, levels */
+.chart .ch-sep{stroke:var(--line-strong);stroke-width:1}
+.chart .ch-lv{stroke:var(--ink-3);stroke-dasharray:4 4;stroke-width:1;opacity:.55}
+.chart text.ch-tl{fill:var(--ink-3)}
+.chart text.ch-tm{fill:var(--ink-2);font-weight:700}
+.chart text.ch-pvt{font-size:9px}
+.chart .ch-hlm{stroke:var(--ink-3);stroke-width:1}
+.chart text.ch-hlt{fill:var(--ink-2);font-size:9.5px}
+/* last price, indicator tags, countdown */
+.chart .ch-lp{stroke-width:1;stroke-dasharray:2 3}
+.chart .ch-lp.up{stroke:var(--gain)}.chart .ch-lp.down{stroke:var(--loss)}
+.chart .ch-lpb.up{fill:var(--gain)}.chart .ch-lpb.down{fill:var(--loss)}
+.chart text.ch-lpt{fill:var(--on-trade);font-weight:700}
+.chart text.ch-cdt{font-weight:500;font-size:9.5px}
+.chart text.ch-tg{font-size:9.5px;font-weight:600}
+/* my fills */
+.chart .ch-mk.b{fill:var(--gain)}.chart .ch-mk.s{fill:var(--loss)}
+.chart .ch-mk{stroke:var(--surface-1);stroke-width:.8;cursor:default}
+/* crosshair */
+.chart .ch-x{pointer-events:none}
+.chart .ch-xl{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:4 3}
+.chart .ch-xb{fill:var(--ink)}
+.chart text.ch-xt{fill:var(--bg);font-weight:600}
+/* legend */
+#tr-chart .ch-lgs{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#tr-chart .ch-lg{position:absolute;left:6px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;font:500 11px/1.4 var(--f-mono);color:var(--ink-2);pointer-events:none}
+#tr-chart .ch-lr{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;max-width:100%;padding:0 4px;border-radius:5px;background:color-mix(in srgb,var(--surface-1) 78%,transparent)}
+#tr-chart .ch-sy{font:800 12px/1.4 var(--f-body);color:var(--ink)}
+#tr-chart .ch-k{color:var(--ink-3);text-decoration:none;cursor:help}
+#tr-chart .ch-lr .up{color:var(--gain)}#tr-chart .ch-lr .down{color:var(--loss)}
+#tr-chart .ch-v{color:var(--ink);display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+#tr-chart .ch-v::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--sw,var(--ink-3));flex:0 0 auto}
+#tr-chart .ch-v.ch-nil{display:none}
+#tr-chart .ch-lg button{pointer-events:auto;font:inherit;color:var(--ink);background:none;border:0;padding:0 4px;margin:0;border-radius:4px;cursor:pointer;min-height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center}
+#tr-chart .ch-lg button:hover{background:var(--surface-3)}
+#tr-chart .ch-lg button:focus-visible{outline:2px solid var(--focus);outline-offset:0}
+#tr-chart .ch-in{font-weight:700!important}
+#tr-chart .ch-li.off .ch-in{color:var(--ink-3);text-decoration:line-through}
+#tr-chart .ch-ib{color:var(--ink-2)!important;opacity:0;transition:opacity .12s}
+#tr-chart .ch-lr:hover .ch-ib,#tr-chart .ch-ib:focus-visible,#tr-chart .ch-li.off .ch-ib,#tr-chart .ch-lx{opacity:1}
+@media (hover:none){#tr-chart .ch-ib{opacity:1}}
+/* buttons on the plot */
+#tr-chart .ch-ctl{position:absolute;inset:0;pointer-events:none}
+#tr-chart .ch-zm{position:absolute;left:0;display:flex;justify-content:center;gap:4px;opacity:0;transition:opacity .15s}
+#tr-chart .ch-wrap:hover .ch-zm,#tr-chart .ch-zm:focus-within{opacity:1}
+@media (hover:none){#tr-chart .ch-zm{opacity:.9}}
+#tr-chart .ch-ctl button{pointer-events:auto;min-width:32px;height:28px;padding:0 8px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface-2);color:var(--ink);font:700 14px/1 var(--f-body);cursor:pointer;box-shadow:var(--elev-raised)}
+#tr-chart .ch-ctl button:hover{background:var(--surface-3)}
+#tr-chart .ch-ctl button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+#tr-chart .ch-golive{position:absolute;font-size:12px!important;display:inline-flex;align-items:center;gap:4px}
+#tr-chart .ch-busy{position:absolute;left:8px;font:600 11px/1 var(--f-body);color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:5px 9px}
+@media (max-width:560px){#tr-chart .ch-lg{font-size:10px}#tr-chart .ch-sy{font-size:11px}#tr-chart .ch-lr{gap:0 4px}}
+@media (prefers-reduced-motion:reduce){#tr-chart .ch-ib,#tr-chart .ch-zm{transition:none}}
+#tr-chart .ch-more{color:var(--ink-2)!important;font-weight:700!important}
+/* phones: keep legend rows on one line (remove lives in the indicator list) and keep the zoom buttons quiet over the candles */
+@media (max-width:560px) and (hover:none){#tr-chart .ch-lg [data-ch-del],#tr-chart .ch-li:not(.off) [data-ch-eye]{display:none}#tr-chart .ch-zm{opacity:.55}#tr-chart .ch-zm:focus-within{opacity:1}}

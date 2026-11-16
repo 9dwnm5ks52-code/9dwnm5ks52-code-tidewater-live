@@ -1,0 +1,74 @@
+/* ---------- the professional shell: account bar, terminal, futures, bots control centre, report, challenge, welcome, palette ---------- */
+.acct{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:6px 16px;border-bottom:1px solid var(--line);background:var(--surface-1);font-size:.8rem}
+.acct>span{display:flex;flex-direction:column;line-height:1.15}.acct small{color:var(--ink-2);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}.acct b{font-size:.9rem}.acct b i{font-style:normal;font-size:.75rem}
+.acct-sel select{min-height:32px;border-radius:9px;border:1px solid var(--control-border);background:var(--surface-2);color:var(--ink);padding:0 8px;font-weight:600}
+.acct-ch{margin-left:auto;font-weight:600;color:var(--warn)}
+@media (max-width:700px){.acct{gap:4px 12px;padding:6px 10px;overflow-x:auto;flex-wrap:nowrap}.acct>span{flex:0 0 auto}}
+/* price flashes */
+@keyframes flUp{from{background:var(--gain-soft)}to{background:transparent}}@keyframes flDn{from{background:var(--loss-soft)}to{background:transparent}}
+.fl-up{animation:flUp .6s ease-out}.fl-dn{animation:flDn .6s ease-out}
+@media (prefers-reduced-motion:reduce){.fl-up,.fl-dn{animation:none}}
+/* terminal mode */
+.tm-tog{margin-left:6px}.tm-tape,.tm-blot,.tm-sheet{display:none}
+html.term .tm-tape,html.term .tm-blot{display:block}
+html.term #v-trade .tr-grid{grid-template-columns:minmax(0,1fr) minmax(300px,340px);gap:10px;max-width:none}
+html.term #v-trade .tr-col:first-child{display:grid;grid-template-columns:minmax(0,1fr) 270px;grid-template-areas:"chart book" "chart tape" "blot blot";gap:10px;align-content:start}
+html.term #v-trade .tr-col:first-child>.pn:nth-child(1){grid-area:chart;position:relative}html.term #v-trade .tr-col:first-child>.pn:nth-child(2){grid-area:book}html.term #v-trade .tr-col:first-child>.pn:nth-child(3){display:none}
+html.term #tm-tape{grid-area:tape;max-height:340px;overflow:auto}html.term #tm-blot{grid-area:blot}
+html.term #v-trade .pn{padding:10px 12px}html.term #v-trade .tr-px{font-size:1.6rem}
+.tape td{padding:2px 6px;font-size:.78rem}
+#tm-ol{position:absolute;pointer-events:none}#tm-ol svg{width:100%;height:100%;overflow:visible}#tm-ol text{font-size:11px;font-family:var(--f-mono);paint-order:stroke;stroke:var(--surface-1);stroke-width:3px}
+#tm-ol .dr{pointer-events:auto;cursor:ns-resize}#tm-ol .dr .hit{pointer-events:stroke}#tm-ol .drag line:first-child{stroke-width:2.5}
+@media (max-width:980px){html.term #v-trade .tr-grid{grid-template-columns:1fr}html.term #v-trade .tr-col:first-child{grid-template-columns:1fr;grid-template-areas:"chart" "book" "tape" "blot"}}
+@media (max-width:700px){html.term .tm-sheet{display:block;width:100%;min-height:40px;border:0;border-radius:10px;background:var(--surface-3);color:var(--ink);font-weight:700;margin-bottom:6px;cursor:pointer}
+  html.term #tk,html.term #fut-tk{position:fixed;left:0;right:0;bottom:64px;z-index:40;max-height:72vh;overflow:auto;border-radius:16px 16px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.35);transform:translateY(calc(100% - 52px));transition:transform .25s}
+  html.term #tk.open{transform:none}html.term #v-trade{padding-bottom:70px}}
+/* futures */
+.mk-sw{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.risk-bar{height:8px;border-radius:999px;background:var(--surface-3);overflow:hidden;margin:6px 0}.risk-bar i{display:block;height:100%;background:var(--gain);border-radius:999px}.risk-bar i.warm{background:var(--warn)}.risk-bar i.hot{background:var(--loss)}.risk-bar i.ok{background:var(--gain)}
+.fut-sum td{padding:4px 6px}tr.liq-warm td{background:var(--warn-soft)}tr.liq-hot td{background:var(--loss-soft)}
+#fut-lev{width:100%;accent-color:var(--accent);min-height:28px}
+/* bot control centre */
+.bo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.bo-card{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface-2);display:grid;gap:6px}
+.bo-card header{display:flex;align-items:center;gap:8px}.bo-card header b{flex:1;font-size:.9rem}.bo-st{font-size:.72rem;color:var(--ink-3)}
+.bo-led{width:10px;height:10px;border-radius:50%;background:var(--ink-3);flex:0 0 auto}.bo-pos .bo-led{background:var(--gain);box-shadow:0 0 0 3px var(--gain-soft);animation:pulse 2s infinite}.bo-ready .bo-led{background:var(--gain)}.bo-wait .bo-led{background:var(--warn)}.bo-brk .bo-led{background:var(--loss)}.bo-off .bo-led{background:var(--ink-3)}
+@keyframes pulse{50%{box-shadow:0 0 0 6px transparent}}@media (prefers-reduced-motion:reduce){.bo-pos .bo-led{animation:none}}
+.bo-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.spark{width:120px;height:28px}
+.bo-last{font-size:.78rem;color:var(--ink-2);margin:0;min-height:2.2em}.bo-card footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.bo-lim{font-size:.72rem;color:var(--ink-3);display:flex;gap:4px;align-items:center}.bo-lim select{min-height:30px;border-radius:8px;border:1px solid var(--control-border);background:var(--surface-1);color:var(--ink)}
+.bo-two{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px;margin-top:12px}@media (max-width:900px){.bo-two{grid-template-columns:1fr}}
+.bo-log{list-style:none;margin:0;padding:0;font-family:var(--f-mono);font-size:.76rem;max-height:340px;overflow:auto;display:grid;gap:3px}.bo-log time{color:var(--ink-3)}
+#bo-ops{margin-bottom:12px}
+/* report */
+.rp-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}.rp-sheet{background:var(--surface-1);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:16px}
+.rp-sheet h3{font-size:.95rem;margin:0 0 6px}.rp-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.rp-heat td{padding:4px 6px;font-size:.75rem}.rp-head h2{margin:0}
+@media print{body{background:#fff!important;color:#111!important}.lv-top,.lv-nav,.acct,.no-print,.lv-foot,#pal,#replay{display:none!important}.lv-main{padding:0!important;margin:0!important}
+  .rp-sheet{border:0;background:#fff;color:#111;padding:0}.rp-sheet *{color:#111!important}.rp-sheet section{break-inside:avoid}.chart .gl{stroke:#ccc}}
+/* challenge */
+.ch-presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}.ch-rules{padding-left:18px;margin:8px 0}
+.ch-bar{margin:10px 0}.ch-l{display:flex;justify-content:space-between;font-size:.85rem}.ch-cert{width:100%;max-width:720px;height:auto;border-radius:16px;display:block;margin:12px 0}
+/* welcome */
+.wc-hero{padding:28px 4px 18px;max-width:980px}.wc-kicker{color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.78rem;margin:0}
+.wc-h{font-size:clamp(1.8rem,4.2vw,3.1rem);line-height:1.08;margin:10px 0 12px;letter-spacing:-.02em}.wc-lead{font-size:1.05rem;color:var(--ink-2);max-width:760px;line-height:1.55;margin:0}
+.wc-cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.wc-cta a{text-decoration:none;display:inline-flex;align-items:center}
+.wc-tick{display:flex;gap:18px;flex-wrap:wrap;font-size:.85rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0}.wc-tick i{font-style:normal}
+.wc-proof{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.wc-fig{margin:0}.wc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:12px 0}
+.wc-card{display:grid;gap:6px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface-1);color:var(--ink);text-decoration:none;transition:transform .15s,border-color .15s}
+.wc-card:hover,.wc-card:focus-visible{transform:translateY(-2px);border-color:var(--accent)}.wc-card span:last-child{color:var(--ink-2);font-size:.88rem;line-height:1.45}.wc-ico{font-size:1.6rem}
+.wc-foot{max-width:860px;margin:16px 0 8px}
+/* command palette */
+#pal{position:fixed;inset:0;z-index:70;background:var(--scrim);display:grid;place-items:start center;padding:12vh 16px 16px}#pal[hidden]{display:none}
+.pal-card{width:100%;max-width:560px;background:var(--surface-1);border:1px solid var(--line-strong);border-radius:16px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+#pal-q{width:100%;min-height:46px;border-radius:12px;border:1px solid var(--control-border);background:var(--surface-2);color:var(--ink);padding:0 14px;font-size:1rem}
+.pal-list{list-style:none;margin:8px 0 0;padding:0;max-height:52vh;overflow:auto}.pal-list li{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer}
+.pal-list li span{color:var(--ink-3);font-size:.82rem}.pal-list li[aria-selected="true"],.pal-list li:hover{background:var(--surface-3)}
+kbd{font-family:var(--f-mono);font-size:.78rem;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:6px;padding:1px 6px;background:var(--surface-2)}
+/* compact density */
+html.dense .pn{padding:10px 12px}html.dense .tbl td,html.dense .tbl th{padding:5px 8px}html.dense .bd-big{font-size:1.35rem}html.dense .fld input,html.dense .fld select{min-height:36px}html.dense .bd{gap:8px}
+/* colour-blind safe: blue for up, orange for down */
+:root.cb{--gain:#3b82f6;--gain-soft:rgba(59,130,246,.18);--loss:#f59e0b;--loss-soft:rgba(245,158,11,.18)}
+/* the light theme sets --gain/--loss on :root[data-tdx-theme="light"] (0,2,0): this must outrank it, with shades that keep
+   white text (--on-trade) at 4.5:1 or more: #1d4ed8 6.7:1, #b45309 5.0:1 */
+:root.cb[data-tdx-theme="light"]{--gain:#1d4ed8;--gain-soft:#dbeafe;--loss:#b45309;--loss-soft:#fdecd3}
