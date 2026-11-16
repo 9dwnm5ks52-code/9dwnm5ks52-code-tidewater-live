@@ -1,42 +1,34 @@
 /* ---------- Phoenix Finance Club: the professional shell ----------
-   An account bar that is always in view (which account, equity, today's P/L, buying power, futures margin, open risk),
-   switching between your main account and a challenge account, a command palette (Ctrl+K), keyboard shortcuts,
-   compact density and a colour-blind-safe palette. */
+   A bar with the fund's numbers that is always in view where you trade (value, today, cash, free cash, last update and
+   whether this browser can trade), a command palette (Ctrl+K), keyboard shortcuts, compact density and a colour-blind-safe palette. */
 const UI={ pal:false, palQ:'', palI:0, help:false };
-// ---- accounts: the main paper account and, during a challenge, a separate one; ST.A always points at the one in use
-function acctInit(){ ST.accts=ST.accts||{}; if (!ST.accts.main) ST.accts.main=ST.A; const k=ST.acct && ST.accts[ST.acct] ? ST.acct : 'main'; ST.acct=k; ST.A=ST.accts[k]; }
-function acctUse(k){ if (!ST.accts || !ST.accts[k]) return; ST.acct=k; ST.A=ST.accts[k]; save(); render(); }
-const acctName = k => k==='ch' ? L2('Challenge account','Sınav hesabı') : L2('Main account','Ana hesap');
-// ---- the account bar
-function dayStartEq(E){ const d=Math.floor(Date.now()/864e5), m=ST.dayEq||(ST.dayEq={}), k=ST.acct||'main'; if (!m[k] || m[k].d!==d) m[k]={ d, v:E }; return m[k].v; }
-function openRisk(A, Q){ let r=0, n=0; for (const s in A.pos){ const p=A.pos[s], q=Q[s]; if (!q || !(p.q>0)) continue; const st=A.orders.filter(o=>o.status==='open' && o.sym===s && o.side==='s' && (o.type==='stp' || o.type==='trl')).sort((a,b)=>b.px-a.px)[0];
-    if (st) r+=Math.max(0, q.last-st.px)*Math.min(p.q, st.q); else { r+=p.q*q.last; n++; } } return { r, unprotected:n }; }
-function renderAcctBar(){ let el=$('#acct'); if (!el){ el=document.createElement('div'); el.id='acct'; el.className='acct'; el.setAttribute('role','region'); el.setAttribute('aria-label', 'Account'); const h=$('.lv-top'); if (h) h.after(el); else return; }
-  const Q=quotesAll(), A=ST.A, E=brkEquity(A, Q), d0=dayStartEq(E), day=E-d0, R=openRisk(A, Q), F=typeof futSummary==='function' ? futSummary(Q) : null, ks=Object.keys(ST.accts||{ main:1 });
-  setHTML(el, `<label class="acct-sel" for="acct-k"><span class="sr">${esc(L2('Account','Hesap'))}</span><select id="acct-k">${ks.map(k=>`<option value="${k}"${k===ST.acct ? ' selected' : ''}>${esc(acctName(k))}</option>`).join('')}</select></label>
-    <span><small>${esc(L2('Equity','Varlık'))}</small><b class="mono">${money(E)}</b></span>
+// ---- the fund bar
+function renderAcctBar(){ let el=$('#acct'); if (!el){ el=document.createElement('div'); el.id='acct'; el.className='acct'; el.setAttribute('role','region'); const h=$('.lv-top'); if (h) h.after(el); else return; }
+  el.setAttribute('aria-label', L2('The club fund','Kulüp fonu'));
+  const Q=quotesAll(), A=ST.A, E=fundEq(Q), d0=fundDayStart(), day=E-d0, mem=!!clubTok();
+  setHTML(el, `<span class="acct-n"><small>${esc(L2('Account','Hesap'))}</small><b>${esc(L2('Phoenix Finance Club fund','Phoenix Finance Club fonu'))}</b></span>
+    <span><small>${esc(L2('Value','Değer'))}</small><b class="mono">${money(E)}</b></span>
     <span><small>${esc(L2('Today','Bugün'))}</small><b class="mono ${cls(day)}">${money(day)} <i>${pct(d0>0 ? day/d0 : 0)}</i></b></span>
-    <span><small>${esc(L2('Buying power','Alım gücü'))}</small><b class="mono">${money(brkFree(A))}</b></span>
-    <span title="${esc(L2('What you would lose if every stop were hit; positions without a stop count in full','Her stop gelirse kaybedeceğin; stopsuz pozisyonlar tamamen sayılır'))}"><small>${esc(L2('Open risk','Açık risk'))}</small><b class="mono ${R.unprotected ? 'down' : ''}">${money(R.r)}${R.unprotected ? ` <i>${esc(L2(`${R.unprotected} without stop`,`${R.unprotected} stopsuz`))}</i>` : ''}</b></span>
-    ${F ? `<span><small>${esc(L2('Futures wallet','Vadeli cüzdan'))}</small><b class="mono">${money(F.eq)} <i class="${cls(F.upl)}">${money(F.upl)}</i></b></span><span><small>${esc(L2('Margin used','Kullanılan teminat'))}</small><b class="mono">${money(F.margin)}</b></span>` : ''}
-    ${ST.acct==='ch' && ST.ch ? `<a class="acct-ch" href="#challenge">${esc(L2('Challenge: ','Sınav: '))}${esc(chStatusText ? chStatusText() : '')}</a>` : ''}`); }
+    <span><small>${esc(L2('Cash','Nakit'))}</small><b class="mono">${money(A.cash)}</b></span>
+    <span title="${esc(L2('Cash not set aside for open limit buys','Açık limit alışlarına ayrılmamış nakit'))}"><small>${esc(L2('Free cash','Serbest nakit'))}</small><b class="mono">${money(brkFree(A))}</b></span>
+    <span><small>${esc(L2('Updated','Güncellendi'))}</small><b class="mono">${esc(CLUB.fund ? fundAgo() : '—')}</b></span>
+    <a class="acct-ch${mem ? ' on' : ''}" href="#settings">${esc(mem ? L2('Member: can trade','Üye: işlem yapabilir') : L2('View only','Sadece izleme'))}</a>`); }
 // ---- the command palette (Ctrl+K or /)
-const PAL_VIEWS=[['welcome',['Welcome','Tanıtım']],['board',['Board','Pano']],['trade',['Trade / Terminal','İşlem / Terminal']],['bots',['Bots','Botlar']],['desk',['Strategy Desk','Strateji Masası']],['journal',['Journal','Defter']],['report',['Performance report','Performans raporu']],['challenge',['Challenge','Sınav']],['markets',['US market','ABD piyasası']],['crypto',['Crypto','Kripto']],['news',['News','Haberler']],['arena',['Bot Arena','Bot Arenası']],['lab',['Strategy lab','Strateji laboratuvarı']],['learn',['Academy','Akademi']],['portfolio',['Portfolio','Portföy']],['settings',['Settings','Ayarlar']]];
+const PAL_VIEWS=[['board',['Board','Pano']],['trade',['Trade / Terminal','İşlem / Terminal']],['portfolio',['The club fund (portfolio)','Kulüp fonu (portföy)']],['report',['Performance report','Performans raporu']],['markets',['US market','ABD piyasası']],['crypto',['Crypto','Kripto']],['news',['News','Haberler']],['settings',['Settings','Ayarlar']]];
 function palItems(){ const q=UI.palQ.trim().toLowerCase(), it=[];
   for (const [v,n] of PAL_VIEWS) it.push({ k:'v:'+v, n:L2(...n), sub:L2('screen','ekran'), run:()=>{ location.hash='#'+v; } });
   for (const d of (typeof LIVE_CRYPTO!=='undefined' ? LIVE_CRYPTO : []).concat(typeof LIVE_US!=='undefined' ? LIVE_US : [])) it.push({ k:'s:'+d.sym, n:d.sym, sub:d.name, run:()=>{ ST.sel=d.sym; save(); location.hash='#trade'; render(); } });
   const act=(n, sub, run)=>it.push({ k:'a:'+n, n, sub, run });
   act(L2('Terminal mode on/off','Terminal modu aç/kapa'), L2('action','işlem'), ()=>{ ST.term=!ST.term; termApply(); location.hash='#trade'; save(); render(); });
-  act(L2('Spot / futures ticket','Spot / vadeli emir'), L2('action','işlem'), ()=>{ ST.mkt=ST.mkt==='fut' ? 'spot' : 'fut'; ST.term=true; termApply(); location.hash='#trade'; save(); render(); });
   act(L2('Dark / light theme','Koyu / açık tema'), L2('action','işlem'), ()=>{ const b=$('#lv-theme'); if (b) b.click(); });
   act(L2('Türkçe / English','Türkçe / English'), L2('action','işlem'), ()=>{ const b=$('#lv-lang'); if (b) b.click(); });
   act(L2('Hide / show amounts','Tutarları gizle / göster'), L2('action','işlem'), ()=>{ ST.priv=!ST.priv; privApply(); save(); render(); });
   act(L2('Compact / comfortable density','Sıkı / rahat yoğunluk'), L2('action','işlem'), ()=>{ ST.dense=!ST.dense; uiApply(); save(); render(); });
-  act(L2('Switch account','Hesap değiştir'), L2('action','işlem'), ()=>{ const ks=Object.keys(ST.accts||{}); if (ks.length>1) acctUse(ks[(ks.indexOf(ST.acct)+1)%ks.length]); });
+  act(L2('Member access','Üye girişi'), L2('settings','ayarlar'), ()=>{ location.hash='#settings'; });
   act(L2('Keyboard shortcuts','Klavye kısayolları'), '?', ()=>{ UI.help=true; uiOverlay(); });
   return q ? it.filter(x=>(x.n+' '+x.sub).toLowerCase().includes(q)).slice(0, 12) : it.slice(0, 12); }
 function uiOverlay(){ let el=$('#pal'); if (!UI.pal && !UI.help){ if (el) el.hidden=true; return; } if (!el){ el=document.createElement('div'); el.id='pal'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); document.body.appendChild(el); } el.hidden=false;
-  if (UI.help){ const keys=[['Ctrl+K /','command palette','komut paleti'],['B / S','buy / sell side','al / sat yönü'],['M / L','market / limit order','piyasa / limit emri'],['F','spot ↔ futures','spot ↔ vadeli'],['T','terminal mode','terminal modu'],['A','focus the amount','miktara odaklan'],['Shift+Enter','place the order (in the amount box)','emri gönder (miktar kutusunda)'],['Esc','cancel the newest open order on this coin','bu coindeki en yeni açık emri iptal et'],['?','this help','bu yardım']];
+  if (UI.help){ const keys=[['Ctrl+K /','command palette','komut paleti'],['B / S','buy / sell side','al / sat yönü'],['M / L','market / limit order','piyasa / limit emri'],['T','terminal mode','terminal modu'],['A','focus the amount','miktara odaklan'],['Shift+Enter','send the order (in the amount box; members)','emri gönder (miktar kutusunda; üyeler)'],['?','this help','bu yardım']];
     setHTML(el, `<div class="pal-card"><div class="bd-th"><h2>${esc(L2('Keyboard shortcuts','Klavye kısayolları'))}</h2><button type="button" class="rp-x" data-pal-x aria-label="${esc(L2('Close','Kapat'))}">✕</button></div><table class="tbl"><tbody>${keys.map(k=>`<tr><td><kbd>${esc(k[0])}</kbd></td><td>${esc(L2(k[1],k[2]))}</td></tr>`).join('')}</tbody></table><p class="bd-sub">${esc(L2('Shortcuts work on the Trade screen when you are not typing in a box.','Kısayollar İşlem ekranında, bir kutuya yazmıyorken çalışır.'))}</p></div>`); el.querySelector('[data-pal-x]').focus(); return; }
   const its=palItems(); UI.palI=Math.min(UI.palI, Math.max(0, its.length-1));
   setHTML(el, `<div class="pal-card"><label class="sr" for="pal-q">${esc(L2('Search screens, coins and actions','Ekran, coin ve işlem ara'))}</label><input id="pal-q" type="search" autocomplete="off" spellcheck="false" placeholder="${esc(L2('Search screens, coins and actions…','Ekran, coin ve işlem ara…'))}" value="${esc(UI.palQ)}">
@@ -56,7 +48,6 @@ document.addEventListener('keydown', e=>{
 document.addEventListener('input', e=>{ if (e.target.id==='pal-q'){ UI.palQ=e.target.value; UI.palI=0; const v=e.target.value; uiOverlay(); } });
 document.addEventListener('click', e=>{ const t=e.target; const li=t.closest('[data-pal]'); if (li){ palRun(+li.dataset.pal); return; } if (t.closest('[data-pal-x]') || t.id==='pal'){ palClose(); return; }
   if (t.closest('[data-ui-dense]')){ ST.dense=!ST.dense; uiApply(); save(); render(); return; } if (t.closest('[data-ui-cb]')){ ST.cb=!ST.cb; uiApply(); save(); render(); return; } });
-document.addEventListener('change', e=>{ if (e.target.id==='acct-k') acctUse(e.target.value); });
 
-// ---- after every render: the account bar, the futures and challenge engines, the loss limits, and the screen-specific extras
-function uiAfter(v, Q){ try{ document.documentElement.dataset.view=v; if (v==='board' && typeof renderHome==='function') renderHome(Q); renderAcctBar(); futTick(Q); chGuard(Q); boGuard(Q); if (v==='trade'){ futAfter(Q); termAfter(Q); if (typeof fdRender==='function') fdRender(); } if (v==='bots') renderBotOps(Q); }catch(e){ console.error(e); } }
+// ---- after every render: the fund bar and the screen-specific extras
+function uiAfter(v, Q){ try{ document.documentElement.dataset.view=v; if (v==='board' && typeof renderHome==='function') renderHome(Q); renderAcctBar(); if (v==='trade'){ termAfter(Q); if (typeof fdRender==='function') fdRender(); } }catch(e){ console.error(e); } }

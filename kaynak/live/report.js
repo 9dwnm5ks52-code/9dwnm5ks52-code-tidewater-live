@@ -1,22 +1,20 @@
 /* ---------- Phoenix Finance Club: the performance report (tear sheet) ----------
-   For any account or bot: headline numbers, equity and drawdown, monthly returns, rolling Sharpe, the spread of trade results,
-   each trade's worst and best moment (MAE/MFE), and what it holds. Compare two side by side; print or save as PDF. */
-function rpSubjects(){ const out=[['main', L2('Your main account','Ana hesabın')]]; if (ST.accts && ST.accts.ch) out.push(['ch', L2('Challenge account','Sınav hesabı')]); if (ST.fut) out.push(['fut', L2('Futures wallet','Vadeli cüzdan')]);
-  for (const b of ST.ai||[]) out.push(['bot:'+b.id, '🤖 '+aiName(b.id)]); return out; }
-function rpData(k, Q){ const nm=(rpSubjects().find(x=>x[0]===k)||[k,k])[1];
-  if (k==='main'){ const A=(ST.accts && ST.accts.main) || ST.A; return { nm, pts:(ST.eqi||[]).slice(), start:A.start, A, trades:rpFifo(A.fills), pos:A.pos }; }
-  if (k==='ch' && ST.accts && ST.accts.ch){ const A=ST.accts.ch; return { nm, pts:((ST.ch && ST.ch.eqi)||[]).slice(), start:A.start, A, trades:rpFifo(A.fills), pos:A.pos }; }
-  if (k==='fut' && ST.fut){ const F=ST.fut, tr=F.fills.filter(f=>f.act!=='open').map(f=>({ sym:f.sym, t1:f.t, pl:f.pl, ret:null, dir:f.side })); return { nm, pts:F.eqi.slice(), start:F.start, trades:tr, pos:Object.fromEntries(Object.values(F.pos).map(p=>[p.sym, { q:p.side*p.qty, avg:p.entry }])) }; }
-  if (k.startsWith('bot:')){ const b=(ST.ai||[]).find(x=>x.id===k.slice(4)); if (!b) return null; return { nm, pts:(b.eqi||[]).slice(), start:b.A.start, A:b.A, trades:rpBotTrades(b), pos:b.A.pos }; }
+   For the club fund: headline numbers, equity and drawdown, monthly returns, rolling Sharpe, the spread of trade results,
+   each trade's worst and best moment (MAE/MFE), and what it holds. Compare it with the S&P 500 or Bitcoin over the same
+   time (from the prices saved with every value point); print or save as PDF. */
+function rpSubjects(){ return [['fund', L2('Phoenix Finance Club fund','Phoenix Finance Club fonu')], ['spy', 'S&P 500 (SPY)'], ['btc', 'Bitcoin']]; }
+function rpData(k, Q){ const nm=(rpSubjects().find(x=>x[0]===k)||[k,k])[1], A=ST.A, eq=(A.eq||[]).filter(p=>p.v>0);
+  if (k==='fund') return { nm, pts:eq.map(p=>({ t:p.t, v:+p.v })), start:A.start, A, trades:rpFifo(A.fills), pos:A.pos };
+  if (k==='spy' || k==='btc'){ const xs=eq.filter(p=>p[k]>0), b=xs[0]; return { nm, pts:b ? xs.map(p=>({ t:p.t, v:A.start*p[k]/b[k] })) : [], start:A.start, trades:[], pos:{} }; }
   return null; }
-// closed trades from spot fills, first in first out
-function rpFifo(fills){ const q={}, out=[]; for (const f of (fills||[]).slice().sort((a,b)=>a.t-b.t)){ if (f.short || f.cover) continue; const Q=q[f.sym]||(q[f.sym]=[]);
+// closed trades from the fund's fills: long trades first in first out; a cover closes (part of) a short with its own profit
+function rpFifo(fills){ const q={}, out=[]; for (const f of (fills||[]).slice().sort((a,b)=>a.t-b.t)){ if (f.short) continue;
+    if (f.cover){ const pl=+f.pl, v=f.q*f.px; if (isFinite(pl) && v>0) out.push({ sym:f.sym, t0:null, t1:f.t, entry:null, exit:f.px, ret:pl/v, pl, dir:-1 }); continue; }
+    const Q=q[f.sym]||(q[f.sym]=[]);
     if (f.side==='b'){ Q.push({ q:f.q, px:f.px, t:f.t }); continue; } let left=f.q, cost=0, t0=null; while (left>1e-12 && Q.length){ const l=Q[0], u=Math.min(left, l.q); cost+=u*l.px; t0=t0==null ? l.t : Math.min(t0, l.t); l.q-=u; left-=u; if (l.q<=1e-12) Q.shift(); }
     const qty=f.q-left; if (qty>0 && cost>0) out.push({ sym:f.sym, t0, t1:f.t, entry:cost/qty, exit:f.px, ret:f.px/(cost/qty)-1, pl:f.pl!=null ? f.pl : qty*f.px-cost, dir:1 }); } return out; }
-function rpBotTrades(b){ const out=[], open={}; for (const x of (b.log||[]).slice().sort((a,c)=>a.t-c.t)){ if (x.act==='b' || x.act==='ss') open[x.sym]={ t0:x.t, entry:x.px, dir:x.act==='ss' ? -1 : 1 };
-    else if ((x.act==='s' || x.act==='bc') && open[x.sym]){ const o=open[x.sym]; out.push({ sym:x.sym, t0:o.t0, t1:x.t, entry:o.entry, exit:x.px, dir:o.dir, ret:x.ret!=null ? x.ret : (o.dir>0 ? x.px/o.entry-1 : o.entry/x.px-1), pl:x.pl }); delete open[x.sym]; } } return out; }
 // worst and best moment of a trade, from the finest candles that cover it
-function rpExcursion(t){ if (!t.t0 || !t.entry) return null; const pick=[(LIVE.q[t.sym]||{}).intra, AI.bars[t.sym], AI.hb && AI.hb[t.sym]].find(a=>a && a.length && a[0].t<=t.t0); if (!pick) return null;
+function rpExcursion(t){ if (!t.t0 || !t.entry) return null; const pick=[(LIVE.q[t.sym]||{}).intra, (MKT.all[t.sym]||{}).intra].find(a=>a && a.length && a[0].t<=t.t0); if (!pick) return null;
   let lo=Infinity, hi=-Infinity; for (const b of pick){ if (b.t+60e3<t.t0 || b.t>t.t1) continue; lo=Math.min(lo, b.l); hi=Math.max(hi, b.h); } if (!isFinite(lo)) return null;
   return t.dir>0 ? { mae:lo/t.entry-1, mfe:hi/t.entry-1 } : { mae:t.entry/hi-1, mfe:t.entry/lo-1 }; }
 function rpDaily(pts){ const by=new Map(); for (const p of pts) if (p.v>0) by.set(Math.floor(p.t/864e5), p); return [...by.values()]; }
@@ -46,9 +44,9 @@ function rpMaeMfe(T){ const P=T.map(t=>({ t, e:rpExcursion(t) })).filter(x=>x.e)
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="MAE / MFE"><line class="gl" x1="30" x2="${W-10}" y1="${H-24}" y2="${H-24}"/><line class="gl" x1="30" x2="30" y1="10" y2="${H-24}"/><text x="32" y="${H-8}">${esc(L2('worst moment →','en kötü an →'))}</text><text x="34" y="18">${esc(L2('best moment ↑','en iyi an ↑'))}</text>
     ${P.map(x=>`<circle cx="${X(x.e.mae).toFixed(1)}" cy="${Y(x.e.mfe).toFixed(1)}" r="4" fill="${(x.t.ret||0)>0 ? 'var(--gain)' : 'var(--loss)'}" fill-opacity=".8"><title>${esc(x.t.sym)} ${pct(x.t.ret)} · MAE ${pct(x.e.mae)} · MFE ${pct(x.e.mfe)}</title></circle>`).join('')}</svg>
     <p class="bd-sub">${esc(L2('Green dots high up and red dots far right are healthy; red dots high up are trades that were winning and were given back.','Yukarıdaki yeşil noktalar ve sağdaki kırmızılar sağlıklıdır; yukarıdaki kırmızı noktalar kazanırken geri verilen işlemlerdir.'))}</p>`; }
-function rpExpo(D, Q){ const xs=Object.keys(D.pos||{}).map(s=>{ const p=D.pos[s], q=Q[s]; return { s, v:Math.abs(p.q)*((q && q.last) || p.avg), dir:p.q<0 ? -1 : 1 }; }).filter(x=>x.v>0).sort((a,b)=>b.v-a.v), tot=xs.reduce((a,x)=>a+x.v,0);
-  return xs.length ? `<table class="tbl"><tbody>${xs.map(x=>`<tr><td><b>${esc(x.s)}</b>${x.dir<0 ? ' (short)' : ''}</td><td class="r mono">${money(x.v)}</td><td style="width:45%"><div class="risk-bar"><i style="width:${(x.v/tot*100).toFixed(0)}%"></i></div></td></tr>`).join('')}</tbody></table>` : `<p class="empty">${esc(L2('All cash now.','Şu an tamamen nakit.'))}</p>`; }
-function renderReport(){ const el=$('#report'); if (!el) return; const Q=quotesAll(), subs=rpSubjects(), k=subs.some(x=>x[0]===ST.rpA) ? ST.rpA : 'main', k2=subs.some(x=>x[0]===ST.rpB) ? ST.rpB : '', A=rpData(k, Q), B=k2 ? rpData(k2, Q) : null; if (!A){ setHTML(el, ''); return; }
+function rpExpo(D, Q){ const FQ=fundQuotes(Q), xs=Object.keys(D.pos||{}).map(s=>{ const p=D.pos[s], q=FQ[s]; return { s, v:Math.abs(p.q)*((q && q.last) || p.avg), dir:p.q<0 ? -1 : 1 }; }).filter(x=>x.v>0).sort((a,b)=>b.v-a.v), tot=xs.reduce((a,x)=>a+x.v,0);
+  return xs.length ? `<table class="tbl"><tbody>${xs.map(x=>`<tr><td><b>${esc(x.s)}</b>${x.dir<0 ? ' ('+esc(L2('short','açık'))+')' : ''}</td><td class="r mono">${money(x.v)}</td><td style="width:45%"><div class="risk-bar"><i style="width:${(x.v/tot*100).toFixed(0)}%"></i></div></td></tr>`).join('')}</tbody></table>` : `<p class="empty">${esc(L2('All cash now.','Şu an tamamen nakit.'))}</p>`; }
+function renderReport(){ const el=$('#report'); if (!el) return; const Q=quotesAll(), subs=rpSubjects(), k=subs.some(x=>x[0]===ST.rpA) ? ST.rpA : 'fund', rc=ST.rpC==null ? 'spy' : ST.rpC, k2=subs.some(x=>x[0]===rc) && rc!==k ? rc : '', A=rpData(k, Q), B=k2 ? rpData(k2, Q) : null; if (!A){ setHTML(el, ''); return; }
   const S=rpStats(A), SB=B ? rpStats(B) : null, f2=v=>v==null || !isFinite(v) ? '—' : F2.format(v), now=new Date().toLocaleString(ST.lang==='tr'?'tr-TR':'en-US');
   const row=(n, a, b, f)=>`<tr><td>${esc(n)}</td><td class="r mono">${f(a)}</td>${SB ? `<td class="r mono">${f(b)}</td>` : ''}</tr>`, P=v=>v==null ? '—' : pct(v), N=v=>v==null ? '—' : String(v);
   const sel=(id, cur, blank)=>`<select id="${id}">${blank ? `<option value="">${esc(L2('— compare with —','— şununla karşılaştır —'))}</option>` : ''}${subs.map(([v,n])=>`<option value="${esc(v)}"${v===cur ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>`;
@@ -59,11 +57,11 @@ function renderReport(){ const el=$('#report'); if (!el) return; const Q=quotesA
         ${row(L2('Return','Getiri'), S.ret, SB && SB.ret, P)}${row(L2('A year (if 30+ days)','Yıllık (30+ gün ise)'), S.cagr, SB && SB.cagr, P)}${row(L2('Volatility (a year)','Oynaklık (yıllık)'), S.vol, SB && SB.vol, P)}${row('Sharpe', S.sharpe, SB && SB.sharpe, f2)}${row('Sortino', S.sortino, SB && SB.sortino, f2)}
         ${row(L2('Deepest fall','En derin düşüş'), S.dd==null ? null : -S.dd, SB && -SB.dd, P)}${row('Calmar', S.calmar, SB && SB.calmar, f2)}${row(L2('Closed trades','Kapanan işlem'), S.n, SB && SB.n, N)}${row(L2('Won','Kazanan'), S.win, SB && SB.win, v=>v==null ? '—' : p0(v))}${row(L2('Profit factor','Kâr faktörü'), S.pf, SB && SB.pf, f2)}${row(L2('Average trade','Ortalama işlem'), S.avg, SB && SB.avg, P)}${row(L2('Days of history','Geçmiş gün'), Math.round(S.days), SB && Math.round(SB.days), N)}</tbody></table></section>
         <section><h3>${esc(L2('What it holds now','Şu an ne tutuyor'))}</h3>${rpExpo(A, Q)}</section></div>
-      <section><h3>${esc(L2('Equity','Varlık'))}</h3>${B ? rpEq([{ xs:norm(A), c:'var(--accent)' }, { xs:norm(B), c:'#5ab0ff' }]) : rpEq([{ xs:A.pts, c:'var(--accent)' }])}${B ? `<p class="pf-leg"><span><i style="background:var(--accent)"></i>${esc(A.nm)}</span><span><i style="background:#5ab0ff"></i>${esc(B.nm)}</span></p>` : ''}</section>
+      <section><h3>${esc(L2('Equity','Varlık'))}</h3>${B ? rpEq([{ xs:norm(A), c:'var(--accent)' }, { xs:norm(B), c:'#5ab0ff' }]) : rpEq([{ xs:A.pts.concat(k==='fund' && A.pts.length ? [{ t:Date.now(), v:fundEq(Q) }] : []), c:'var(--accent)' }])}${B ? `<p class="pf-leg"><span><i style="background:var(--accent)"></i>${esc(A.nm)}</span><span><i style="background:#5ab0ff"></i>${esc(B.nm)}</span></p>` : ''}</section>
       <section><h3>${esc(L2('Drawdown from the high','Zirveden düşüş'))}</h3>${rpUnder(A.pts)}</section>
       <section><h3>${esc(L2('Monthly returns','Aylık getiriler'))}</h3>${rpMonths(S.d) || `<p class="bd-sub">${esc(L2('Needs at least two days.','En az iki gün gerekir.'))}</p>`}</section>
       <div class="rp-cols"><section><h3>${esc(L2('Rolling 30-day Sharpe','Kayan 30 günlük Sharpe'))}</h3>${rpRoll(S.r, S.d)}</section><section><h3>${esc(L2('Spread of trade results','İşlem sonuçlarının dağılımı'))}</h3>${rpHist(A.trades)}</section></div>
       <section><h3>${esc(L2('Each trade’s worst and best moment (MAE / MFE)','Her işlemin en kötü ve en iyi anı (MAE / MFE)'))}</h3>${rpMaeMfe(A.trades)}</section>
       <p class="bd-sub">${esc(L2('Paper trading with real market prices and costs. Past results do not promise future results. Not investment advice.','Gerçek piyasa fiyatları ve maliyetleriyle kâğıt üstünde işlem. Geçmiş sonuçlar gelecek için söz vermez. Yatırım tavsiyesi değildir.'))}</p></article>`); }
-document.addEventListener('change', e=>{ if (e.target.id==='rp-a'){ ST.rpA=e.target.value; save(); render(); } if (e.target.id==='rp-b'){ ST.rpB=e.target.value; save(); render(); } });
+document.addEventListener('change', e=>{ if (e.target.id==='rp-a'){ ST.rpA=e.target.value; save(); render(); } if (e.target.id==='rp-b'){ ST.rpC=e.target.value; save(); render(); } });
 document.addEventListener('click', e=>{ if (e.target.closest('#rp-print')) window.print(); });
