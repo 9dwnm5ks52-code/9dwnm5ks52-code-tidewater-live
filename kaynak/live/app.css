@@ -141,7 +141,7 @@ a{color:inherit}
 .tbl tr.mine td{background:color-mix(in srgb,var(--accent) 8%,transparent)}
 #nw{display:grid;gap:12px}#nw-body h2{margin:0 0 6px;font-size:1.05rem}
 
-@media (max-width:760px){  .lv-nav{overflow-x:auto;justify-content:flex-start;scrollbar-width:none} .lv-nav::-webkit-scrollbar{display:none} .lv-nav a{flex:0 0 64px} }
+@media (max-width:760px){  .lv-nav{overflow-x:auto;justify-content:flex-start;scrollbar-width:none} .lv-nav::-webkit-scrollbar{display:none} .lv-nav a{flex:1 1 0;min-width:50px} }
 
 /* performance */
 .pf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}.pf-t{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:4px}.pf-t b{font-size:1.15rem}

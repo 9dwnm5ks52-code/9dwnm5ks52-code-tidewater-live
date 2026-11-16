@@ -30,7 +30,7 @@ function renderHome(Q){ try{
   // today in one look: plain sentences built from rules
   const bits=[], nm=h=>esc(h.s)+(h.short ? ' ('+esc(L2('short','açık'))+')' : '');
   bits.push(L2(`The fund is worth <b>${esc(money(E))}</b>, <b>${esc(pct(E/A.start-1))}</b> since it started with ${esc(money(A.start))}.`, `Fonun değeri <b>${esc(money(E))}</b>; ${esc(money(A.start))} ile başladığından beri <b>${esc(pct(E/A.start-1))}</b>.`));
-  bits.push(L2(`Today: <b class="${cls(day)}">${esc(money(day))} (${esc(pct(d0>0 ? day/d0 : 0))})</b>.`, `Bugün: <b class="${cls(day)}">${esc(money(day))} (${esc(pct(d0>0 ? day/d0 : 0))})</b>.`));
+  bits.push(L2(`Today: <b>${esc(money(day))} (${esc(pct(d0>0 ? day/d0 : 0))})</b>.`, `Bugün: <b>${esc(money(day))} (${esc(pct(d0>0 ? day/d0 : 0))})</b>.`));
   if (hs.length>1) bits.push(L2(`Best holding today: <b>${nm(hs[0])}</b> ${esc(pct(hs[0].r))}; worst: <b>${nm(hs[hs.length-1])}</b> ${esc(pct(hs[hs.length-1].r))}.`, `Bugünün en iyisi: <b>${nm(hs[0])}</b> ${esc(pct(hs[0].r))}; en kötüsü: <b>${nm(hs[hs.length-1])}</b> ${esc(pct(hs[hs.length-1].r))}.`));
   else if (hs.length===1) bits.push(L2(`Its one holding, <b>${nm(hs[0])}</b>, is ${esc(pct(hs[0].r))} today.`, `Tek varlığı <b>${nm(hs[0])}</b> bugün ${esc(pct(hs[0].r))}.`));
   else bits.push(L2('It holds only cash right now.', 'Şu an sadece nakit tutuyor.'));

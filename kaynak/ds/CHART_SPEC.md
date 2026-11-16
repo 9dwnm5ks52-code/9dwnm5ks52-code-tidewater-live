@@ -138,7 +138,7 @@ can become price alerts: a button "alert at this price" calls the existing watch
 Piece 3 checks `typeof drBusy==='function' && drBusy()` before starting a pan.
 
 ## Integration (one step, after pieces exist)
-Add files to `build_live.py` (JS order: ind.js, chdata.js after `strategy.js`; chart.js, chui.js, draw.js before
+Add files to `build_live.py` (JS order: ind.js, chdata.js after `live_broker.js`; chart.js, chui.js, draw.js before
 `term.js`; CSS chart.css, chui.css after pro.css). In `renderTrade` call `chRender($('#tr-chart'), ST.sel)` instead
 of `candles(...)` (keep the stock "performance" fallback when there are no bars). Replace the Minutes/Days segment with
 `cuToolbar()`. Translate, test (`ds/t_live_app.js` must stay green; add checks for the new chart), screenshot phone +
