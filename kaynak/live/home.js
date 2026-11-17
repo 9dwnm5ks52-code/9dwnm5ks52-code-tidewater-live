@@ -5,7 +5,7 @@ const HM = { sig:'' };
 function hmTile(id, cls, title, inner){ return `<section class="bd-t ${cls}" id="t-${id}" aria-labelledby="t-${id}-h"><div class="bd-th"><h2 id="t-${id}-h">${esc(L2(...title))}</h2></div>${inner}</section>`; }
 function hmTiles(){ return {
   today:hmTile('today', 'w2 hm-today', ['Today in one look','Bugün tek bakışta'], `<p class="hm-say" id="hm-say"></p><div class="hm-pills" id="hm-pills"></div>`),
-  week:hmTile('week', 'w2 hm-week', ['This week','Bu hafta'], `<div class="hm-wk" id="hm-wk"></div>`) }; }
+  week:hmTile('week', 'w2 hm-week', ['This week','Bu hafta'], `<div class="hm-wk" id="hm-wk" tabindex="0" role="region" aria-label="${esc(L2('This week','Bu hafta'))}"></div>`) }; }
 const hmUSD = () => { const C=typeof SRV!=='undefined' && SRV.cal; return C && Array.isArray(C.events) ? C.events.filter(e=>e.country==='USD' && (e.impact==='High' || e.impact==='Medium')) : []; };
 const hmLoc = () => ST.lang==='tr' ? 'tr-TR' : 'en-US';
 const hmTime = t => new Date(t).toLocaleTimeString(hmLoc(), { hour:'2-digit', minute:'2-digit', hour12:false });
