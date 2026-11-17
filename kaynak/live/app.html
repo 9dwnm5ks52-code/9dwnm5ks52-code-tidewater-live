@@ -1,39 +1,41 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-tdx-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Phoenix Finance Club: the club fund, with real prices</title>
 <meta name="description" content="Phoenix Finance Club: a high-school club’s shared paper-trading fund. $100,000 of play money, real prices, every trade public.">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0b0d10">
+<meta name="theme-color" content="#f5f5f7">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>/*CSS*/</style>
 </head>
 <body>
 <header class="lv-top">
-  <a class="lv-brand" href="#board" aria-label="Phoenix Finance Club"><b aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M7 23l6-7 4 4 8-10"/><path d="M20 10h5v5"/></svg></b><span>Phoenix Finance Club</span></a>
-  <div class="lv-dots" id="lv-dots" aria-live="polite"></div>
-  <span class="sp"></span>
-  <div class="lv-nw"><b class="mono" id="lv-nw"></b><small class="mono" id="lv-pl"></small></div>
-  <button class="lv-tb" type="button" id="lv-priv" aria-pressed="false" aria-label="Hide amounts">👁</button>
-  <button class="lv-tb" type="button" id="lv-lang" aria-label="Türkçe">TR</button>
-  <button class="lv-tb" type="button" id="lv-theme">Light</button>
-</header>
-<div class="lv-shell">
+  <a class="lv-brand" href="#board" aria-label="Phoenix Finance Club"><b aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17l6-6 4 4 6-8"/></svg></b><span>Phoenix</span></a>
   <nav class="lv-nav" aria-label="Main">
-    <a href="#board" data-nav="board"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="10" height="7" rx="2"/><rect x="15.5" y="3.5" width="5" height="7" rx="2"/><rect x="3.5" y="12.5" width="5" height="8" rx="2"/><rect x="10.5" y="12.5" width="10" height="8" rx="2"/></svg><span>Board</span></a>
+    <a href="#board" data-nav="board"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="10" height="7" rx="2"/><rect x="15.5" y="3.5" width="5" height="7" rx="2"/><rect x="3.5" y="12.5" width="5" height="8" rx="2"/><rect x="10.5" y="12.5" width="10" height="8" rx="2"/></svg><span>Fund</span></a>
+    <a href="#portfolio" data-nav="portfolio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5"/><path d="M8.5 6.5V5a1.5 1.5 0 0 1 1.5-1.5h4A1.5 1.5 0 0 1 15.5 5v1.5"/><path d="M3.5 12h17"/></svg><span>Portfolio</span></a>
+    <a href="#trade" data-nav="trade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg><span>Trade</span></a>
     <a href="#markets" data-nav="markets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg><span>Markets</span></a>
     <a href="#crypto" data-nav="crypto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 8h4a2 2 0 0 1 0 4h-4m0 0h4.5a2 2 0 0 1 0 4H9.5V8m1.5-2v2m2-2v2m-2 8v2m2-2v2"/></svg><span>Crypto</span></a>
     <a href="#news" data-nav="news"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M7.5 9h9M7.5 12.5h9M7.5 16h5"/></svg><span>News</span></a>
-    <a href="#trade" data-nav="trade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg><span>Trade</span></a>
-    <a href="#portfolio" data-nav="portfolio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5"/><path d="M8.5 6.5V5a1.5 1.5 0 0 1 1.5-1.5h4A1.5 1.5 0 0 1 15.5 5v1.5"/><path d="M3.5 12h17"/></svg><span>Portfolio</span></a>
     <a href="#settings" data-nav="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Settings</span></a>
   </nav>
+  <span class="sp"></span>
+  <div class="lv-tools">
+  <div class="lv-dots" id="lv-dots" aria-live="polite"></div>
+  <div class="lv-nw"><b class="mono" id="lv-nw"></b><small class="mono" id="lv-pl"></small></div>
+  <button class="lv-tb lv-ic" type="button" id="lv-priv" aria-pressed="false" aria-label="Hide amounts"></button>
+  <button class="lv-tb" type="button" id="lv-lang" aria-label="Türkçe">TR</button>
+  <button class="lv-tb" type="button" id="lv-theme">Dark</button>
+  </div>
+</header>
+<div class="lv-shell">
   <main class="lv-main" id="main">
     <section class="lv-view" id="v-board" aria-labelledby="h-board"><h1 class="sr" id="h-board">Board</h1><div class="bd" id="bd"></div></section>
     <section class="lv-view" id="v-markets" aria-labelledby="h-mk" hidden><h1 class="lv-h1" id="h-mk">US market</h1><div id="mk"></div></section>
@@ -42,45 +44,52 @@
     <section class="lv-view" id="v-report" aria-labelledby="h-report" hidden><h1 class="lv-h1 no-print" id="h-report">Performance report</h1><div id="report"></div></section>
     <section class="lv-view" id="v-trade" aria-labelledby="h-trade" hidden><h1 class="sr" id="h-trade">Trade</h1>
       <div class="tr-grid">
-        <div class="tr-col">
-          <div class="pn">
-            <div class="tr-find"><label class="fld" for="tr-find"><span>Search any US stock or ETF</span><input id="tr-find" type="search" autocomplete="off" spellcheck="false" placeholder="AAPL, Tesla, S&amp;P…" aria-controls="tr-hits"></label><ul class="tr-hits" id="tr-hits"></ul></div>
-            <div class="tr-head"><label class="sr" for="tr-sym">Instrument</label><select id="tr-sym"></select><button class="lv-tb tr-star" type="button" id="tr-star" aria-pressed="false" aria-label="Add to the watchlist">☆</button>
-              <div><div class="tr-px mono" id="tr-px"></div><div class="mono" id="tr-chg"></div></div></div>
+        <div class="tr-col tr-main">
+          <div class="pn tr-card">
+            <div class="tr-top">
+              <div class="tr-find"><label class="fld" for="tr-find"><span class="sr">Search any US stock or ETF</span><input id="tr-find" type="search" autocomplete="off" spellcheck="false" placeholder="Search any US stock or ETF" aria-controls="tr-hits"></label><ul class="tr-hits" id="tr-hits"></ul></div>
+              <label class="sr" for="tr-sym">Instrument</label><select id="tr-sym"></select>
+              <button class="lv-tb tr-star" type="button" id="tr-star" aria-pressed="false" aria-label="Add to the watchlist">☆</button>
+            </div>
+            <div class="tr-head">
+              <div class="tr-nmw"><span class="tr-nm" id="tr-nm"></span><span class="tr-ex" id="tr-ex"></span></div>
+              <div class="tr-pxw"><span class="tr-px mono" id="tr-px"></span><span class="mono" id="tr-chg"></span></div>
+            </div>
             <div class="tr-facts" id="tr-facts"></div>
             <div class="tr-tbr"><div id="tr-tf"></div><span class="bd-sub" id="tr-src"></span></div>
-            <div id="tr-chart"></div>
+            <div class="tr-chw" id="tr-chw"><div id="tr-chart"></div></div>
             <div id="tr-det"></div>
           </div>
           <section class="pn" id="tr-fund" hidden aria-label="Fundamentals"></section>
-          <div class="pn"><div class="bd-th"><h2 id="tr-bk-h">Order book</h2></div><div id="tr-book"></div></div>
-          <div class="pn"><div class="bd-th"><h2>News</h2></div><div id="tr-news"></div></div>
+          <div class="pn" id="tr-ordp"><div class="bd-th"><h2>Open orders</h2></div><div id="tr-ord"></div></div>
+          <div class="pn" id="al-tr"><div class="bd-th"><h2>Alerts</h2></div><div class="fld-row"><label class="fld" for="al-kind"><span>Alert when</span><select id="al-kind"></select></label><label class="fld" for="al-v"><span>Value</span><input id="al-v" type="number" min="0" step="any" inputmode="decimal"></label></div>
+            <button class="ghost" type="button" id="al-go">Set alert</button><p class="msg" id="al-msg" role="status"></p><div id="al-mine"></div></div>
+          <div class="pn" id="tr-bookp"><div class="bd-th"><h2 id="tr-bk-h">Order book</h2></div><div id="tr-book"></div></div>
+          <div class="pn" id="tr-newsp"><div class="bd-th"><h2>News</h2></div><div id="tr-news"></div></div>
         </div>
-        <div class="tr-col">
-          <div class="pn" id="tk">
-            <div class="bd-th"><h2>Order for the fund</h2></div>
+        <div class="tr-col tr-side">
+          <div class="pn tk" id="tk">
+            <h2 class="sr">Order for the fund</h2>
             <div class="tk-lock" id="tk-lock" hidden></div>
-            <span class="seg" role="group" aria-label="Side" id="tk-side"><button type="button" data-side="buy" aria-pressed="true">Buy</button><button type="button" data-side="sell" aria-pressed="false">Sell</button><button type="button" data-side="short" aria-pressed="false">Short</button><button type="button" data-side="cover" aria-pressed="false">Cover</button></span>
-            <span class="seg" role="group" aria-label="Order type" id="tk-type"><button type="button" data-type="mkt" aria-pressed="true">Market</button><button type="button" data-type="lmt" aria-pressed="false">Limit</button><button type="button" data-type="stp" aria-pressed="false">Stop</button></span>
+            <span class="seg seg-ios" role="group" aria-label="Side" id="tk-side"><button type="button" data-side="buy" aria-pressed="true">Buy</button><button type="button" data-side="sell" aria-pressed="false">Sell</button><button type="button" data-side="short" aria-pressed="false">Short</button><button type="button" data-side="cover" aria-pressed="false">Cover</button></span>
+            <span class="seg seg-ios seg-sm" role="group" aria-label="Order type" id="tk-type"><button type="button" data-type="mkt" aria-pressed="true">Market</button><button type="button" data-type="lmt" aria-pressed="false">Limit</button><button type="button" data-type="stp" aria-pressed="false">Stop</button></span>
             <div class="fld-row"><label class="fld" for="tk-amt"><span id="tk-amt-l">Amount in dollars</span><input id="tk-amt" type="number" min="0" step="any" inputmode="decimal" value="1000"></label>
-              <span class="seg" role="group" aria-label="Amount in" id="tk-unit"><button type="button" data-unit="usd" aria-pressed="true">$</button><button type="button" data-unit="qty" aria-pressed="false">Units</button></span></div>
+              <span class="seg seg-ios seg-unit" role="group" aria-label="Amount in" id="tk-unit"><button type="button" data-unit="usd" aria-pressed="true">$</button><button type="button" data-unit="qty" aria-pressed="false">Units</button></span></div>
             <label class="fld" for="tk-px" id="tk-pxw" hidden><span id="tk-px-l">Limit price</span><input id="tk-px" type="number" min="0" step="any" inputmode="decimal"></label>
             <label class="fld" for="tk-note"><span>Note / thesis (optional, public)</span><textarea id="tk-note" rows="2" maxlength="280" spellcheck="true"></textarea></label>
-            <p class="bd-sub mono" id="tk-est"></p>
+            <p class="bd-sub tk-est mono" id="tk-est"></p>
             <button class="go" type="button" id="tk-go">Buy</button>
             <p class="msg" id="tk-msg" role="status"></p>
             <div id="tk-oj"></div>
+            <div class="tk-sum" id="tk-sum"></div>
           </div>
-          <div class="pn"><div class="bd-th"><h2>The fund’s position</h2></div><div id="tr-pos"></div></div>
-          <div class="pn"><div class="bd-th"><h2>Open orders</h2></div><div id="tr-ord"></div></div>
-          <div class="pn" id="al-tr"><div class="bd-th"><h2>Alerts</h2></div><div class="fld-row"><label class="fld" for="al-kind"><span>Alert when</span><select id="al-kind"></select></label><label class="fld" for="al-v"><span>Value</span><input id="al-v" type="number" min="0" step="any" inputmode="decimal"></label></div>
-            <button class="ghost" type="button" id="al-go">Set alert</button><p class="msg" id="al-msg" role="status"></p><div id="al-mine"></div></div>
         </div>
       </div>
     </section>
-    <section class="lv-view" id="v-portfolio" aria-labelledby="h-pf" hidden><h1 class="lv-h1" id="h-pf">The club fund</h1><div class="bd" id="pf-top"></div>
+    <section class="lv-view" id="v-portfolio" aria-labelledby="h-pf" hidden><h1 class="lv-h1" id="h-pf">Portfolio</h1>
+      <div class="pn pf-pn pf-hold"><div class="bd-th"><h2>Holdings</h2><span class="bd-sub pf-hint" id="pf-hint"></span></div><div class="tblw" id="pf-pos" tabindex="0" role="region" aria-label="Holdings"></div></div>
+      <div class="bd pf-top" id="pf-top"></div>
       <div class="pn pf-pn"><div class="bd-th"><h2>Performance</h2><a class="bd-more" href="#report">Full report →</a></div><div id="pf-perf"></div></div>
-      <div class="pn pf-pn"><div class="bd-th"><h2>Holdings</h2></div><div class="tblw" id="pf-pos" tabindex="0" role="region" aria-label="Holdings"></div></div>
       <div class="pn pf-pn"><div class="bd-th"><h2>Open orders</h2></div><div class="tblw" id="pf-ord" tabindex="0" role="region" aria-label="Open orders"></div></div>
       <div class="pn pf-pn"><div class="bd-th"><h2>Trade history</h2></div><div class="tblw" id="pf-fills" tabindex="0" role="region" aria-label="Trade history"></div></div>
       <div class="pn pf-pn"><div class="bd-th"><h2>Your watchlist</h2></div><div id="wl-list"></div><h3 class="perf-h">Alerts</h3><p class="bd-sub" id="al-perm"></p><div id="al-list"></div></div>
@@ -105,6 +114,7 @@
     <p class="lv-foot" id="foot">Phoenix Finance Club: a school club’s paper-trading fund. Play money only. Not financial advice. Prices: Binance (crypto, live), TradingView screener (US, 15 min delayed).</p>
   </main>
 </div>
+<div class="dw" id="dw" hidden><div class="dw-scrim" data-dw-x></div><section class="dw-p" id="dw-p" role="dialog" aria-modal="true" aria-labelledby="dw-h" tabindex="-1"></section></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <script>/*JS*/</script>
 </body>

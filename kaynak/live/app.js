@@ -10,16 +10,16 @@ const IM=new Proxy(IM0, { get:(o, k)=>{ if (typeof k!=='string') return undefine
 const KEY='tdl-state';
 let ST=null;
 // what this browser keeps: preferences, the watchlist and alerts, orders it is waiting on. The fund itself (ST.A) is never saved here.
-function stNew(){ return { v:2, A:brkNew(), inbox:[], sel:'BTC', lang:'en', theme:'dark', tf:'intra', side:'buy', type:'mkt', unit:'usd', pend:[] }; }
+function stNew(){ return { v:2, A:brkNew(), inbox:[], sel:'BTC', lang:'en', theme:'light', tf:'intra', side:'buy', type:'mkt', unit:'usd', pend:[] }; }
 const ST_DROP=['A','bots','ai','accts','acct','mg','eqi','bm','fut','ch','botLim','botPeak','edge','fee','jr','wk','wkSnap','ntfy','bkT','welcomed','dayEq','learnLoss','rpB','fwd','mkt','oj'];
 function load(){ ST=stNew(); try{ const x=JSON.parse(localStorage.getItem(KEY)||'null'); if (x && (x.v===1 || x.v===2)){ for (const k of ST_DROP) delete x[k]; Object.assign(ST, x, { v:2, A:brkNew() }); } }catch(e){}
   if (!['buy','sell','short','cover'].includes(ST.side)) ST.side='buy'; if (!['mkt','lmt','stp'].includes(ST.type)) ST.type='mkt'; if (!Array.isArray(ST.pend)) ST.pend=[]; if (!Array.isArray(ST.inbox)) ST.inbox=[];
-  if (!localStorage.getItem(KEY)) try{ if (/^tr\b/i.test(navigator.language||'')) ST.lang='tr'; if (matchMedia('(prefers-color-scheme: light)').matches) ST.theme='light'; }catch(e){} }
+  if (!localStorage.getItem(KEY)) try{ if (/^tr\b/i.test(navigator.language||'')) ST.lang='tr'; }catch(e){} }
 let saveT=0; function saveNow(){ clearTimeout(saveT); saveT=0; try{ const o={}; for (const k of Object.keys(ST)) if (k!=='A') o[k]=ST[k]; localStorage.setItem(KEY, JSON.stringify(o, (k, v)=>k==='buf' || k==='rb' ? undefined : v)); }catch(e){} }
 function save(){ clearTimeout(saveT); saveT=setTimeout(saveNow, 400); }
 addEventListener('pagehide', ()=>{ if (saveT) saveNow(); }); document.addEventListener('visibilitychange', ()=>{ if (document.hidden && saveT) saveNow(); });
 /* ---- language ---- */
-const TR={ 'Board':'Pano','Trade':'İşlem','Portfolio':'Portföy','Settings':'Ayarlar','Light':'Açık','Dark':'Koyu','Markets':'Piyasalar','News':'Haberler',
+const TR={ 'Board':'Pano','Fund':'Fon','Trade':'İşlem','Portfolio':'Portföy','Settings':'Ayarlar','Light':'Açık','Dark':'Koyu','Markets':'Piyasalar','News':'Haberler',
   'The fund':'Fon','Market map':'Piyasa haritası','Quick trade':'Hızlı işlem','Market mood':'Piyasa havası','Fund days':'Fonun günleri','Inbox':'Gelen kutusu','Data':'Veri','Recent trades':'Son işlemler','The fund against the market':'Fon piyasaya karşı',
   'Crypto':'Kripto','US stocks':'ABD hisseleri','Buy':'Al','Sell':'Sat','Short':'Açığa sat','Cover':'Geri al','Market':'Piyasa','Limit':'Limit','Stop':'Stop','Units':'Adet',
   'Order for the fund':'Fon için emir','Order book':'Emir defteri','The fund’s position':'Fonun pozisyonu','Open orders':'Açık emirler','Holdings':'Varlıklar','Trade history':'İşlem geçmişi','The club fund':'Kulüp fonu','Your watchlist':'İzleme listen','Full report →':'Tam rapor →',
@@ -115,61 +115,57 @@ function renderNow(){ const v=view(), Q=quotesAll(), A=ST.A, E=fundEq(Q);
 function tile(id, cls, title, inner, dot){ return `<section class="bd-t ${cls}" id="t-${id}" aria-labelledby="t-${id}-h"><div class="bd-th"><span class="bd-dot ${dot||''}" aria-hidden="true"></span><h2 id="t-${id}-h">${esc(T(title))}</h2></div>${inner}</section>`; }
 function boardBuild(){ const el=$('#bd'); if (el.__lang===ST.lang) return; el.__lang=ST.lang;
   const H=typeof hmTiles==='function' ? hmTiles() : {};
-  el.innerHTML = tile('money','w2','The fund', `<div class="bd-row"><div class="bd-big mono" id="b-eq"></div><div class="mono" id="b-pl"></div></div><p class="bd-sub mono" id="b-cash"></p><div id="b-spark"></div><p class="bd-sub" id="b-upd"></p>`)
+  const rng=BRANGES.map(([k, en, tr])=>`<button type="button" class="pill" data-brange="${k}" aria-pressed="${(ST.brange||'all')===k}">${esc(L2(en, tr))}</button>`).join('');
+  el.innerHTML = `<section class="bd-t hero-fund" id="t-money" aria-labelledby="t-money-h"><h2 class="hf-l" id="t-money-h">${esc(L2('Phoenix Finance Club fund','Phoenix Finance Club fonu'))}</h2>
+      <div class="hf-v" id="b-eq"></div><div class="hf-c" id="b-pl"></div>
+      <div class="pills hf-pills" role="group" aria-label="${esc(L2('Chart range','Grafik aralığı'))}">${rng}</div>
+      <div class="hf-chart" id="b-perf"></div><p class="bd-sub hf-upd" id="b-upd"></p></section>`
     + (H.today||'')
-    + tile('quick','','Quick trade', `<div><div class="bd-big mono" id="q-px"></div><p class="bd-sub" id="q-nm"></p></div><div id="q-lock"></div><span class="seg" role="group" aria-label="${esc(L2('Amount','Tutar'))}" id="q-amt">${[100,1000,5000].map(a=>`<button type="button" data-qa="${a}" aria-pressed="false">$${F0.format(a)}</button>`).join('')}</span><div class="bs"><button class="b-buy" type="button" data-q="b">${esc(T('Buy'))}</button><button class="b-sell" type="button" data-q="s">${esc(T('Sell'))}</button></div><p class="msg" id="q-msg" role="status"></p><div id="q-oj"></div>`, 'mk')
-    + tile('mood','','Market mood', `<div class="hm-gw"><div id="hm-gauge"></div><div class="bd-big mono" id="m-v"></div></div><p class="bd-sub" id="m-l"></p><div class="gauge" aria-hidden="true"><i id="m-g"></i></div><p class="bd-sub mono" id="m-d"></p>`, 'mk')
-    + tile('trades','w2','Recent trades', `<div class="tblw" id="b-trades" tabindex="0" role="region" aria-label="${esc(T('Recent trades'))}"></div><a class="bd-more" href="#portfolio">${esc(L2('The whole trade history →','Tüm işlem geçmişi →'))}</a>`, 'game')
-    + tile('perf','w2','The fund against the market', `<div id="b-perf"></div>`, 'game')
+    + tile('cash','bd-stat','Cash', `<div class="bd-big mono" id="b-cashv"></div><p class="bd-sub mono" id="b-cash"></p>`)
+    + tile('mood','bd-stat','Market mood', `<div class="bd-big mono mood-v"><span id="m-v"></span><small id="m-l"></small></div><div class="mood-bar" aria-hidden="true"><i id="m-g"></i></div><p class="bd-sub mono" id="m-d"></p>`)
+    + `<section class="bd-t w2" id="t-trades" aria-labelledby="t-trades-h"><div class="bd-th"><h2 id="t-trades-h">${esc(T('Recent trades'))}</h2><a class="bd-more" href="#portfolio">${esc(L2('All ›','Tümü ›'))}</a></div><div id="b-trades"></div></section>`
+    + `<section class="bd-t w2 vs-card" id="t-vs" aria-labelledby="t-vs-h"><div><div class="bd-th"><h2 id="t-vs-h">${esc(L2('Against the S&P 500','S&P 500’e karşı'))}</h2></div><div class="vs-big mono" id="b-vs"></div><p class="vs-sub" id="b-vs-s"></p></div><a class="vs-go" href="#trade">${esc(L2('Trade','İşlem yap'))}</a></section>`
+    + tile('map','w2 h2','Market map', `<div id="b-map"></div><a class="bd-more" href="#markets">${esc(L2('All US stocks and ETFs →','Tüm ABD hisseleri ve ETF’ler →'))}</a>`)
     + (H.week||'')
-    + tile('map','w2 h2','Market map', `<div id="b-map"></div><a class="bd-more" href="#trade">${esc(T('Open the trade screen →'))}</a>`, 'mk')
-    + tile('inbox','','Inbox', `<ul class="ib" id="b-ib"></ul>`, 'news')
-    + tile('watch','','Watchlist', `<div id="b-wl"></div>`, 'mk')
-    + tile('news','w2','Headlines', `<div id="b-news"></div><a class="bd-more" href="#news">${esc(T('All the news →'))}</a>`, 'news')
-    + tile('earn','','Coming reports', `<div id="b-earn"></div>`, 'news')
-    + tile('cal','','Fund days', `<div class="cal" id="b-cal"></div><p class="bd-sub" id="b-cal-s"></p>`)
-    + tile('src','w2','Data', `<div id="b-src"></div>`, 'mk'); }
+    + tile('watch','','Watchlist', `<div id="b-wl"></div>`)
+    + tile('earn','','Coming reports', `<div id="b-earn"></div>`)
+    + tile('news','w2','Headlines', `<div id="b-news"></div><a class="bd-more" href="#news">${esc(T('All the news →'))}</a>`); }
+const BRANGES=[['all','Start','Başlangıç'],['1m','1 month','1 Ay'],['1w','1 week','1 Hafta'],['1d','Today','Bugün']];
+function brangeFrom(k){ const now=Date.now(); if (k==='1m') return now-30*864e5; if (k==='1w') return now-7*864e5; if (k==='1d'){ const d=new Date(); d.setHours(0,0,0,0); return +d; } return 0; }
+const FILL_DONE={ buy:['bought','alındı'], sell:['sold','satıldı'], short:['shorted','açığa satıldı'], cover:['covered','geri alındı'] };
+function boardTrades(fills){ const fs=(fills||[]).slice().sort((a,b)=>b.t-a.t).slice(0, 3); if (!fs.length) return `<p class="empty">${esc(L2('No trades yet.','Henüz işlem yok.'))}</p>`;
+  return `<ul class="rt-list">${fs.map(f=>`<li><span><b>${esc(f.sym)}</b> ${esc(L2(...FILL_DONE[fillAct(f)]))}${f.note ? ` <span class="rt-n">· “${esc(f.note)}”</span>` : ''}</span><span class="rt-p">$${esc(fpx(+f.px))}</span></li>`).join('')}</ul>`; }
 function renderBoard(Q, E){ boardBuild(); const A=ST.A;
-  txt('b-eq', money(E)); const pl=E-A.start, ple=$('#b-pl'); ple.className='mono '+cls(pl); txt('b-pl', `${pl>=0?'+':'−'}${money(Math.abs(pl)).replace('−','')} (${pct(E/A.start-1)}) ${T('since the start')}`);
-  const inv=E-A.cash, np=Object.keys(A.pos).length; txt('b-cash', `${T('Cash')} ${money(A.cash)} · ${T('Invested')} ${money(inv)} · ${np} ${T(np===1?'position':'positions')}`);
-  setHTML($('#b-spark'), spark((A.eq||[]).filter(x=>Date.now()-x.t<864e5).map(x=>+x.v).concat([E])));
+  txt('b-eq', money(E)); const pl=E-A.start, ple=$('#b-pl'); ple.className='hf-c mono '+cls(pl); txt('b-pl', `${pl>=0?'+':'−'}${money(Math.abs(pl)).replace('−','')} · ${pct(E/A.start-1)} ${T('since the start')}`);
+  const inv=E-A.cash, np=Object.keys(A.pos).length; txt('b-cashv', money(A.cash)); txt('b-cash', `${np} ${T(np===1?'position':'positions')} · ${money(inv)} ${L2('invested','yatırımda')}`);
+  const rk=ST.brange||'all'; for (const b of $$('#bd [data-brange]')) b.setAttribute('aria-pressed', String(b.dataset.brange===rk));
+  setHTML($('#b-perf'), boardChart(A.eq||[], brangeFrom(rk), E, 'b-perf'));
   txt('b-upd', CLUB.fund ? L2(`Updated by the club’s job ${fundAgo()} (run ${CLUB.fund.seq||0}). Values move with live prices.`, `Kulübün görevi ${fundAgo()} güncelledi (${CLUB.fund.seq||0}. çalışma). Değerler canlı fiyatlarla oynar.`)
     : SRV.url ? (CLUB.err ? L2(`The fund could not be loaded (${CLUB.err}); trying again.`, `Fon yüklenemedi (${CLUB.err}); tekrar deneniyor.`) : L2('Loading the fund…','Fon yükleniyor…'))
     : L2('A blank $100,000 fund: the real one loads on the club’s website (GitHub Pages).','Boş bir $100.000 fon: gerçeği kulübün sitesinde (GitHub Pages) yüklenir.'));
+  // the fund against the S&P 500 over the fund's whole history, in percentage points
+  const B=perfBench(A.eq||[]), ret=E/A.start-1, gap=B.spy!=null ? (ret-B.spy)*100 : null, nf2=new Intl.NumberFormat(ST.lang==='tr' ? 'tr-TR' : 'en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  txt('b-vs', gap==null ? '—' : gap>=0 ? L2(`+${nf2.format(gap)} points ahead`, `+${nf2.format(gap)} puan önde`) : L2(`${nf2.format(-gap)} points behind`, `${nf2.format(-gap)} puan geride`));
+  txt('b-vs-s', B.spy!=null ? L2(`Fund ${pct(ret)} · S&P 500 ${pct(B.spy)}`, `Fon ${pct(ret)} · S&P 500 ${pct(B.spy)}`) : L2('The comparison fills in as the club’s job records the fund.','Karşılaştırma, kulübün görevi fonu kaydettikçe dolar.'));
   // market map
-  const tileBtn=d=>{ const q=Q[d.sym], ch=q ? q.chg : null, t=ch==null ? 0 : Math.max(-1, Math.min(1, ch/(d.kind==='crypto'?.06:.03))), bg=ch==null ? 'var(--surface-3)' : `color-mix(in srgb,${t>=0?'var(--gain)':'var(--loss)'} ${Math.round(14+Math.abs(t)*46)}%,var(--surface-2))`;
+  const tileBtn=d=>{ const q=Q[d.sym], ch=q ? q.chg : null, t=ch==null ? 0 : Math.max(-1, Math.min(1, ch/(d.kind==='crypto'?.06:.03))), bg=ch==null ? 'var(--surface-2)' : `color-mix(in srgb,${t>=0?'var(--gain)':'var(--loss)'} ${Math.round(10+Math.abs(t)*34)}%,var(--surface-1))`;
     return `<button type="button" data-sym="${esc(d.sym)}" aria-pressed="${ST.sel===d.sym}" style="background:${bg}" aria-label="${esc(d.name)} ${q ? '$'+fpx(q.last)+' '+pct(ch) : ''}"><b>${esc(d.sym)}</b><span class="mono">${q ? '$'+fpx(q.last) : '—'}</span><span class="mono">${pct(ch)}</span></button>`; };
-  setHTML($('#b-map'), `<p class="hm-sec">${esc(T('Crypto'))}</p><div class="hm">${LIVE_CRYPTO.map(d=>tileBtn({ ...d, kind:'crypto' })).join('')}</div><p class="hm-sec">${esc(T('US stocks'))} · ${esc(T(US.src ? 'real time' : '15 min delayed'))}${MKT.list.length ? ` · <a href="#markets">${esc(T(`All ${F0.format(MKT.list.length)} US stocks and ETFs →`))}</a>` : ''}</p><div class="hm">${LIVE_US.map(d=>tileBtn({ ...d, kind:'stock' })).join('')}</div>`);
-  // quick trade: members only
-  const d=IM[ST.sel], q=Q[ST.sel], mem=!!clubTok(), busy=clubPending('q'); txt('q-px', q ? '$'+fpx(q.last) : '—'); txt('q-nm', `${d.name} (${d.sym}) · ${q ? pct(q.chg) : ''}`);
-  setHTML($('#q-lock'), mem ? '' : `<p class="bd-sub tk-lock-s">${esc(clubLockMsg())} <a href="#settings">${esc(L2('Members: Settings →','Üyeler: Ayarlar →'))}</a></p>`);
-  const qa=ST.qa||1000; for (const b of $$('#q-amt [data-qa]')) b.setAttribute('aria-pressed', String(+b.dataset.qa===qa));
-  for (const b of $$('#t-quick [data-q]')) b.disabled = !mem || busy || !q || (d.kind==='stock' && !q.open);
-  txt('q-msg', d.kind==='stock' && q && !q.open && !ST.qmsg ? T('The US market is closed now; limit orders wait for the open.') : ST.qmsg ? msgT(ST.qmsg) : '');
-  setHTML($('#q-oj'), ST.oj && ST.oj.sym===ST.sel && Date.now()-ST.oj.k<120000 ? ojHTML(ST.oj) : '');
+  setHTML($('#b-map'), `<p class="hm-sec">${esc(T('Crypto'))}</p><div class="hm">${LIVE_CRYPTO.map(d=>tileBtn({ ...d, kind:'crypto' })).join('')}</div><p class="hm-sec">${esc(T('US stocks'))} · ${esc(T(US.src ? 'real time' : '15 min delayed'))}</p><div class="hm">${LIVE_US.map(d=>tileBtn({ ...d, kind:'stock' })).join('')}</div>`);
   // mood: share of coins and stocks rising, and the average move
   const ch=xs=>xs.map(s=>Q[s] && Q[s].chg).filter(x=>x!=null), cc=ch(LIVE_CRYPTO.map(x=>x.sym)), big=MKT.list.filter(d=>d.type==='stock' && d.cap>=2e9 && d.chg!=null), sc=big.length ? big.map(d=>d.chg) : ch(LIVE_US.map(x=>x.sym)), all=cc.concat(sc);
   if (all.length){ const half=xs=>xs.length ? xs.filter(x=>x>0).length/xs.length : null, hc=half(cc), hs=half(sc), up=hc!=null && hs!=null ? (hc+hs)/2 : (hc!=null ? hc : hs), mean=xs=>xs.length ? xs.reduce((a,b)=>a+b,0)/xs.length : 0, avg=cc.length && sc.length ? (mean(cc)+mean(sc))/2 : mean(all), sc100=Math.round(Math.max(0, Math.min(100, up*70+50+avg*300-35)));
-    txt('m-v', String(sc100)); txt('m-l', T(sc100<25?'Extreme fear':sc100<45?'Fear':sc100<56?'Neutral':sc100<76?'Greed':'Extreme greed')); $('#m-g').style.left=sc100+'%';
-    txt('m-d', `${T('Coins rising')}: ${cc.filter(x=>x>0).length}/${cc.length}` + (sc.length ? ` · ${T('Stocks rising')}: ${F0.format(sc.filter(x=>x>0).length)}/${F0.format(sc.length)}` : '') + ` · ${T('Average move')} ${pct(avg)}`); }
-  // the fund's trades and its line against the S&P 500 and Bitcoin
-  setHTML($('#b-trades'), clubTradesTable((A.fills||[]).slice(-6), true));
-  setHTML($('#b-perf'), perfChart(A.eq||[], 0, E, 'b-perf'));
-  // the fund's days: green when it grew, red when it shrank
-  const days=perfDays(A.eq||[]); setHTML($('#b-cal'), days.slice(-45).map(x=>`<i class="${x.r>5e-4?'g':x.r<-5e-4?'r':''}" title="${esc(dayFmt(x.t)+': '+pct(x.r))}"></i>`).join(''));
-  txt('b-cal-s', days.length ? T(`${days.filter(x=>x.r>5e-4).length} of ${days.length} days up`)+'. '+T('Green: the fund grew that day. Red: it shrank.') : T('The fund’s first day shows here tomorrow.'));
-  // inbox
-  const ib=ST.inbox.slice(-6).reverse(); setHTML($('#b-ib'), ib.length ? ib.map(x=>`<li><span aria-hidden="true">${esc(x.ico)}</span><span>${esc(T(x.msg))}<time>${esc(tFmt(x.t))}</time></span></li>`).join('') : `<li><span></span><span class="bd-sub">${esc(T('Nothing yet. Your orders’ results and your alerts land here.'))}</span></li>`);
-  setHTML($('#b-wl'), wlTile(Q)); setHTML($('#b-news'), newsTile()); setHTML($('#b-earn'), earnTile());
-  // sources
-  setHTML($('#b-src'), `<p class="bd-sub"><b>${esc(T('Crypto'))}:</b> <span class="st-${stCls(cxStatus())}">${esc(T(cxStatus()))}</span> · ${esc(T('Source: '+(LIVE.src==='coinbase'?'Coinbase':'Binance public market data')))}</p>
-    <p class="bd-sub"><b>${esc(T('US stocks'))}:</b> <span class="st-${stCls(mktStatus())}">${esc(T(mktStatus()))}</span> · ${esc(T('Source: TradingView screener'))}${MKT.list.length ? ' · '+esc(T(`${F0.format(MKT.list.length)} listings`)) : ''}</p>
-    <p class="bd-sub"><b>${esc(L2('The fund','Fon'))}:</b> ${CLUB.fund ? `<code>fund.json</code>, ${esc(L2(`updated ${fundAgo()}`, `${fundAgo()} güncellendi`))}` : esc(L2('not loaded','yüklenmedi'))} · ${esc(L2('Trades execute on GitHub Actions at the data sources’ prices.','İşlemler GitHub Actions’ta veri kaynaklarının fiyatlarıyla gerçekleşir.'))}</p>`); }
+    txt('m-v', String(sc100)); const lab=sc100<25?'Extreme fear':sc100<45?'Fear':sc100<56?'Neutral':sc100<76?'Greed':'Extreme greed'; txt('m-l', T(lab));
+    const col=sc100<25 ? 'var(--loss)' : sc100<45 ? 'var(--warn)' : sc100<56 ? 'var(--ink-2)' : 'var(--gain)', g=$('#m-g'); g.style.width=Math.max(3, sc100)+'%'; g.style.background=col; $('#m-l').style.color=col;
+    txt('m-d', `${T('Coins rising')}: ${cc.filter(x=>x>0).length}/${cc.length}` + (sc.length ? ` · ${T('Stocks rising')}: ${F0.format(sc.filter(x=>x>0).length)}/${F0.format(sc.length)}` : '')); }
+  setHTML($('#b-trades'), boardTrades(A.fills));
+  setHTML($('#b-wl'), wlTile(Q)); setHTML($('#b-news'), newsTile()); setHTML($('#b-earn'), earnTile()); }
 function renderTrade(Q){ const sel=$('#tr-sym'), d=IM[ST.sel], q=Q[ST.sel], A=ST.A;
   const mine=[...new Set(Object.keys(A.pos).concat([ST.sel]))].filter(s=>!IM0[s] && IM[s]), opt=x=>`<option value="${esc(x.sym)}">${esc(x.sym)} · ${esc(x.name)}</option>`;
   const ok=mine.join()+'|'+ST.lang+'|'+mine.map(s=>IM[s].name).join(); if (sel.__k!==ok){ sel.__k=ok; sel.innerHTML=`<optgroup label="${esc(T('Crypto'))}">${LIVE_CRYPTO.map(opt).join('')}</optgroup><optgroup label="${esc(T('Big US names'))}">${LIVE_US.map(opt).join('')}</optgroup>${mine.length ? `<optgroup label="${esc(T('The fund’s US picks'))}">${mine.map(s=>opt(IM[s])).join('')}</optgroup>` : ''}`; }
   const fq0=ST.find||''; setHTML($('#tr-hits'), fq0 && MKT.list.length ? (()=>{ const hs=mktFind(fq0, 8); return hs.length ? hs.map(h=>`<li><button type="button" data-sym="${esc(h.sym)}" data-clear><b>${esc(h.sym)}</b><span>${esc(h.name)}</span><span class="mono">$${fpx(h.last)} <i class="${cls(h.chg)}">${pct(h.chg)}</i></span></button></li>`).join('') : `<li class="empty">${esc(T('Nothing found.'))}</li>`; })() : '');
   if (sel.value!==ST.sel) sel.value=ST.sel;
+  const mk=MKT.all[ST.sel]; txt('tr-nm', d.name || d.sym); txt('tr-ex', d.kind==='crypto' ? `${d.sym} · ${T('Crypto')}` : `${d.sym}${mk && mk.ex ? ' · '+mk.ex : ''}`);
+  { const f=$('#tr-find'), ph=T('Search any US stock or ETF'); if (f && f.placeholder!==ph) f.placeholder=ph; }
   txt('tr-px', q ? '$'+fpx(q.last) : '—'); const ce=$('#tr-chg'); ce.className='mono '+cls(q && q.chg); txt('tr-chg', q ? pct(q.chg)+(d.kind==='crypto' ? ' · 24 h' : '') : T('Waiting for prices…'));
   const fact=(k,v)=>`<span>${esc(T(k))} <b class="mono">${v}</b></span>`;
   setHTML($('#tr-facts'), q ? (d.kind==='crypto' ? fact('24 h high','$'+fpx(q.high))+fact('24 h low','$'+fpx(q.low)) : fact('Day high','$'+fpx(q.high))+fact('Day low','$'+fpx(q.low))+fact('Prev. close','$'+fpx(q.prev)))+(q.bid && q.ask ? fact('Bid','$'+fpx(q.bid))+fact('Ask','$'+fpx(q.ask)) : '')+(q.delayed ? `<span class="muted">${esc(T('Prices 15 min delayed'))}</span>` : '') : '');
@@ -198,19 +194,23 @@ function renderTrade(Q){ const sel=$('#tr-sym'), d=IM[ST.sel], q=Q[ST.sel], A=ST
   for (const b of $$('#tk-type [data-type]')) b.setAttribute('aria-pressed', String(b.dataset.type===ST.type));
   for (const b of $$('#tk-unit [data-unit]')) b.setAttribute('aria-pressed', String(b.dataset.unit===ST.unit));
   $('#tk-pxw').hidden = ST.type==='mkt'; txt('tk-px-l', T(ST.type==='stp'?'Stop price':'Limit price')); txt('tk-amt-l', T(ST.unit==='usd'?'Amount in dollars':'Amount in units'));
-  const buyish=ST.side==='buy' || ST.side==='cover', go=$('#tk-go'); txt('tk-go', busy ? L2('Waiting for GitHub…','GitHub bekleniyor…') : actName(ST.side)+' '+d.sym); go.className='go '+(buyish?'b-buy':'b-sell'); go.disabled=!q || !mem || busy;
+  const buyish=ST.side==='buy' || ST.side==='cover', go=$('#tk-go'); txt('tk-go', busy ? L2('Waiting for GitHub…','GitHub bekleniyor…') : actName(ST.side)+' '+d.sym); go.className='go'+(buyish ? '' : ' b-sell'); go.disabled=!q || !mem || busy;
   const amt=+$('#tk-amt').value, px=ST.type==='mkt' ? (q ? brkPrice(q, buyish ? 'b' : 's') : 0) : +$('#tk-px').value, fee=1+BRK.FEES[d.kind];
   txt('tk-est', q && amt>0 && px>0 ? (ST.unit==='usd' ? T(`Est. ${fq(amt/px, d.kind)} ${d.sym} for $${F2.format(amt*(buyish?fee:1))} incl. fees`) : T(`Est. $${F2.format(amt*px*(buyish?fee:2-fee))} for ${fq(amt, d.kind)} ${d.sym} incl. fees`)) : '');
   txt('tk-msg', ST.tmsg ? msgT(ST.tmsg) : d.kind==='stock' && q && !q.open ? T('The US market is closed now; limit orders wait for the open.') : '');
   setHTML($('#tk-oj'), ST.oj && ST.oj.sym===ST.sel && Date.now()-ST.oj.k<120000 ? ojHTML(ST.oj) : '');
   setHTML($('#tr-news'), tradeNews(ST.sel)); renderTradeWatch(ST.sel, q);
-  // the fund's position and open orders in this symbol
-  const p=A.pos[ST.sel], kind=d.kind; setHTML($('#tr-pos'), p ? `<p class="mono">${esc(fq(p.q, kind))} ${esc(d.sym)}${p.q<0 ? ' ('+esc(L2('short','açık'))+')' : ''} · ${esc(T('Avg cost'))} $${fpx(p.avg)} · ${esc(T('Value'))} ${q ? money(p.q*q.last) : '—'} · <span class="${cls(q ? p.q*(q.last-p.avg) : 0)}">${q ? money(p.q*(q.last-p.avg))+' ('+pct((q.last/p.avg-1)*(p.q<0 ? -1 : 1))+')' : ''}</span></p>` : `<p class="empty">${esc(T('The fund holds none.'))}</p>`);
+  // the fund in a few numbers, and its open orders
+  const p=A.pos[ST.sel], kind=d.kind, E=fundEq(Q), row=(k, v)=>`<div><span>${esc(k)}</span><b>${v}</b></div>`;
+  setHTML($('#tk-sum'), row(L2('Fund','Fon'), money(E)) + row(L2('Free cash','Serbest nakit'), money(brkFree(A))) + row(L2(`${d.sym} in the fund`, `Fondaki ${d.sym}`), p ? `${esc(fq(p.q, kind))}${p.q<0 ? ' ('+esc(L2('short','açık'))+')' : ''}${q ? ` · <span class="${cls(p.q*(q.last-p.avg))}">${pct((q.last/p.avg-1)*(p.q<0 ? -1 : 1))}</span>` : ''}` : esc(L2('none','yok'))));
   setHTML($('#tr-ord'), `<div class="tblw" tabindex="0" role="region" aria-label="${esc(T('Open orders'))}">${clubOrdersTable(A.orders, null, true)}</div>`); }
 function renderPortfolio(Q, E){ renderPerf(Q, E); renderWatch(Q); const A=ST.A, inv=E-A.cash, pl=E-A.start, FQ=fundQuotes(Q);
-  setHTML($('#pf-top'), `<section class="bd-t"><div class="bd-th"><h2>${esc(T('Total value'))}</h2></div><div class="bd-big mono">${money(E)}</div><p class="bd-sub">${esc(CLUB.fund ? L2(`updated ${fundAgo()}`, `${fundAgo()} güncellendi`) : '')}</p></section><section class="bd-t"><div class="bd-th"><h2>${esc(T('Total profit/loss'))}</h2></div><div class="bd-big mono ${cls(pl)}">${money(pl)}</div><p class="bd-sub mono">${pct(E/A.start-1)}</p></section><section class="bd-t"><div class="bd-th"><h2>${esc(T('Cash'))}</h2></div><div class="bd-big mono">${money(A.cash)}</div></section><section class="bd-t"><div class="bd-th"><h2>${esc(T('Invested'))}</h2></div><div class="bd-big mono">${money(inv)}</div></section>`);
-  const ps=Object.keys(A.pos); setHTML($('#pf-pos'), ps.length ? `<table class="tbl"><thead><tr><th>${esc(T('Instrument'))}</th><th class="r">${esc(T('Qty'))}</th><th class="r">${esc(T('Avg cost'))}</th><th class="r">${esc(T('Price'))}</th><th class="r">${esc(T('Value'))}</th><th class="r">${esc(T('Profit/loss'))}</th><th></th></tr></thead><tbody>${ps.map(s=>{ const p=A.pos[s], q=FQ[s], last=q ? q.last : p.avg, k=p.kind==='stock' ? 'stock' : 'crypto';
-      return `<tr><td><b>${esc(s)}</b> <span class="muted">${esc(IM[s] ? IM[s].name : '')}${p.q<0 ? ' · '+esc(L2('short','açık')) : ''}</span></td><td class="r mono">${esc(fq(p.q, k))}</td><td class="r mono">$${fpx(+p.avg)}</td><td class="r mono">$${fpx(last)}</td><td class="r mono">${money(p.q*last)}</td><td class="r mono ${cls(p.q*(last-p.avg))}">${money(p.q*(last-p.avg))} (${pct((last/p.avg-1)*(p.q<0 ? -1 : 1))})</td><td><a class="ghost sm" href="#trade" data-go="${esc(s)}">${esc(T('Trade'))}</a></td></tr>`; }).join('')}</tbody></table>` : `<p class="empty">${esc(T('The fund holds nothing yet: all cash.'))}</p>`);
+  const stat=(id, k, v, sub, c)=>`<section class="bd-t bd-stat" aria-labelledby="pf-${id}"><div class="bd-th"><h2 id="pf-${id}">${esc(T(k))}</h2></div><div class="bd-big mono ${c||''}">${v}</div>${sub ? `<p class="bd-sub mono">${esc(sub)}</p>` : ''}</section>`;
+  setHTML($('#pf-top'), stat('tv', 'Total value', money(E), CLUB.fund ? L2(`updated ${fundAgo()}`, `${fundAgo()} güncellendi`) : '') + stat('pl', 'Total profit/loss', money(pl), pct(E/A.start-1), cls(pl)) + stat('cash', 'Cash', money(A.cash)) + stat('inv', 'Invested', money(inv)));
+  const ps=Object.keys(A.pos).sort((a,b)=>{ const v=s=>{ const q=FQ[s], p=A.pos[s]; return Math.abs(p.q*(q ? q.last : p.avg)); }; return v(b)-v(a); });
+  txt('pf-hint', ps.length ? L2('Select a holding for its company, news, chart and our trades.','Şirketi, haberleri, grafiği ve işlemlerimiz için bir varlığa dokun.') : '');
+  setHTML($('#pf-pos'), ps.length ? `<table class="tbl pf-tbl"><thead><tr><th>${esc(L2('Asset','Varlık'))}</th><th class="r pf-q">${esc(T('Qty'))}</th><th class="r pf-px">${esc(T('Price'))}</th><th class="r">${esc(T('Value'))}</th><th class="r">${esc(T('Profit/loss'))}</th></tr></thead><tbody>${ps.map(s=>{ const p=A.pos[s], q=FQ[s], last=q ? q.last : p.avg, k=p.kind==='stock' ? 'stock' : 'crypto', d=IM[s], nm=d && d.name && d.name!==s ? d.name : s, r=(last/p.avg-1)*(p.q<0 ? -1 : 1);
+      return `<tr data-dw="${esc(s)}"${DW.sym===s && DW.open ? ' class="on"' : ''}><td><button type="button" class="pf-open" data-dw="${esc(s)}" aria-haspopup="dialog"><b>${esc(nm)}</b><span>${esc(s)}${p.q<0 ? ' · '+esc(L2('short','açık')) : ''}</span></button></td><td class="r mono pf-q">${esc(fq(p.q, k))}</td><td class="r mono pf-px">$${fpx(last)}</td><td class="r mono">${money(p.q*last)}</td><td class="r mono pl ${cls(r)}" title="${esc(money(p.q*(last-p.avg)))}">${pct(r)}</td></tr>`; }).join('')}</tbody></table>` : `<p class="empty" style="padding:0 26px">${esc(T('The fund holds nothing yet: all cash.'))}</p>`);
   setHTML($('#pf-ord'), clubOrdersTable(A.orders));
   setHTML($('#pf-fills'), clubTradesTable((A.fills||[]).slice(-200))); }
 function renderSettings(){ renderSettingsExtra(); setHTML($('#set-club'), clubSettingsHTML()); setHTML($('#set-mk'), `<span class="st-${stCls(mktStatus())}">${esc(T(mktStatus()))}</span> · ${esc(T('Source: TradingView screener'))}${MKT.list.length ? ' · '+esc(T(`${F0.format(MKT.list.length)} listings`)) : ''}`); setHTML($('#set-cx'), `<span class="st-${stCls(cxStatus())}">${esc(T(cxStatus()))}</span> · ${esc(T('Source: '+(LIVE.src==='coinbase'?'Coinbase':'Binance public market data')))}`);
@@ -222,27 +222,23 @@ function applyLang(){ document.documentElement.lang=ST.lang; const b=$('#lv-lang
 function applyTheme(){ document.documentElement.dataset.tdxTheme=ST.theme; const b=$('#lv-theme'); if (!b) return; const lt=ST.theme==='light';
   b.classList.add('th-sw'); b.setAttribute('aria-label', L2(lt ? 'Switch to the dark theme' : 'Switch to the light theme', lt ? 'Koyu temaya geç' : 'Açık temaya geç'));
   b.innerHTML=`<span class="th-i${lt ? '' : ' on'}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span class="th-i${lt ? ' on' : ''}" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2.5 12h2M19.5 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>`;
-  const m=document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', lt ? '#eef2f9' : '#070b16'); }
+  const m=document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', lt ? '#f5f5f7' : '#000000'); }
 function markI18n(){ // remember the English text of the static labels so they can switch language
   const sel='.lv-nav a span, .pn h2, .lv-h1, h1.sr, .seg button, #set-save, #set-del, .set .bd-sub, details summary, .fld > span:first-child, #foot, .pn h3, #al-go, .pn > p > a.bd-more, .bd-th > a.bd-more';
   for (const el of $$(sel)) if (!el.dataset.i18n && el.children.length===0) el.dataset.i18n=el.textContent.trim();
   for (const el of $$('[aria-label]')) if (el.closest('main, .lv-nav') && !el.dataset.i18nLabel && /^[A-Z]/.test(el.getAttribute('aria-label'))) el.dataset.i18nLabel=el.getAttribute('aria-label');
   for (const el of $$('.fld')){ const n=el.firstChild; if (n && n.nodeType===3 && n.textContent.trim()){ const s=document.createElement('span'); s.textContent=n.textContent.trim(); s.dataset.i18n=s.textContent; el.replaceChild(s, n); } } }
 /* ---- events ---- */
-function selectSym(sym){ if (!IM[sym]) return; ST.sel=sym; ST.qmsg=''; ST.tmsg=''; if (MKT.all[sym]) mktDetail(sym).catch(()=>{}); if (IM[sym].kind==='crypto'){ liveFocus(sym); cxDaily(sym); } else if (US.src) usIntra(sym).catch(()=>{}); save(); render(); }
+function selectSym(sym){ if (!IM[sym]) return; if (typeof cmClose==='function') cmClose(); ST.sel=sym; ST.tmsg=''; if (MKT.all[sym]) mktDetail(sym).catch(()=>{}); if (IM[sym].kind==='crypto'){ liveFocus(sym); cxDaily(sym); } else if (US.src) usIntra(sym).catch(()=>{}); save(); render(); }
 // the order on the ticket, as the club's job reads it (prices are never sent: the job fetches its own)
 function tkOrder(){ const d=IM[ST.sel], amt=+$('#tk-amt').value, o={ sym:ST.sel, kind:d.kind, side:ST.side, type:ST.type }; if (ST.unit==='usd') o.usd=amt; else o.q=amt; if (ST.type!=='mkt') o.px=+$('#tk-px').value;
   const n=($('#tk-note').value||'').replace(/\s+/g, ' ').trim().slice(0, 280); if (n) o.note=n; return o; }
-async function sendOrder(o, where, key){ const pre=o.cancel ? null : clubPrecheck(o); if (pre){ if (where==='q') ST.qmsg=pre; else ST.tmsg=pre; render(); return; }
-  const r=await clubSend(o, where, key); if (where==='q') ST.qmsg=r.msg; else ST.tmsg=r.msg; if (r.ok && where==='t' && !o.cancel) $('#tk-note').value=''; if (r.ok) toast(r.msg); render(); }
+async function sendOrder(o, where, key){ const pre=o.cancel ? null : clubPrecheck(o); if (pre){ ST.tmsg=pre; render(); return; }
+  const r=await clubSend(o, where, key); ST.tmsg=r.msg; if (r.ok && where==='t' && !o.cancel) $('#tk-note').value=''; if (r.ok) toast(r.msg); render(); }
 document.addEventListener('click', e=>{ const t=e.target;
-  const s=t.closest('[data-sym]'); if (s){ if (s.hasAttribute('data-clear')){ ST.find=''; const f=$('#tr-find'); if (f) f.value=''; } selectSym(s.dataset.sym); return; }
+  const s=t.closest('[data-sym]'); if (s){ if (s.hasAttribute('data-clear')){ ST.find=''; const f=$('#tr-find'); if (f) f.value=''; } selectSym(s.dataset.sym); if (s.closest('#b-map')) location.hash='#trade'; return; }
   const g=t.closest('[data-go]'); if (g){ selectSym(g.dataset.go); return; }
-  const qa=t.closest('[data-qa]'); if (qa){ ST.qa=+qa.dataset.qa; render(); return; }
-  const qb=t.closest('[data-q]'); if (qb){ const side=qb.dataset.q, d=IM[ST.sel], usd=ST.qa||1000, A=ST.A;
-    if (side==='s'){ const held=brkHeld(A, ST.sel)-brkReserved(A, ST.sel), q=quote(ST.sel); if (!(held>0)){ ST.qmsg=L2('The fund holds none to sell. To sell what it does not hold, use Short on the Trade screen.','Fonun satacak bir şeyi yok. Elde olmayanı satmak için İşlem ekranında Açığa sat’ı kullan.'); render(); return; }
-      const qty0=q ? Math.min(held, usd/brkPrice(q,'s')) : held, qty=q && (held-qty0)*brkPrice(q,'s')<Math.max(BRK.MIN_ORDER, usd*.01) ? held : qty0; sendOrder({ sym:ST.sel, kind:d.kind, side:'sell', type:'mkt', q:brkRound(qty, d.kind) }, 'q', 'q'); }
-    else sendOrder({ sym:ST.sel, kind:d.kind, side:'buy', type:'mkt', usd }, 'q', 'q'); return; }
+  const br=t.closest('[data-brange]'); if (br){ ST.brange=br.dataset.brange; save(); render(); return; }
   const sd=t.closest('[data-side]'); if (sd){ ST.side=sd.dataset.side; ST.tmsg=''; const held=brkHeld(ST.A, ST.sel);
     if (ST.side==='cover' && held<0){ ST.unit='qty'; $('#tk-amt').value=String(+(-held).toFixed(6)); } render(); return; }
   const ty=t.closest('[data-type]'); if (ty){ ST.type=ty.dataset.type; ST.tmsg=''; const q=quote(ST.sel), up=ST.side==='buy' || ST.side==='cover'; if (ST.type!=='mkt' && q){ const k=ST.type==='lmt' ? (up ? .99 : 1.01) : (up ? 1.05 : .95); $('#tk-px').value=String(+(q.last*k).toFixed(pxd(q.last))); } render(); return; }

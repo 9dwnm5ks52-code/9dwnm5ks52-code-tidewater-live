@@ -50,4 +50,4 @@ document.addEventListener('click', e=>{ const t=e.target; const li=t.closest('[d
   if (t.closest('[data-ui-dense]')){ ST.dense=!ST.dense; uiApply(); save(); render(); return; } if (t.closest('[data-ui-cb]')){ ST.cb=!ST.cb; uiApply(); save(); render(); return; } });
 
 // ---- after every render: the fund bar and the screen-specific extras
-function uiAfter(v, Q){ try{ document.documentElement.dataset.view=v; if (v==='board' && typeof renderHome==='function') renderHome(Q); renderAcctBar(); if (v==='trade'){ termAfter(Q); if (typeof fdRender==='function') fdRender(); } }catch(e){ console.error(e); } }
+function uiAfter(v, Q){ try{ document.documentElement.dataset.view=v; if (v==='board' && typeof renderHome==='function') renderHome(Q); renderAcctBar(); if (v==='trade'){ termAfter(Q); if (typeof fdRender==='function') fdRender(); } if (typeof DW!=='undefined' && DW.open) dwRender(Q); }catch(e){ console.error(e); } }

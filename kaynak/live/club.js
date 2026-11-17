@@ -65,10 +65,10 @@ async function clubPoll(){ if (CLUB.polling) return; CLUB.polling=true;
 function clubResolve(){ const A=ST.A, now=Date.now(); let ch=false;
   for (const p of ST.pend||[]){ if (p.done) continue; const r=A.done && A.done[p.cid];
     if (r && typeof r==='object'){ p.done=true; ch=true; const m={ en:String(r.msg||''), tr:String(r.tr||r.msg||'') }; ST.trMsg=ST.trMsg||{}; ST.trMsg[m.en]=m.tr;
-      if (p.where==='q') ST.qmsg=m; else ST.tmsg=m; note(m.en, r.ok ? (r.fid ? '🟢' : '🕒') : '⚠️'); toast(m.en);
+      ST.tmsg=m; note(m.en, r.ok ? (r.fid ? '🟢' : '🕒') : '⚠️'); toast(m.en);
       const f=r.fid!=null && (A.fills||[]).find(x=>x.id===r.fid); if (f) ST.oj={ sym:f.sym, f, k:Date.now(), m }; }
     else if (!p.late && now-p.t>CLUB.WAIT){ p.late=true; ch=true; const m={ en:'No answer after 5 minutes. GitHub may be busy; if the order reached it, it will still be executed. Check the trade history later.', tr:'5 dakikadır yanıt yok. GitHub yoğun olabilir; emir GitHub’a ulaştıysa yine de işlenir. İşlem geçmişine sonra bak.' };
-      if (p.where==='q') ST.qmsg=m; else ST.tmsg=m; } }
+      ST.tmsg=m; } }
   ST.pend=(ST.pend||[]).filter(p=>!p.done && now-p.t<30*60e3); if (ch) save(); }
 // the same checks as the server, on a copy of the fund and this page's prices, so an order that cannot work is not sent at all
 function clubPrecheck(o){ const q=quote(o.sym); if (!q) return null; const A=JSON.parse(JSON.stringify(ST.A));

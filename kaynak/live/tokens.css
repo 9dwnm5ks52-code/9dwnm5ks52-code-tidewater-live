@@ -1,31 +1,39 @@
+/* ---------- Phoenix Finance Club: design tokens ----------
+   Light is the default (a calm, Apple-like look: grey page, white cards, near-black ink, one blue accent); dark is
+   :root[data-tdx-theme="dark"]. Every colour on the site comes from here, so both themes and the colour-blind palette
+   (:root.cb) reach every screen. Text colours keep at least 4.5:1 on the surfaces they sit on. */
 :root{
-  color-scheme:dark;
-  --bg:#0b0d10; --surface-1:#14171c; --surface-2:#1a1e24; --surface-3:#22272f;
-  --glass:rgba(11,13,16,.82); --scrim:rgba(0,0,0,.66);
-  --line:#252a32; --line-strong:#3a414c; --control-border:#68727f;
-  --ink:#f5f7fa; --ink-2:#b4bbc7; --ink-3:#959dab;
-  --accent:#c6ff3d; --accent-hover:#d4ff6a; --accent-press:#b0ec22; --on-accent:#0b0d10; --accent-soft:#232d10;
-  --gain:#2fdd92; --gain-soft:#0f2a1e; --loss:#ff6b6b; --loss-soft:#351b1d; --on-trade:#0b0d10;
-  --warn:#ffb547; --warn-soft:#332611; --brass:#e9c46a; --brass-soft:#2f2713; --focus:#c6ff3d;
-  --chart-grid:#1b1f26; --chart-line:#eef1f5; --chart-area-gain:rgba(76,199,144,.14); --chart-area-loss:rgba(242,125,117,.14); --chart-volume:#2b313b; --chart-compare:#959dab;
-  --elev-raised:0 10px 30px rgba(0,0,0,.4); --elev-overlay:0 28px 70px rgba(0,0,0,.62);
-  --p-hp:#60a5fa; --p-wf:#f87171; --p-ga:#4ade80; --p-nr:#c4b5fd;
-  --c-ai:#e9eef5; --ai-atlas:#eaa84a; --ai-pulse:#a78bfa; --ai-sentinel:#22d3ee;
-  --c-mm:#6ea8fe; --c-value:#4cc790; --c-trend:#fb923c; --c-contrarian:#a78bfa; --c-pairs:#22d3ee; --c-news:#f472b6; --c-bear:#a8a29e; --c-index:#facc15; --c-whale:#93c5fd; --c-retail:#a3e635;
-}
-:root[data-tdx-theme="light"]{
   color-scheme:light;
-  --bg:#f3f4f6; --surface-1:#ffffff; --surface-2:#ffffff; --surface-3:#eef0f3;
-  --glass:rgba(255,255,255,.86); --scrim:rgba(11,13,16,.42);
-  --line:#e3e6eb; --line-strong:#c5cbd4; --control-border:#7a8394;
-  --ink:#0b0d10; --ink-2:#3f4753; --ink-3:#56606d;
-  --accent:#3d6b00; --accent-hover:#335a00; --accent-press:#2a4a00; --on-accent:#ffffff; --accent-soft:#e9f5d3;
-  --gain:#0a7c4d; --gain-soft:#e0f3e9; --loss:#c2302c; --loss-soft:#fbe5e4; --on-trade:#ffffff;
-  --warn:#8f5400; --warn-soft:#fbefdc; --brass:#7f6110; --brass-soft:#f6efd9; --focus:#3d6b00;
-  --chart-grid:#e9ecf0; --chart-line:#0b0d10; --chart-area-gain:rgba(13,122,78,.10); --chart-area-loss:rgba(192,55,47,.10); --chart-volume:#d5dae2; --chart-compare:#556275;
-  --elev-raised:0 1px 2px rgba(16,24,40,.05),0 10px 28px rgba(16,24,40,.08); --elev-overlay:0 24px 64px rgba(16,24,40,.18);
+  --bg:#f5f5f7; --surface-1:#ffffff; --surface-2:#f5f5f7; --surface-3:#e8e8ed;
+  --glass:rgba(251,251,253,.8); --scrim:rgba(0,0,0,.24);
+  --line:#ececf0; --line-strong:#d2d2d7; --control-border:#86868b;
+  --ink:#1d1d1f; --ink-2:#424245; --ink-3:#6e6e73;
+  --accent:#0066cc; --accent-hover:#0058b0; --accent-press:#004c99; --accent-btn:#0066cc; --on-accent:#ffffff; --accent-soft:#e8f1fb; --accent-row:#eef4fd;
+  --gain:#067d3a; --gain-soft:#e3f4e9; --loss:#c4291c; --loss-soft:#fbe7e5; --on-trade:#ffffff;
+  --warn:#b25000; --warn-soft:#fdf0e4; --brass:#8a6100; --focus:#0066cc;
+  --dark-card:#1d1d1f; --on-dark:#f5f5f7; --on-dark-2:#a1a1a6;
+  --chart-grid:#f0f0f3; --chart-line:#1d1d1f; --chart-area-gain:rgba(6,125,58,.10); --chart-area-loss:rgba(196,41,28,.10); --chart-volume:#dcdce1; --chart-compare:#86868b;
+  --elev-card:0 1px 2px rgba(0,0,0,.04); --elev-raised:0 4px 16px rgba(0,0,0,.08); --elev-overlay:0 30px 80px rgba(0,0,0,.22);
+  --seg-shadow:0 1px 3px rgba(0,0,0,.12);
+  --r-card:28px; --r-tile:16px; --r-ctl:12px;
   --p-hp:#1d4ed8; --p-wf:#dc2626; --p-ga:#15803d; --p-nr:#7c3aed;
-  --c-ai:#0d1522; --ai-atlas:#b45309; --ai-pulse:#7c3aed; --ai-sentinel:#0e7490;
-  --c-mm:#1f5fd1; --c-value:#0d7a4e; --c-trend:#c2410c; --c-contrarian:#7c3aed; --c-pairs:#0e7490; --c-news:#be185d; --c-bear:#57534e; --c-index:#a16207; --c-whale:#1e3a8a; --c-retail:#65a30d;
 }
-:root{--f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;--f-display:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+:root[data-tdx-theme="dark"]{
+  color-scheme:dark;
+  --bg:#000000; --surface-1:#1c1c1e; --surface-2:#2c2c2e; --surface-3:#3a3a3c;
+  --glass:rgba(22,22,23,.78); --scrim:rgba(0,0,0,.55);
+  --line:#2c2c2e; --line-strong:#48484a; --control-border:#8e8e93;
+  --ink:#f5f5f7; --ink-2:#c7c7cc; --ink-3:#a1a1a6;
+  --accent:#0a84ff; --accent-hover:#409cff; --accent-press:#0071e3; --accent-btn:#0071e3; --on-accent:#ffffff; --accent-soft:#0a1d33; --accent-row:#132338;
+  --gain:#30d158; --gain-soft:#0f2e19; --loss:#ff453a; --loss-soft:#3a1715; --on-trade:#000000;
+  --warn:#ff9f0a; --warn-soft:#33240c; --brass:#e9c46a; --focus:#409cff;
+  --dark-card:#2c2c2e; --on-dark:#f5f5f7; --on-dark-2:#c7c7cc;
+  --chart-grid:#242426; --chart-line:#f5f5f7; --chart-area-gain:rgba(48,209,88,.12); --chart-area-loss:rgba(255,69,58,.12); --chart-volume:#3a3a3c; --chart-compare:#98989d;
+  --elev-card:none; --elev-raised:0 8px 24px rgba(0,0,0,.5); --elev-overlay:0 30px 80px rgba(0,0,0,.7);
+  --seg-shadow:0 1px 3px rgba(0,0,0,.5);
+  --p-hp:#60a5fa; --p-wf:#f87171; --p-ga:#4ade80; --p-nr:#c4b5fd;
+}
+:root{--f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--f-display:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+/* colour-blind safe: blue for up, orange for down (white text on them keeps 4.5:1 in light) */
+:root.cb{--gain:#1d4ed8;--gain-soft:#dbeafe;--loss:#b45309;--loss-soft:#fdecd3}
+:root.cb[data-tdx-theme="dark"]{--gain:#64a8ff;--gain-soft:rgba(100,168,255,.16);--loss:#ffa94d;--loss-soft:rgba(255,169,77,.16)}

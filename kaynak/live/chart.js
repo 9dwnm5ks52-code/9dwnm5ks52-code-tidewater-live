@@ -419,7 +419,7 @@ function chMount(host){
   s.addEventListener('pointerdown', chDown); s.addEventListener('pointermove', chMove); s.addEventListener('pointerup', chUp); s.addEventListener('pointercancel', chUp);
   s.addEventListener('pointerleave', e=>{ if (e.pointerType==='mouse' && !CH.drag){ CH.hov=null; chCrossLater(); } });
   s.addEventListener('wheel', chWheel, { passive:false });
-  s.addEventListener('dblclick', e=>{ const L=CH.L, p=chPt(e); if (L && p.x>=L.plotW && p.y<L.mainH){ CH.yz=1; CH.yo=0; chNow(); chQueue(); } else chReset(); });
+  s.addEventListener('dblclick', e=>{ if (typeof cmClose==='function') cmClose(); const L=CH.L, p=chPt(e); if (L && p.x>=L.plotW && p.y<L.mainH){ CH.yz=1; CH.yo=0; chNow(); chQueue(); } else chReset(); });
   s.addEventListener('contextmenu', e=>{ if (CH.drag && CH.drag.touch) e.preventDefault(); });
   s.addEventListener('touchmove', e=>{ if ((CH.pinch || (CH.drag && (CH.drag.zone==='hold' || CH.drag.moved))) && e.cancelable) e.preventDefault(); }, { passive:false });
   w.addEventListener('keydown', chKey); w.addEventListener('click', chClick);
@@ -463,9 +463,11 @@ function chUp(e){ const D=CH.drag;
   try{ CH.svg.releasePointerCapture(e.pointerId); }catch(z){}
   if (e.type==='pointercancel') return;
   if (D.zone==='plot' && D.moved){ const h=D.hist, t=performance.now(), k=h.findIndex(q=>t-q.t<=100); if (k>=0 && k<h.length-1){ const q0=h[k], q1=h[h.length-1], v=(q1.x-q0.x)/Math.max(1, q1.t-q0.t); if (Math.abs(v)>0.3 && t-q1.t<60) chKinStart(v); } return; }
+  // a click (not a drag) on the price pane opens the chart menu (drawer.js): limit / stop here, price alert
+  if (D.zone==='plot' && !D.moved && !D.touch && typeof cmClick==='function') cmClick(e, chPt(e));
   if (D.zone==='plot' && !D.moved && D.touch){ const now=Date.now(), p=chPt(e);
     if (D.hadHov){ CH.hov=null; chCross(); }
-    if (now-CH.tapT<320 && Math.abs(p.x-CH.tapX)<30){ CH.tapT=0; chReset(); } else { CH.tapT=now; CH.tapX=p.x; } }
+    if (now-CH.tapT<320 && Math.abs(p.x-CH.tapX)<30){ CH.tapT=0; if (typeof cmClose==='function') cmClose(); chReset(); } else { CH.tapT=now; CH.tapX=p.x; if (!D.hadHov && typeof cmClick==='function') cmClick(e, p); } }
 }
 function chWheel(e){ const L=CH.L; if (!L) return; e.preventDefault(); chKinStop(); const p=chPt(e), k=e.deltaMode===1 ? 16 : e.deltaMode===2 ? 400 : 1, dx=e.deltaX*k, dy=e.deltaY*k;
   if (p.x>=L.plotW && p.y<L.mainH){ CH.yz=Math.max(0.05, Math.min(20, CH.yz*Math.exp(dy*0.002))); chNow(); chQueue(); return; }

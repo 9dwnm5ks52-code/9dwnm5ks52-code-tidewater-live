@@ -1,31 +1,22 @@
 /* ---------- Phoenix Finance Club: the Board as a bento (glass skin) ----------
    Extra tiles: "Today in one look" (the fund in plain sentences, built from rules, no AI), this week's economic calendar,
-   and a semicircle gauge for the market mood. Everything comes from data the site already has. */
+   Everything comes from data the site already has. */
 const HM = { sig:'' };
 function hmTile(id, cls, title, inner){ return `<section class="bd-t ${cls}" id="t-${id}" aria-labelledby="t-${id}-h"><div class="bd-th"><h2 id="t-${id}-h">${esc(L2(...title))}</h2></div>${inner}</section>`; }
 function hmTiles(){ return {
-  today:hmTile('today', 'w2 hero hm-today', ['Today in one look','Bugün tek bakışta'], `<p class="hm-say" id="hm-say"></p><div class="hm-pills" id="hm-pills"></div>`),
+  today:hmTile('today', 'w2 hm-today', ['Today in one look','Bugün tek bakışta'], `<p class="hm-say" id="hm-say"></p><div class="hm-pills" id="hm-pills"></div>`),
   week:hmTile('week', 'w2 hm-week', ['This week','Bu hafta'], `<div class="hm-wk" id="hm-wk"></div>`) }; }
 const hmUSD = () => { const C=typeof SRV!=='undefined' && SRV.cal; return C && Array.isArray(C.events) ? C.events.filter(e=>e.country==='USD' && (e.impact==='High' || e.impact==='Medium')) : []; };
 const hmLoc = () => ST.lang==='tr' ? 'tr-TR' : 'en-US';
 const hmTime = t => new Date(t).toLocaleTimeString(hmLoc(), { hour:'2-digit', minute:'2-digit', hour12:false });
 const hmDay = t => new Date(t).toLocaleDateString(hmLoc(), { weekday:'short' });
 
-function hmGauge(v){ // a semicircle from 0 (extreme fear) to 100 (extreme greed)
-  const r=70, cx=90, cy=86, a=Math.PI*(1-Math.max(0, Math.min(100, v))/100), x=cx+r*Math.cos(a), y=cy-r*Math.sin(a);
-  return `<svg class="hm-g" viewBox="0 0 180 100" aria-hidden="true"><defs><linearGradient id="hm-gr" x1="0" x2="1"><stop offset="0" stop-color="var(--loss)"/><stop offset=".5" stop-color="var(--warn)"/><stop offset="1" stop-color="var(--gain)"/></linearGradient></defs>`+
-    `<path d="M20 86 A70 70 0 0 1 160 86" fill="none" stroke="var(--surface-3)" stroke-width="12" stroke-linecap="round"/>`+
-    `<path d="M20 86 A70 70 0 0 1 160 86" fill="none" stroke="url(#hm-gr)" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="${Math.max(.5, v)} 100"/>`+
-    `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8" fill="var(--surface-1)" stroke="var(--ink)" stroke-width="3"/></svg>`; }
-
 function renderHome(Q){ try{
-  const now=Date.now(), mood=+(($('#m-v')||{}).textContent||NaN), A=ST.A, FQ=fundQuotes(Q), E=fundEq(Q), d0=fundDayStart(), day=E-d0;
-  // the mood gauge sits on top of the number
-  const mg=$('#hm-gauge'); if (mg && isFinite(mood) && mg.__v!==mood){ mg.__v=mood; setHTML(mg, hmGauge(mood)); }
+  const now=Date.now(), A=ST.A, FQ=fundQuotes(Q), E=fundEq(Q), d0=fundDayStart(), day=E-d0;
   // the fund's holdings, ranked by how they did today (a short gains when its price falls)
   const hs=Object.keys(A.pos).map(s=>{ const q=FQ[s], p=A.pos[s]; return q && q.chg!=null && !q.stale ? { s, r:q.chg*(p.q<0 ? -1 : 1), short:p.q<0 } : null; }).filter(Boolean).sort((a,b)=>b.r-a.r);
   const ev=hmUSD().filter(e=>e.t>now).sort((a,b)=>a.t-b.t), next=ev.find(e=>e.impact==='High') || ev[0];
-  const sig=[ST.lang, ST.theme, ST.priv, mood, Math.round(E), Math.round(day), hs.map(h=>h.s+h.r.toFixed(4)).join(), next && next.t, ev.length, CLUB.t, Math.floor(now/6e4)].join('|');
+  const sig=[ST.lang, ST.theme, ST.priv, Math.round(E), Math.round(day), hs.map(h=>h.s+h.r.toFixed(4)).join(), next && next.t, ev.length, CLUB.t, Math.floor(now/6e4)].join('|');
   if (sig===HM.sig) return; HM.sig=sig;
   // today in one look: plain sentences built from rules
   const bits=[], nm=h=>esc(h.s)+(h.short ? ' ('+esc(L2('short','açık'))+')' : '');
