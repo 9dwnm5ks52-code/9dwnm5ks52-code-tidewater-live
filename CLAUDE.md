@@ -30,9 +30,14 @@ Play money only; not advice.
   `club.js`, `calendar.js`, `club_run.sh` and `server/lib/` copies of `sim_live.js`, `sim_live_us.js`, `live_broker.js`).
 - `kaynak/` = the full source. **Edit there**, never the root files directly.
   - `live/*.js|css|html` site UI: app.js core (Board, Trade ticket, Portfolio), club.js (fund loading, member access,
-    dispatch and polling, trade history), srv.js (data branch URL, calendar), home.js (Board bento), perf.js / report.js
-    (performance vs SPY and BTC), term.js (terminal mode), chart.js / chdata.js / ind.js / chui.js / draw.js (pro chart),
-    fund.js (company fundamentals `#tr-fund`), markets.js, crypto.js, news.js, watch.js, ui.js, extras.js, skin.css (navy glass)
+    dispatch and polling, trade history), srv.js (data branch URL, calendar), home.js ("Today in one look", this week),
+    perf.js (performance vs SPY and BTC, the Board's range chart `boardChart`) / report.js, term.js (terminal mode and the
+    fund's open orders as pill-labelled lines on the chart), chart.js / chdata.js / ind.js / chui.js / draw.js (pro chart),
+    fund.js (company fundamentals `#tr-fund`), drawer.js (Portfolio's company drawer dialog and the Trade chart's click
+    menu), markets.js, crypto.js, news.js, watch.js, ui.js, extras.js
+  - Look: Apple-like. tokens.css holds every colour (light by default on `:root`, dark on `[data-tdx-theme="dark"]`,
+    colour-blind `.cb`); app.css the layout and components (top bar, iOS tab bar on phones, cards, pills, segmented
+    controls); pro.css terminal / report / palette; chart.css / chui.css the pro chart. Keep text at 4.5:1 in both themes.
   - `live_broker.js` paper broker (shared by the browser and the server); `sim_live*.js`, `sim_news.js` data layer
   - `server/` Actions scripts; `hosting_src/` kit extras (club.yml, README, manifest, sw.js)
   - `ds/` tests; `ds/srvdata/` fixtures (fund.json, calendar.json) copied to `dist/srvdata` by build_live.py

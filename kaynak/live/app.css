@@ -234,7 +234,7 @@ details>summary{cursor:pointer}
 .pf-pn .bd-th{margin-bottom:4px}
 .pf-hint{font-size:13px}
 .pf-top{margin-bottom:16px}
-.pf-top .bd-t{padding:22px 24px}
+.pf-top .bd-t{padding:22px 24px;justify-content:flex-start}
 .pf-hold{padding:20px 0 8px}
 .pf-hold>.bd-th{padding:0 26px}
 .pf-tbl th,.pf-tbl td{padding:14px 12px;font-size:16px}
@@ -303,7 +303,7 @@ html.dw-lock{overflow:hidden}
 /* ---- Markets, Crypto, News */
 .mk-ctl{display:grid;gap:10px;margin:0 0 16px}.mk-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 #mk-sec{width:auto;max-width:100%;min-height:40px;font-size:14px}
-.mk-ctl .seg{flex-wrap:wrap;max-width:100%}
+.mk-ctl .seg{flex-wrap:wrap;max-width:100%;justify-self:start}
 #mk-idx{margin-top:4px;grid-template-columns:repeat(5,minmax(0,1fr))}
 .mk-i{display:grid;gap:4px;color:var(--ink)}a.mk-i:hover{color:var(--ink);transform:translateY(-1px)}
 .mk-tbl td,.mk-tbl th{white-space:nowrap}.mk-nm{max-width:280px;overflow:hidden;text-overflow:ellipsis}.mk-tk{font-weight:700;color:var(--ink)}

@@ -1,15 +1,27 @@
 {
   "name": "Phoenix Finance Club",
   "short_name": "Phoenix FC",
-  "description": "Paper trading with real prices: crypto live, the whole US stock market, 13 self-trading bots and the news.",
+  "description": "A high-school club’s shared paper-trading fund: $100,000 of play money, real prices, every trade public.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b0d10",
-  "theme_color": "#0b0d10",
+  "background_color": "#f5f5f7",
+  "theme_color": "#f5f5f7",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
   ]
 }

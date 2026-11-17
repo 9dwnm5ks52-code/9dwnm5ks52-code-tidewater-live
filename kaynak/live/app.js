@@ -258,7 +258,7 @@ document.addEventListener('click', e=>{ const t=e.target;
 document.addEventListener('change', e=>{ if (e.target.id==='tr-sym') selectSym(e.target.value); if (e.target.id==='mk-sec'){ MKV.sec=e.target.value; MKV.n=50; render(); } });
 document.addEventListener('input', e=>{ const id=e.target.id; if (id==='tk-amt' || id==='tk-px'){ ST.tmsg=''; render(); } else if (id==='tr-find'){ ST.find=e.target.value; render(); } else if (id==='mk-q'){ MKV.q=e.target.value; MKV.n=50; render(); } });
 document.addEventListener('keydown', e=>{ if (e.target.id!=='tr-find') return; if (e.key==='Enter'){ const h=mktFind(e.target.value, 1)[0]; if (h){ e.preventDefault(); ST.find=''; e.target.value=''; selectSym(h.sym); } } else if (e.key==='Escape'){ ST.find=''; e.target.value=''; render(); } });
-addEventListener('hashchange', render); addEventListener('resize', render);
+addEventListener('hashchange', ()=>{ try{ scrollTo(0, 0); }catch(e){} render(); }); addEventListener('resize', render);
 /* ---- start ---- */
 function start(){ load(); privApply(); uiApply(); termApply(); wlInit(); markI18n(); applyTheme(); applyLang(); { const k=usKeys(); $('#set-ap-id').value=k.apId; }
   liveOn(()=>onQuote()); usOn(()=>onQuote()); mktOn(()=>onQuote());
